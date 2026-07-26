@@ -2,8 +2,8 @@ class_name MapGenerator
 extends RefCounted
 
 ## Pure, deterministic dungeon layout via door-matching organic growth. Given a
-## set of [RoomTemplate]s and an integer seed it returns an ordered list of
-## [Placement]s and touches no scene nodes, which keeps it fully unit-testable.
+## set of RoomTemplates and an integer seed it returns an ordered list of
+## Placements and touches no scene nodes, which keeps it fully unit-testable.
 ##
 ## Algorithm:
 ##   1. Place a `start`-tagged room at the origin; push its doors to a frontier.
@@ -12,7 +12,7 @@ extends RefCounted
 ##      room. On success, add the new room's remaining doors to the frontier.
 ##   3. Stop when the frontier empties or `target_rooms` is reached.
 
-var target_rooms: int = 8
+var target_rooms: int = 16
 
 var _rng := RandomNumberGenerator.new()
 
@@ -22,6 +22,10 @@ var _rng := RandomNumberGenerator.new()
 static func aligned_origin(host_origin: Vector2i, host_door: RoomDoor, new_door: RoomDoor) -> Vector2i:
 	return host_origin + host_door.cell + Door.direction_vector(host_door.direction) - new_door.cell
 
+## Build a dungeon layout from `templates` using `p_seed`. Returns the placed rooms
+## in the order they were added (the start room is always first), or an empty array
+## if no templates are given. Deterministic: the same templates and seed always
+## produce the same layout.
 func generate(templates: Array[RoomTemplate], p_seed: int) -> Array[Placement]:
 	_rng.seed = p_seed
 	var placements: Array[Placement] = []
@@ -34,7 +38,7 @@ func generate(templates: Array[RoomTemplate], p_seed: int) -> Array[Placement]:
 	# Rooms eligible to grow the dungeon: everything except unique start rooms.
 	var growth := _growth_templates(templates)
 
-	# Frontier of open doors, each stored as [placement_index, door_index].
+	# Frontier of open doors, each stored as placement_index, door_index.
 	var frontier: Array = []
 	_push_doors(frontier, 0, start)
 
@@ -102,7 +106,8 @@ func _push_doors(frontier: Array, placement_index: int, template: RoomTemplate) 
 	for i in template.doors.size():
 		frontier.append([placement_index, i])
 
-## Weighted random ordering (sampling without replacement) of the templates.
+## Return the templates in a weighted-random order: higher-weight rooms tend to come
+## first, and each template appears exactly once.
 func _weighted_order(templates: Array[RoomTemplate]) -> Array[RoomTemplate]:
 	var pool := templates.duplicate()
 	var result: Array[RoomTemplate] = []

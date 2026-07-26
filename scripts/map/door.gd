@@ -4,11 +4,11 @@ extends Marker2D
 
 ## An attachment point on a Room. The map generator matches an open door on one
 ## room against a compatible door on another to connect them (it only ever reads
-## the lightweight [RoomDoor] mirror, never the node).
+## the lightweight RoomDoor mirror, never the node).
 ##
-## A door also carries a set of semantic [b]states[/b] (extensible, queried with
-## [method has_state]) — [code]open[/code], [code]sealed[/code], [code]boss[/code],
-## [code]locked[/code], … A [DoorStateLibrary] resolves the highest-priority state
+## A door also carries a set of semantic states (extensible, queried with
+## the method `has_state`) — open, sealed, boss, locked, etc… 
+## A DoorStateLibrary resolves the highest-priority state
 ## into the door's appearance and whether it blocks. The door owns that
 ## presentation as its own children, so it can be flipped at runtime.
 
@@ -26,16 +26,15 @@ const VISUAL_NAME := "_DoorVisual"
 
 ## Width of the opening in tiles (an authored count, not a Marker2D property). Two
 ## doors only connect when widths match. For width > 1 the marker is the opening's
-## [b]min-corner[/b] — the left cell on a horizontal (N/S) wall, the top cell on a
+## min-corner — the left cell on a horizontal (N/S) wall, the top cell on a
 ## vertical (E/W) wall — and the opening spreads toward +x / +y from there. Anchoring
-## both mates the same way is what lets facing doors line up (see [method opening_cells]).
+## both mates the same way is what lets facing doors line up (see method opening_cells).
 @export var width: int = 1:
 	set(value):
 		width = maxi(value, 1)
 		queue_redraw()
 
-## Semantic state tags (order-independent set). e.g. [code][&"open"][/code],
-## [code][&"sealed"][/code], [code][&"boss", &"locked"][/code].
+## Semantic state tags (order-independent set).
 @export var states: Array[StringName] = []:
 	set(value):
 		states = value
@@ -117,7 +116,7 @@ func _refresh_presentation() -> void:
 		return
 	match style.presentation:
 		DoorStateStyle.Presentation.OPEN:
-			pass  # Connected doorway: trust the author's tiles, override nothing.
+			pass  # Connected doorway's trust tile's default state (i.e. create rooms with all their doors open)
 		DoorStateStyle.Presentation.WALL_TILE:
 			_seal(style)
 		DoorStateStyle.Presentation.ENTITY:
@@ -126,7 +125,7 @@ func _refresh_presentation() -> void:
 			_build_visual(style)
 
 ## Remove any presentation nodes a previous state left behind. Tiles are left alone
-## here — only sealing overrides them (see [method _seal]).
+## here — only sealing overrides them (see _seal).
 func _clear_owned_nodes() -> void:
 	for child_name in [BARRIER_NAME, VISUAL_NAME]:
 		var n := get_node_or_null(NodePath(child_name))
@@ -174,9 +173,10 @@ func _copy_cell(layer: TileMapLayer, target: Vector2i, sources: Array) -> bool:
 	return false
 
 ## The cell(s) an opening of `w` tiles covers, anchored at `base` and spread along a
-## [b]canonical[/b] axis — +x on a horizontal (N/S) wall, +y on a vertical (E/W)
-## wall — independent of which way the door faces. Two doors that face each other
-## therefore cover the same columns/rows once aligned, instead of spreading apart.
+## fixed axis — +x on a horizontal (N/S) wall, +y on a vertical (E/W) wall —
+## regardless of which way the door faces. Because both mates use the same axis, two
+## doors that face each other cover the same columns/rows once aligned, instead of
+## spreading apart.
 static func opening_cells(base: Vector2i, dir: Direction, w: int) -> Array[Vector2i]:
 	var v := direction_vector(dir)
 	var perp := Vector2i(1, 0) if v.x == 0 else Vector2i(0, 1)

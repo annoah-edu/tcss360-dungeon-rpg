@@ -2,7 +2,7 @@ class_name Room
 extends Node2D
 
 ## A self-contained, reusable dungeon room. It is a passive template: it never
-## decides where it goes. The map assembler positions it, then calls [method setup]
+## decides where it goes. The map assembler positions it, then calls method setup
 ## with the generator's connection result so the room can seal its unused doorways
 ## and register its spawn points.
 ##

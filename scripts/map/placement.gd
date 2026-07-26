@@ -3,8 +3,8 @@ extends RefCounted
 
 ## One room the generator has committed to the layout: which template, where its
 ## origin sits in world tile coordinates, and which of its doors ended up
-## connected (indices line up with [member RoomTemplate.doors] and, once
-## instantiated, with [method Room.get_doors]).
+## connected (indices line up with member RoomTemplate.doors and, once
+## instantiated, with method Room.get_doors).
 
 var template: RoomTemplate
 var origin: Vector2i

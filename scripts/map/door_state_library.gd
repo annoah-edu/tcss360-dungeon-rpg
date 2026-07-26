@@ -1,9 +1,9 @@
 class_name DoorStateLibrary
 extends Resource
 
-## Data-driven registry mapping a state key (StringName) to a [DoorStateStyle].
+## Data-driven registry mapping a state key (StringName) to a DoorStateStyle.
 ## Extensible by data alone — add a `boss` / `secret` / `locked_gold` entry and no
-## code changes. A [Door] resolves its presentation by taking the highest-priority
+## code changes. A Door resolves its presentation by taking the highest-priority
 ## style among the states it currently holds.
 
 @export var styles: Dictionary = {}

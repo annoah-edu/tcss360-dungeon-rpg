@@ -13,7 +13,9 @@ enum Presentation { OPEN, WALL_TILE, ENTITY }
 @export var presentation: Presentation = Presentation.ENTITY
 ## Highest priority among a door's active states wins.
 @export var priority: int = 0
-## Whether this state blocks movement (informational for tiles, drives the ENTITY barrier).
+## Whether this state blocks movement. For WALL_TILE the tile's own collision does the
+## blocking, so this flag is only informational; for ENTITY it decides whether a
+## collision barrier is built.
 @export var blocks: bool = true
 
 @export_group("WALL_TILE")
