@@ -3,7 +3,7 @@ extends RefCounted
 
 ## The pure-data description of a room the generator reasons about: its footprint
 ## and doors in tile space, plus catalog metadata. Extracted once from a room
-## scene (see [method Room.to_template]) or built by hand in tests.
+## scene (see method Room.to_template()) or built by hand in tests.
 
 var id: StringName
 var scene: PackedScene

@@ -1,11 +1,11 @@
 class_name MapAssembler
 extends Node2D
 
-## Turns the generator's abstract [Placement] list into real room instances in the
+## Turns the generator's abstract Placement list into real room instances in the
 ## scene tree: instantiates each room, positions it, tells it to finalize
 ## (seal unused doors + register spawns), then drops the player at the start room.
 
-## Directory scanned for room scenes. Every [Room] scene here with `in_catalog`
+## Directory scanned for room scenes. Every Room scene here with `in_catalog`
 ## set is eligible for generation; its tags/weight/doors are read straight off the
 ## scene, so there is no separate catalog resource to keep in sync.
 @export_dir var catalog_dir: String = "res://scenes/rooms"

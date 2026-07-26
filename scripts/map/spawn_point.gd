@@ -4,7 +4,7 @@ extends Marker2D
 
 ## A declarative marker inside a Room saying "something of this category may spawn
 ## here". It holds no spawning logic itself — rooms register their spawn points
-## with the [SpawnDirector] autoload, and future systems (enemies, loot, NPCs)
+## with the SpawnDirector autoload, and future systems (enemies, loot, NPCs)
 ## query the director by category and instantiate the real content.
 
 enum Category { PLAYER_START, ENEMY, NPC, LOOT, TREASURE, BOSS, PROP }

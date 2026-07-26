@@ -1,7 +1,7 @@
 class_name RoomDoor
 extends RefCounted
 
-## Pure-data mirror of a [Door] node: no SceneTree dependency, so the generator
+## Pure-data mirror of a Door node: no SceneTree dependency, so the generator
 ## and unit tests can work with it directly. Coordinates are room-local tiles.
 
 var cell: Vector2i

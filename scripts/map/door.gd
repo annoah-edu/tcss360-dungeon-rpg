@@ -134,43 +134,49 @@ func _clear_owned_nodes() -> void:
 			n.free()
 
 ## Seal an unconnected doorway by overriding whatever the author drew for an opening:
-## stamp wall across the gap and floor beneath it, both sampled from the room's own
-## tiles so the patch blends in.
+## fix up the floor under the gap (see method _seal_floor()) and stamp a wall across it
+## (chosen from the door's orientation — see method _stamp_wall()).
 func _seal(style: DoorStateStyle) -> void:
-	_carve_floor()
+	_seal_floor(style)
 	_stamp_wall(style)
 
+## Stamp a wall tile across the doorway. Which tile to use is decided by the door's
+## orientation — a NORTH/SOUTH door sits on a horizontal wall, an EAST/WEST door on a
+## vertical one — rather than by sampling a neighbouring cell. That keeps sealing
+## correct in tight rooms and beside corners, where a neighbour is often a corner or
+## another door's gap and would supply the wrong tile.
 func _stamp_wall(style: DoorStateStyle) -> void:
 	var walls := _find_walls_layer()
 	if walls == null:
 		return
-	var v := direction_vector(direction)
-	var perp := Vector2i(v.y, -v.x)
+	var horizontal := direction == Direction.NORTH or direction == Direction.SOUTH
+	var source_id := style.wall_h_source_id if horizontal else style.wall_v_source_id
+	var atlas := style.wall_h_atlas_coords if horizontal else style.wall_v_atlas_coords
 	for cell in _door_cells():
-		# Match the room's own wall art by sampling a neighbour along the wall line;
-		# fall back to the style's configured tile if there is nothing to sample.
-		if not _copy_cell(walls, cell, [cell + perp, cell - perp]):
-			walls.set_cell(cell, style.tile_source_id, style.tile_atlas_coords, 0)
+		walls.set_cell(cell, source_id, atlas, 0)
 
-## Lay floor across the doorway, sampling the tile from the cell just inside the
-## threshold so it matches this room's floor whatever tileset the room uses.
-func _carve_floor() -> void:
+## Fix up the floor under a sealed doorway, by direction:
+##   NORTH – the tall wall hides the floor, so wipe the door cells.
+##   SOUTH – leave the authored door-cell floor as-is, but clear the row one tile
+##           further south so no floor pokes out past the sealed wall.
+##   EAST/WEST – the floor beside the wall stays visible, so lay the style's floor tile
+##           (flipped horizontally for a west wall, which mirrors an east one).
+func _seal_floor(style: DoorStateStyle) -> void:
 	var floor_layer := _find_floor_layer()
 	if floor_layer == null:
 		return
-	var inward := -direction_vector(direction)
-	for cell in _door_cells():
-		_copy_cell(floor_layer, cell, [cell + inward])
-
-## Copy the first non-empty cell in `sources` into `target` on `layer` (source id,
-## atlas coords and alternative preserved). Returns true if anything was copied.
-func _copy_cell(layer: TileMapLayer, target: Vector2i, sources: Array) -> bool:
-	for src_cell in sources:
-		var sid := layer.get_cell_source_id(src_cell)
-		if sid != -1:
-			layer.set_cell(target, sid, layer.get_cell_atlas_coords(src_cell), layer.get_cell_alternative_tile(src_cell))
-			return true
-	return false
+	match direction:
+		Direction.NORTH:
+			for cell in _door_cells():
+				floor_layer.erase_cell(cell)
+		Direction.SOUTH:
+			var outward := direction_vector(Direction.SOUTH)
+			for cell in _door_cells():
+				floor_layer.erase_cell(cell + outward)
+		_:
+			var alt := TileSetAtlasSource.TRANSFORM_FLIP_H if direction == Direction.WEST else 0
+			for cell in _door_cells():
+				floor_layer.set_cell(cell, style.floor_source_id, style.floor_atlas_coords, alt)
 
 ## The cell(s) an opening of `w` tiles covers, anchored at `base` and spread along a
 ## fixed axis — +x on a horizontal (N/S) wall, +y on a vertical (E/W) wall —
