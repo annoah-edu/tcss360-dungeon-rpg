@@ -11,13 +11,21 @@ config_version=5
 [application]
 
 config/name="TCSS360 Dungeon RPG"
-run/main_scene="res://main.tscn"
+run/main_scene="res://scenes/map/map.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+SpawnDirector="*res://scripts/autoload/spawn_director.gd"
 
 [display]
 
 window/size/mode=2
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg")
 
 [input]
 

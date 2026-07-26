@@ -1,21 +1,14 @@
-[gd_scene format=4 uid="uid://bo44g3ld7ihuh"]
+[gd_scene format=4 uid="uid://n7mw3xeprnex"]
 
-[ext_resource type="Script" uid="uid://c7it0p8osomta" path="res://player.gd" id="1_5vw27"]
-[ext_resource type="Texture2D" uid="uid://55tunkxu2fed" path="res://Dungeon Tileset v1.7/frames/knight_f_idle_anim_f0.png" id="2_kek77"]
-[ext_resource type="Texture2D" uid="uid://dxl7wjw8uyy0c" path="res://Dungeon Tileset v1.7/frames/knight_f_idle_anim_f1.png" id="3_4c57u"]
-[ext_resource type="Texture2D" uid="uid://bskg7q8fnkca5" path="res://Dungeon Tileset v1.7/frames/knight_f_idle_anim_f2.png" id="4_efxa6"]
-[ext_resource type="Texture2D" uid="uid://bbgfof4124hqd" path="res://Dungeon Tileset v1.7/frames/knight_f_idle_anim_f3.png" id="5_dg77c"]
-[ext_resource type="Texture2D" uid="uid://mh8lfk1vicuw" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f0.png" id="6_dg77c"]
-[ext_resource type="Texture2D" uid="uid://d72oow2jdykk" path="res://Dungeon Tileset v1.7/atlas_floor-16x16.png" id="6_ycdy4"]
-[ext_resource type="Texture2D" uid="uid://mma23duw2sk4" path="res://Dungeon Tileset v1.7/atlas_walls_high-16x32.png" id="7_w48qg"]
-[ext_resource type="Texture2D" uid="uid://bc4f1mypj8rov" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f1.png" id="7_ycdy4"]
-[ext_resource type="Texture2D" uid="uid://duenvgal3n30a" path="res://Dungeon Tileset v1.7/atlas_walls_low-16x16.png" id="8_vivmo"]
-[ext_resource type="Texture2D" uid="uid://u7p7jrgnqs7t" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f2.png" id="8_w48qg"]
-[ext_resource type="Texture2D" uid="uid://t2fdmmplrwdi" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f3.png" id="9_vivmo"]
-[ext_resource type="Texture2D" uid="uid://b4t3pcglj8h4a" path="res://Dungeon Tileset v1.7/frames/weapon_rusty_sword.png" id="10_ycdy4"]
+[ext_resource type="Texture2D" uid="uid://d72oow2jdykk" path="res://Dungeon Tileset v1.7/atlas_floor-16x16.png" id="1_v60ul"]
+[ext_resource type="Texture2D" uid="uid://mma23duw2sk4" path="res://Dungeon Tileset v1.7/atlas_walls_high-16x32.png" id="2_xe24b"]
+[ext_resource type="Texture2D" uid="uid://duenvgal3n30a" path="res://Dungeon Tileset v1.7/atlas_walls_low-16x16.png" id="3_2kb0f"]
+[ext_resource type="Script" uid="uid://brygda3aiwshx" path="res://scripts/map/door.gd" id="4_81dvf"]
+[ext_resource type="Script" uid="uid://demgbmg4cottj" path="res://scripts/map/room.gd" id="5_room"]
+[ext_resource type="Script" uid="uid://xqtnd0548232" path="res://scripts/map/spawn_point.gd" id="6_spawn"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_y364r"]
-texture = ExtResource("6_ycdy4")
+texture = ExtResource("1_v60ul")
 0:0/0 = 0
 1:0/0 = 0
 2:0/0 = 0
@@ -63,7 +56,7 @@ texture = ExtResource("6_ycdy4")
 5:6/0 = 0
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_kt14h"]
-texture = ExtResource("7_w48qg")
+texture = ExtResource("2_xe24b")
 texture_region_size = Vector2i(16, 32)
 0:0/0 = 0
 0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-4, 0, 4, 0, 4, 16, -4, 16)
@@ -281,7 +274,7 @@ texture_region_size = Vector2i(16, 32)
 0:2/0 = 0
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ccjss"]
-texture = ExtResource("8_vivmo")
+texture = ExtResource("3_2kb0f")
 0:0/0 = 0
 1:0/0 = 0
 2:0/0 = 0
@@ -336,74 +329,55 @@ sources/0 = SubResource("TileSetAtlasSource_y364r")
 sources/1 = SubResource("TileSetAtlasSource_kt14h")
 sources/2 = SubResource("TileSetAtlasSource_ccjss")
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_2cqfq"]
-size = Vector2(14, 16)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_yaehf"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("2_kek77")
-}, {
-"duration": 1.0,
-"texture": ExtResource("3_4c57u")
-}, {
-"duration": 1.0,
-"texture": ExtResource("4_efxa6")
-}, {
-"duration": 1.0,
-"texture": ExtResource("5_dg77c")
-}],
-"loop": true,
-"name": &"idle",
-"speed": 10.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("6_dg77c")
-}, {
-"duration": 1.0,
-"texture": ExtResource("7_ycdy4")
-}, {
-"duration": 1.0,
-"texture": ExtResource("8_w48qg")
-}, {
-"duration": 1.0,
-"texture": ExtResource("9_vivmo")
-}],
-"loop": true,
-"name": &"moving",
-"speed": 10.0
-}]
-
-[node name="Node2D" type="Node2D" unique_id=2009252023]
+[node name="room_test" type="Node2D" unique_id=847835903]
 y_sort_enabled = true
+script = ExtResource("5_room")
+room_id = &"test"
+tags = Array[StringName]([&"combat"])
 
-[node name="Floor" type="TileMapLayer" parent="." unique_id=151279841]
+[node name="Floor" type="TileMapLayer" parent="." unique_id=2125712501]
 z_index = -1
-tile_map_data = PackedByteArray("AAD+//7/AAABAAAAAAD+////AAACAAAAAAD+/wAAAAAAAAAAAAD+/wEAAAAAAAAAAAD///7/AAAAAAAAAAD/////AAABAAAAAAD//wAAAAAAAAAAAAD//wEAAAAAAAAAAAAAAP7/AAACAAAAAAAAAP//AAABAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAEAAAABAP7/AAAAAAAAAAABAP//AAAAAAAAAAABAAAAAAACAAAAAAABAAEAAAAAAAAAAAD9//3/AAAAAAAAAAD9//7/AAAAAAAAAAD9////AAABAAAAAAD9/wAAAAAAAAEAAAD9/wEAAAABAAAAAAD9/wIAAAAAAAAAAAD+//3/AAAAAAAAAAD+/wIAAAAAAAAAAAD///3/AAAAAAAAAAD//wIAAAAAAAAAAAAAAP3/AAABAAAAAAAAAAIAAAAAAAAAAAABAP3/AAAAAAAAAAABAAIAAAAAAAAAAAACAP3/AAACAAAAAAACAP7/AAAAAAAAAAACAP//AAAAAAEAAAACAAAAAAABAAAAAAACAAEAAAAAAAAAAAACAAIAAAAAAAAAAAD8//z/AAAAAAAAAAD8//3/AAAAAAAAAAD8//7/AAAAAAAAAAD8////AAAAAAAAAAD8/wAAAAABAAAAAAD8/wEAAAACAAAAAAD8/wIAAAAAAAAAAAD9//z/AAAAAAAAAAD9/wMAAAAAAAAAAAD+//z/AAAAAAAAAAD+/wMAAAAAAAAAAAD///z/AAAAAAAAAAD//wMAAAAAAAEAAAAAAPz/AAABAAAAAAAAAAMAAAAAAAAAAAABAPz/AAAAAAAAAAABAAMAAAACAAAAAAACAPz/AAAAAAAAAAACAAMAAAAAAAAAAAADAPz/AAAAAAAAAAADAP3/AAAAAAEAAAADAP7/AAAAAAAAAAADAP//AAAAAAAAAAADAAAAAAAAAAAAAAADAAEAAAAAAAAAAAADAAIAAAAAAAAAAAADAAMAAAAAAAAAAAD7//v/AAAAAAAAAAD7//z/AAAAAAEAAAD7//3/AAAAAAAAAAD7//7/AAAAAAAAAAD7////AAABAAAAAAD7/wAAAAAAAAAAAAD7/wEAAAAAAAAAAAD7/wIAAAAAAAAAAAD8//v/AAAAAAAAAAD9//v/AAACAAAAAAD+//v/AAAAAAAAAAD///v/AAAAAAAAAAD//wQAAAAAAAAAAAAAAPv/AAAAAAAAAAAAAAQAAAABAAAAAAABAPv/AAAAAAAAAAABAAQAAAABAAAAAAACAPv/AAAAAAAAAAACAAQAAAABAAAAAAADAPv/AAACAAAAAAADAAQAAAAAAAAAAAAEAPv/AAAAAAAAAAAEAPz/AAAAAAAAAAAEAP3/AAAAAAAAAAAEAP7/AAAAAAAAAAAEAP//AAAAAAEAAAAEAAAAAAABAAAAAAAEAAEAAAAAAAAAAAAEAAIAAAAAAAEAAAAEAAMAAAAAAAAAAAAEAAQAAAAAAAAAAAD7/wQAAAAAAAAAAAD7/wMAAAAAAAEAAAD8/wMAAAACAAAAAAD8/wQAAAAAAAAAAAD9/wQAAAAAAAAAAAD+/wQAAAABAAAAAAD6//v/AAAEAAIAAAD6//z/AAAEAAMAAAD6//3/AAAEAAQAAAD6//7/AAAEAAIAAAD6////AAAEAAMAAAD6/wAAAAAEAAQAAAD6/wEAAAAEAAIAAAD6/wIAAAAEAAIAAAD6/wMAAAAEAAMAAAD6/wQAAAAEAAQAAAAFAPv/AAAFAAIAAAAFAPz/AAAFAAMAAAAFAP3/AAAFAAQAAAAFAP//AAAFAAMAAAAFAAAAAAAFAAQAAAAFAAEAAAAFAAQAAAAFAAIAAAAFAAIAAAAFAAMAAAAFAAMAAAAFAAQAAAAFAAQAAAAFAP7/AAAFAAIAAAA=")
+tile_map_data = PackedByteArray("AAAFAAQAAAAEAAIAADAFAPv/AAAEAAMAADAFAPz/AAABAAAAAAAFAP3/AAABAAAAAAAFAP7/AAABAAEAAAAFAP//AAACAAEAAAAFAAAAAAAAAAAAAAAFAAEAAAAAAAAAAAAFAAIAAAAGAAEAADAFAAMAAAAFAAMAAAD6//v/AAAEAAMAAAD6//z/AAAAAAAAAAD6//3/AAABAAEAAAD6//7/AAABAAAAAAD6////AAAAAAEAAAD6/wAAAAACAAEAAAD6/wEAAAACAAEAAAD6/wIAAAACAAAAAAD6/wMAAAAEAAMAAAD6/wQAAAAEAAMAAAD7//v/AAABAAAAAAD7//z/AAACAAAAAAD7//3/AAABAAAAAAD7//7/AAABAAAAAAD7////AAACAAAAAAD7/wAAAAACAAAAAAD7/wEAAAABAAEAAAD7/wIAAAABAAEAAAD7/wMAAAACAAAAAAD7/wQAAAAAAAAAAAD8//v/AAACAAAAAAD8//z/AAAAAAAAAAD8//3/AAACAAEAAAD8//7/AAABAAEAAAD8////AAABAAEAAAD8/wAAAAABAAEAAAD8/wEAAAAAAAAAAAD8/wIAAAACAAAAAAD8/wMAAAAAAAAAAAD8/wQAAAAAAAAAAAD9//v/AAAAAAAAAAD9//z/AAABAAAAAAD9//3/AAACAAAAAAD9//7/AAABAAAAAAD9////AAAAAAEAAAD9/wAAAAAAAAAAAAD9/wEAAAACAAEAAAD9/wIAAAAAAAAAAAD9/wMAAAABAAAAAAD9/wQAAAAAAAAAAAD+//v/AAAAAAEAAAD+//z/AAACAAEAAAD+//3/AAACAAAAAAD+//7/AAABAAEAAAD+////AAACAAAAAAD+/wAAAAABAAEAAAD+/wEAAAABAAAAAAD+/wIAAAAAAAAAAAD+/wMAAAABAAEAAAD+/wQAAAABAAAAAAD///v/AAACAAAAAAD///z/AAACAAEAAAD///3/AAABAAAAAAD///7/AAABAAEAAAD/////AAACAAAAAAD//wAAAAACAAAAAAD//wEAAAABAAAAAAD//wIAAAACAAAAAAD//wMAAAACAAEAAAD//wQAAAAAAAAAAAAAAPv/AAACAAEAAAAAAPz/AAABAAEAAAAAAP3/AAABAAAAAAAAAP7/AAACAAEAAAAAAP//AAACAAEAAAAAAAAAAAABAAAAAAAAAAEAAAACAAAAAAAAAAIAAAABAAEAAAAAAAMAAAABAAAAAAAAAAQAAAABAAAAAAABAPv/AAACAAAAAAABAPz/AAABAAAAAAABAP3/AAACAAAAAAABAP7/AAABAAAAAAABAP//AAAAAAEAAAABAAAAAAACAAAAAAABAAEAAAACAAAAAAABAAIAAAABAAEAAAABAAMAAAAAAAEAAAABAAQAAAABAAAAAAACAPv/AAACAAEAAAACAPz/AAABAAAAAAACAP3/AAABAAEAAAACAP7/AAACAAAAAAACAP//AAAAAAAAAAACAAAAAAACAAAAAAACAAEAAAAAAAEAAAACAAIAAAACAAAAAAACAAMAAAABAAAAAAACAAQAAAABAAAAAAADAPv/AAABAAAAAAADAPz/AAACAAEAAAADAP3/AAACAAAAAAADAP7/AAAAAAAAAAADAP//AAACAAEAAAADAAAAAAACAAEAAAADAAEAAAABAAAAAAADAAIAAAAAAAEAAAADAAMAAAAAAAEAAAADAAQAAAAAAAAAAAAEAPv/AAACAAEAAAAEAPz/AAAAAAEAAAAEAP3/AAABAAEAAAAEAP7/AAABAAAAAAAEAP//AAAAAAAAAAAEAAAAAAAAAAEAAAAEAAEAAAAAAAAAAAAEAAIAAAABAAAAAAAEAAMAAAAAAAEAAAAEAAQAAAAAAAAAAAD3//z/AAAEAAMAAAD3//3/AAAEAAMAAAD3/wAAAAAEAAMAAAD3/wEAAAAEAAMAAAD3/wIAAAAEAAMAAAD4//z/AAAGAAEAAAD4//3/AAAAAAAAAAD4//7/AAAAAAAAAAD4////AAAAAAAAAAD4/wAAAAABAAAAAAD4/wEAAAACAAAAAAD4/wIAAAABAAAAAAD5//z/AAAGAAEAAAD5//3/AAABAAAAAAD5//7/AAACAAAAAAD5////AAABAAAAAAD5/wAAAAAAAAAAAAD5/wEAAAABAAEAAAD5/wIAAAACAAEAAAAGAPz/AAACAAEAAAAGAP3/AAAAAAEAAAAGAP7/AAABAAAAAAAGAP//AAACAAEAAAAGAAAAAAACAAEAAAAGAAEAAAACAAEAAAAGAAIAAAACAAAAAAAHAPz/AAABAAAAAAAHAP3/AAABAAAAAAAHAP7/AAACAAAAAAAHAP//AAAAAAEAAAAHAAAAAAABAAEAAAAHAAEAAAABAAEAAAAHAAIAAAAAAAEAAAAIAPz/AAAFAAMAAAAIAP3/AAAFAAMAAAAIAAEAAAAFAAMAAAAIAAIAAAAFAAMAAAD7//r/AAAAAAAAAAD8//r/AAAAAAAAAAD9//r/AAAAAAAAAAD+//r/AAAAAAAAAAD///r/AAAAAAAAAAAAAPr/AAAAAAAAAAABAPr/AAAAAAAAAAACAPr/AAAAAAAAAAADAPr/AAAAAAAAAAAEAPr/AAAAAAAAAAD6//r/AAAEAAIAAAAFAPr/AAAFAAIAAAAIAAAAAAAFAAUAAAD8/wUAAAAFAAUAADD+/wUAAAAFAAUAAAD9/wUAAAAAAAAAAAACAPn/AAAAAAAAAAADAPn/AAAEAAUAADABAPn/AAAEAAUAAAAIAP7/AAAEAAUAADAIAP//AAAEAAUAADD3//7/AAAEAAUAAAD3////AAAEAAUAAAA=")
 tile_set = SubResource("TileSet_getpj")
 
-[node name="Walls" type="TileMapLayer" parent="." unique_id=455528018]
+[node name="Walls" type="TileMapLayer" parent="." unique_id=1510964565]
+z_as_relative = false
 y_sort_enabled = true
-tile_map_data = PackedByteArray("AAD7//r/AQACAAMAAAD8//r/AQACAAMAAAD9//r/AQACAAMAAAD+//r/AQACAAMAAAD///r/AQACAAMAAAAAAPr/AQACAAMAAAABAPr/AQACAAMAAAACAPr/AQACAAMAAAADAPr/AQACAAMAAAAEAPr/AQACAAMAAAD6//r/AQABAAAAAAAFAPr/AQADAAAAAAD6//v/AQAAAAEAAAD6//z/AQAAAAEAAAD6//3/AQAAAAEAAAD6//7/AQAAAAEAAAD6////AQAAAAEAAAD6/wAAAQAAAAEAAAD6/wEAAQAAAAEAAAD6/wIAAQAAAAEAAAD6/wMAAQAAAAEAAAD6/wQAAQABAAIAAAAFAPv/AQAAAAEAAAAFAPz/AQAAAAEAAAAFAP3/AQAAAAEAAAAFAP7/AQAAAAEAAAAFAP//AQAAAAEAAAAFAAAAAQAAAAEAAAAFAAEAAQAAAAEAAAAFAAIAAQAAAAEAAAAFAAMAAQAAAAEAAAAFAAQAAQADAAIAAAAEAAQAAQACAAMAAAADAAQAAQACAAMAAAACAAQAAQACAAMAAAABAAQAAQACAAMAAAAAAAQAAQACAAMAAAD//wQAAQACAAMAAAD+/wQAAQACAAMAAAD9/wQAAQACAAMAAAD8/wQAAQACAAMAAAD7/wQAAQACAAMAAAA=")
+tile_map_data = PackedByteArray("AAD6//r/AQAAAAAAAAAFAPr/AQAAAAAAAAD6/wIAAQADAAAAAAD6/wMAAQAAAAEAAAAFAAQAAQALAAMAAAAEAAQAAQACAAMAAAADAAQAAQACAAMAAAACAAQAAQACAAMAAAABAAQAAQACAAMAAAAAAAQAAQACAAMAAAD//wQAAQACAAMAAAD7/wQAAQACAAMAAAD5//v/AQACAAMAAAD4//v/AQACAAMAAAD4/wIAAQACAAMAAAD5/wIAAQACAAMAAAD6/wQAAQAIAAMAAAAIAAIAAQALAAMAAAAIAAEAAQAAAAEAAAAIAPz/AQAAAAEAAAAIAPv/AQADAAAAAAAGAPv/AQACAAMAAAAHAPv/AQACAAMAAAAEAP3/AQAPAAMAAAAEAPv/AQAPAAIAAAAFAAIAAQABAAAAAAAGAAIAAQACAAMAAAAHAAIAAQACAAMAAAAFAAMAAQAAAAAAAAD6//v/AQADAAIAAAAFAPv/AQABAAIAAAD7//3/AQAPAAMAAAD7/wEAAQAPAAMAAAAEAAEAAQAPAAMAAAAEAP//AQAPAAIAAAD7////AQAPAAIAAAD7//z/AQAPAAIAAAD7//v/AQAPAAIAAAD3/wIAAQABAAIAAAD3//v/AQABAAAAAAD3//z/AQAAAAEAAAD3//3/AQADAAIAAAD3////AQADAAAAAAD3/wAAAQAAAAEAAAD3/wEAAQAAAAEAAAD6//n/AQABAAAAAAAFAPn/AQADAAAAAAD7//n/AQACAAMAAAD8//n/AQACAAMAAAD9//n/AQACAAMAAAD+//n/AQACAAMAAAD///n/AQACAAMAAAAAAPn/AQACAAMAAAAEAPn/AQACAAMAAAAIAAAAAQAAAAEAAAAIAP3/AQABAAIAAAAIAP//AQABAAAAAAD8/wQAAQADAAAAAAD+/wQAAQABAAAAAAADAPn/AQABAAIAAAABAPn/AQADAAIAAAA=")
 tile_set = SubResource("TileSet_getpj")
 
-[node name="Player" type="CharacterBody2D" parent="." unique_id=1032359769]
-script = ExtResource("1_5vw27")
+[node name="Doors" type="Node2D" parent="." unique_id=1327908583]
 
-[node name="Hitbox" type="CollisionShape2D" parent="Player" unique_id=1665365145]
-shape = SubResource("RectangleShape2D_2cqfq")
+[node name="Door_E" type="Marker2D" parent="Doors" unique_id=348886400]
+position = Vector2(138, -25)
+script = ExtResource("4_81dvf")
+direction = 2
+width = 2
+metadata/_custom_type_script = "uid://brygda3aiwshx"
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Player" unique_id=207460793]
-position = Vector2(0, -6)
-sprite_frames = SubResource("SpriteFrames_yaehf")
-animation = &"moving"
-frame_progress = 0.6474965
+[node name="Door_N" type="Marker2D" parent="Doors" unique_id=1679768255]
+position = Vector2(23, -105)
+script = ExtResource("4_81dvf")
+width = 3
+metadata/_custom_type_script = "uid://brygda3aiwshx"
 
-[node name="Camera2D" type="Camera2D" parent="Player" unique_id=383103316]
-zoom = Vector2(5, 5)
+[node name="Door_S" type="Marker2D" parent="Doors" unique_id=2126339700]
+position = Vector2(-56, 73)
+script = ExtResource("4_81dvf")
+direction = 1
+width = 3
+metadata/_custom_type_script = "uid://brygda3aiwshx"
 
-[node name="Weapon" type="Sprite2D" parent="Player" unique_id=1368223106]
-position = Vector2(15, 0)
-texture = ExtResource("10_ycdy4")
+[node name="Door_W" type="Marker2D" parent="Doors" unique_id=682756299]
+position = Vector2(-136, -24)
+script = ExtResource("4_81dvf")
+direction = 3
+width = 2
+metadata/_custom_type_script = "uid://brygda3aiwshx"
+
+[node name="SpawnPoints" type="Node2D" parent="." unique_id=191906383]
+
+[node name="PLAYER_START" type="Marker2D" parent="SpawnPoints" unique_id=843653349]
+position = Vector2(0, -10)
+script = ExtResource("6_spawn")
+category = 0
