@@ -1,18 +1,18 @@
-[gd_scene load_steps=13 format=3 uid="uid://dqp0y8n1player"]
+[gd_scene format=3 uid="uid://crrvjyg5m7pnt"]
 
 [ext_resource type="Script" uid="uid://c7it0p8osomta" path="res://player.gd" id="1_player"]
-[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/knight_f_idle_anim_f0.png" id="2_idle0"]
-[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/knight_f_idle_anim_f1.png" id="3_idle1"]
-[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/knight_f_idle_anim_f2.png" id="4_idle2"]
-[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/knight_f_idle_anim_f3.png" id="5_idle3"]
-[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f0.png" id="6_run0"]
-[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f1.png" id="7_run1"]
-[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f2.png" id="8_run2"]
-[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f3.png" id="9_run3"]
-[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/weapon_rusty_sword.png" id="10_weapon"]
+[ext_resource type="Texture2D" uid="uid://55tunkxu2fed" path="res://Dungeon Tileset v1.7/frames/knight_f_idle_anim_f0.png" id="2_idle0"]
+[ext_resource type="Texture2D" uid="uid://dxl7wjw8uyy0c" path="res://Dungeon Tileset v1.7/frames/knight_f_idle_anim_f1.png" id="3_idle1"]
+[ext_resource type="Texture2D" uid="uid://bskg7q8fnkca5" path="res://Dungeon Tileset v1.7/frames/knight_f_idle_anim_f2.png" id="4_idle2"]
+[ext_resource type="Texture2D" uid="uid://bbgfof4124hqd" path="res://Dungeon Tileset v1.7/frames/knight_f_idle_anim_f3.png" id="5_idle3"]
+[ext_resource type="Texture2D" uid="uid://mh8lfk1vicuw" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f0.png" id="6_run0"]
+[ext_resource type="Texture2D" uid="uid://bc4f1mypj8rov" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f1.png" id="7_run1"]
+[ext_resource type="Texture2D" uid="uid://u7p7jrgnqs7t" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f2.png" id="8_run2"]
+[ext_resource type="Texture2D" uid="uid://t2fdmmplrwdi" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f3.png" id="9_run3"]
+[ext_resource type="Texture2D" uid="uid://b4t3pcglj8h4a" path="res://Dungeon Tileset v1.7/frames/weapon_rusty_sword.png" id="10_weapon"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hitbox"]
-size = Vector2(14, 16)
+size = Vector2(10, 15)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_player"]
 animations = [{
@@ -51,20 +51,22 @@ animations = [{
 "speed": 10.0
 }]
 
-[node name="Player" type="CharacterBody2D"]
+[node name="Player" type="CharacterBody2D" unique_id=135659199]
+collision_layer = 2
 script = ExtResource("1_player")
 
-[node name="Hitbox" type="CollisionShape2D" parent="."]
+[node name="Hitbox" type="CollisionShape2D" parent="." unique_id=57603247]
+position = Vector2(0, 0.5)
 shape = SubResource("RectangleShape2D_hitbox")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1308811680]
 position = Vector2(0, -6)
 sprite_frames = SubResource("SpriteFrames_player")
 animation = &"idle"
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=333364546]
 zoom = Vector2(5, 5)
 
-[node name="Weapon" type="Sprite2D" parent="."]
+[node name="Weapon" type="Sprite2D" parent="." unique_id=1989748712]
 position = Vector2(15, 0)
 texture = ExtResource("10_weapon")

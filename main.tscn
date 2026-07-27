@@ -1,56 +1,6 @@
 [gd_scene format=4 uid="uid://bo44g3ld7ihuh"]
 
-[ext_resource type="Script" uid="uid://c7it0p8osomta" path="res://player.gd" id="1_5vw27"]
 [ext_resource type="TileSet" uid="uid://dbqi72jodvegr" path="res://resources/tilesets/dungeon_tileset.tres" id="1_efxa6"]
-[ext_resource type="Texture2D" uid="uid://55tunkxu2fed" path="res://Dungeon Tileset v1.7/frames/knight_f_idle_anim_f0.png" id="2_kek77"]
-[ext_resource type="Texture2D" uid="uid://dxl7wjw8uyy0c" path="res://Dungeon Tileset v1.7/frames/knight_f_idle_anim_f1.png" id="3_4c57u"]
-[ext_resource type="Texture2D" uid="uid://bskg7q8fnkca5" path="res://Dungeon Tileset v1.7/frames/knight_f_idle_anim_f2.png" id="4_efxa6"]
-[ext_resource type="Texture2D" uid="uid://bbgfof4124hqd" path="res://Dungeon Tileset v1.7/frames/knight_f_idle_anim_f3.png" id="5_dg77c"]
-[ext_resource type="Texture2D" uid="uid://mh8lfk1vicuw" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f0.png" id="6_dg77c"]
-[ext_resource type="Texture2D" uid="uid://bc4f1mypj8rov" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f1.png" id="7_ycdy4"]
-[ext_resource type="Texture2D" uid="uid://u7p7jrgnqs7t" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f2.png" id="8_w48qg"]
-[ext_resource type="Texture2D" uid="uid://t2fdmmplrwdi" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f3.png" id="9_vivmo"]
-[ext_resource type="Texture2D" uid="uid://b4t3pcglj8h4a" path="res://Dungeon Tileset v1.7/frames/weapon_rusty_sword.png" id="10_ycdy4"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_2cqfq"]
-size = Vector2(14, 16)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_yaehf"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("2_kek77")
-}, {
-"duration": 1.0,
-"texture": ExtResource("3_4c57u")
-}, {
-"duration": 1.0,
-"texture": ExtResource("4_efxa6")
-}, {
-"duration": 1.0,
-"texture": ExtResource("5_dg77c")
-}],
-"loop": true,
-"name": &"idle",
-"speed": 10.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("6_dg77c")
-}, {
-"duration": 1.0,
-"texture": ExtResource("7_ycdy4")
-}, {
-"duration": 1.0,
-"texture": ExtResource("8_w48qg")
-}, {
-"duration": 1.0,
-"texture": ExtResource("9_vivmo")
-}],
-"loop": true,
-"name": &"moving",
-"speed": 10.0
-}]
 
 [node name="Node2D" type="Node2D" unique_id=2009252023]
 y_sort_enabled = true
@@ -64,22 +14,3 @@ tile_set = ExtResource("1_efxa6")
 y_sort_enabled = true
 tile_map_data = PackedByteArray("AAD7//r/AQACAAMAAAD8//r/AQACAAMAAAD9//r/AQACAAMAAAD+//r/AQACAAMAAAD///r/AQACAAMAAAAAAPr/AQACAAMAAAABAPr/AQACAAMAAAACAPr/AQACAAMAAAADAPr/AQACAAMAAAAEAPr/AQACAAMAAAD6//r/AQABAAAAAAAFAPr/AQADAAAAAAD6//v/AQAAAAEAAAD6//z/AQAAAAEAAAD6//3/AQAAAAEAAAD6//7/AQAAAAEAAAD6////AQAAAAEAAAD6/wAAAQAAAAEAAAD6/wEAAQAAAAEAAAD6/wIAAQAAAAEAAAD6/wMAAQAAAAEAAAD6/wQAAQABAAIAAAAFAPv/AQAAAAEAAAAFAPz/AQAAAAEAAAAFAP3/AQAAAAEAAAAFAP7/AQAAAAEAAAAFAP//AQAAAAEAAAAFAAAAAQAAAAEAAAAFAAEAAQAAAAEAAAAFAAIAAQAAAAEAAAAFAAMAAQAAAAEAAAAFAAQAAQADAAIAAAAEAAQAAQACAAMAAAADAAQAAQACAAMAAAACAAQAAQACAAMAAAABAAQAAQACAAMAAAAAAAQAAQACAAMAAAD//wQAAQACAAMAAAD+/wQAAQACAAMAAAD9/wQAAQACAAMAAAD8/wQAAQACAAMAAAD7/wQAAQACAAMAAAA=")
 tile_set = ExtResource("1_efxa6")
-
-[node name="Player" type="CharacterBody2D" parent="." unique_id=1032359769]
-script = ExtResource("1_5vw27")
-
-[node name="Hitbox" type="CollisionShape2D" parent="Player" unique_id=1665365145]
-shape = SubResource("RectangleShape2D_2cqfq")
-
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Player" unique_id=207460793]
-position = Vector2(0, -6)
-sprite_frames = SubResource("SpriteFrames_yaehf")
-animation = &"moving"
-frame_progress = 0.6474965
-
-[node name="Camera2D" type="Camera2D" parent="Player" unique_id=383103316]
-zoom = Vector2(5, 5)
-
-[node name="Weapon" type="Sprite2D" parent="Player" unique_id=1368223106]
-position = Vector2(15, 0)
-texture = ExtResource("10_ycdy4")

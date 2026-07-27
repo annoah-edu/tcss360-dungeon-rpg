@@ -1,12 +1,11 @@
-[gd_scene load_steps=3 format=3 uid="uid://cmapdungeon01"]
+[gd_scene format=3 uid="uid://cmapdungeon01"]
 
-[ext_resource type="Script" path="res://scripts/map/map_assembler.gd" id="1_asm"]
-[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="Script" uid="uid://bh7l4xa2a7he1" path="res://scripts/map/map_assembler.gd" id="1_asm"]
+[ext_resource type="PackedScene" uid="uid://crrvjyg5m7pnt" path="res://scenes/player/player.tscn" id="2_player"]
 
-[node name="Map" type="Node2D"]
+[node name="Map" type="Node2D" unique_id=61602942]
 y_sort_enabled = true
 script = ExtResource("1_asm")
-target_rooms = 8
 map_seed = 12345
 randomize_seed = false
 player_scene = ExtResource("2_player")
