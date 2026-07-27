@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 SpawnDirector="*res://scripts/autoload/spawn_director.gd"
+EnemySpawner="*uid://ccpoi4jhvkcog"
 
 [display]
 

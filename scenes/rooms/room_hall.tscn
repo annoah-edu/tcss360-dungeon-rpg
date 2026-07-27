@@ -5,6 +5,11 @@
 [ext_resource type="Script" uid="uid://brygda3aiwshx" path="res://scripts/map/door.gd" id="3_tjlwy"]
 [ext_resource type="Script" uid="uid://xqtnd0548232" path="res://scripts/map/spawn_point.gd" id="4_b8lqt"]
 
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_tndhx"]
+vertices = PackedVector2Array(177, 86, -1, 86, -1, 10, 177, 10)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-11, 0, 187, 0, 187, 96, -11, 96)])
+
 [node name="Room" type="Node2D" unique_id=836727441]
 y_sort_enabled = true
 script = ExtResource("1_tndhx")
@@ -41,3 +46,6 @@ width = 3
 [node name="@Marker2D@5" type="Marker2D" parent="SpawnPoints" unique_id=1410518698]
 position = Vector2(88, 40)
 script = ExtResource("4_b8lqt")
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=1196965733]
+navigation_polygon = SubResource("NavigationPolygon_tndhx")
