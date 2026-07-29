@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://cv2qujo21r36"]
+
+[ext_resource type="Script" uid="uid://bmbynj7g24k5w" path="res://scripts/props/chest.gd" id="1_ak388"]
+[ext_resource type="Texture2D" uid="uid://dkhyiv6cly5f0" path="res://Dungeon Tileset v1.7/0x72_DungeonTilesetII_v1.7.png" id="2_r8mbp"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cwkqr"]
+atlas = ExtResource("2_r8mbp")
+region = Rect2(304, 400, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_23d6r"]
+atlas = ExtResource("2_r8mbp")
+region = Rect2(336, 400, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yu1gw"]
+atlas = ExtResource("2_r8mbp")
+region = Rect2(304, 416, 16, 16)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_6i7qj"]
+radius = 25.0
+
+[node name="Chest" type="Node2D" unique_id=1754500058]
+script = ExtResource("1_ak388")
+closed_texture = SubResource("AtlasTexture_cwkqr")
+open_texture = SubResource("AtlasTexture_23d6r")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1779554031]
+texture_repeat = 1
+texture = SubResource("AtlasTexture_yu1gw")
+
+[node name="InteractionArea" type="Area2D" parent="." unique_id=136344648]
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionArea" unique_id=1573089990]
+shape = SubResource("CircleShape2D_6i7qj")
+
+[connection signal="body_entered" from="InteractionArea" to="." method="_on_interaction_area_body_entered"]

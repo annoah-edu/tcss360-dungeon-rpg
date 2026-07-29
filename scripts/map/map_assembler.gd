@@ -14,6 +14,7 @@ extends Node2D
 ## When true a fresh seed is drawn each run; uncheck to reproduce a fixed layout.
 @export var randomize_seed: bool = true
 @export var player_scene: PackedScene
+@export var chest_scene: PackedScene
 
 func _ready() -> void:
 	if randomize_seed:
@@ -50,6 +51,7 @@ func build() -> void:
 			start_room = room
 
 	_spawn_player(start_room)
+	_spawn_chests()
 	if director != null:
 		director.populate()
 
@@ -86,3 +88,19 @@ func _find_player_start(room: Room) -> SpawnPoint:
 		if sp.category == SpawnPoint.Category.PLAYER_START:
 			return sp
 	return null
+
+func _spawn_chests() -> void:
+	if chest_scene == null:
+		push_warning("MapAssembler: no chest scene assigned")
+		return
+
+	var director := get_node_or_null("/root/SpawnDirector")
+	if director == null:
+		return
+
+	var points: Array = director.get_points(SpawnPoint.Category.LOOT)
+
+	for point: SpawnPoint in points:
+		var chest := chest_scene.instantiate()
+		add_child(chest)
+		chest.global_position = point.global_position
