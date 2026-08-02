@@ -20,7 +20,8 @@ func _ready() -> void:
 func _physics_process(_delta: float) -> void:
 	_handle_movement()
 	_handle_animations()
-	_handle_weapon_rotation()
+	if atk_cooldown <= 0:
+		_handle_weapon_rotation()
 
 func _process(delta: float) -> void:
 	atk_cooldown -= delta
@@ -71,6 +72,8 @@ func _handle_weapon_rotation() -> void:
 ## Plays attacking animations when the player is attacking.
 func _handle_attacking() -> void:
 	if Input.is_action_pressed("attack") and atk_cooldown <= 0:
+		_handle_weapon_rotation()
+		
 		anim_player.stop()
 		anim_player.speed_scale = 0.5 / atk_rate
 		anim_player.play("swing")
