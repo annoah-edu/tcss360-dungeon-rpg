@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://u7p7jrgnqs7t" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f2.png" id="8_run2"]
 [ext_resource type="Texture2D" uid="uid://t2fdmmplrwdi" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f3.png" id="9_run3"]
 [ext_resource type="Texture2D" uid="uid://b4t3pcglj8h4a" path="res://Dungeon Tileset v1.7/frames/weapon_rusty_sword.png" id="10_weapon"]
+[ext_resource type="Texture2D" uid="uid://ovmsjrwmx152" path="res://resources/sprites/swing.png" id="11_je7p5"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hitbox"]
 size = Vector2(10, 15)
@@ -51,6 +52,96 @@ animations = [{
 "speed": 10.0
 }]
 
+[sub_resource type="Animation" id="Animation_je7p5"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("WeaponHandle/Weapon:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.5707964]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("WeaponHandle/Weapon:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_h17s1"]
+resource_name = "swing"
+length = 0.7
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("WeaponHandle/Weapon:rotation")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.23333333, 0.53333336, 0.7),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [1.5707964, 0.0, 3.1415927, 1.3089969, 1.5707964]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.16666667, 0.2000443, 0.23333335, 0.26666668, 0.3, 0.33333334),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"values": [{
+"args": [],
+"method": &"_show_swing"
+}, {
+"args": [],
+"method": &"_show_swing"
+}, {
+"args": [],
+"method": &"_show_swing"
+}, {
+"args": [],
+"method": &"_show_swing"
+}, {
+"args": [],
+"method": &"_show_swing"
+}, {
+"args": [],
+"method": &"_hide_swing"
+}]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("WeaponHandle/Weapon:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.16666667, 0.3, 0.43333334),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, -4), Vector2(10, 9.685737e-08), Vector2(0, 4), Vector2(0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_je7p5"]
+_data = {
+&"RESET": SubResource("Animation_je7p5"),
+&"swing": SubResource("Animation_h17s1")
+}
+
 [node name="Player" type="CharacterBody2D" unique_id=135659199]
 collision_layer = 2
 script = ExtResource("1_player")
@@ -67,6 +158,19 @@ animation = &"idle"
 [node name="Camera2D" type="Camera2D" parent="." unique_id=333364546]
 zoom = Vector2(5, 5)
 
-[node name="Weapon" type="Sprite2D" parent="." unique_id=1989748712]
-position = Vector2(15, 0)
+[node name="WeaponHandle" type="Node2D" parent="." unique_id=438599153]
+position = Vector2(0, 3)
+
+[node name="Weapon" type="Sprite2D" parent="WeaponHandle" unique_id=1989748712]
+rotation = 1.5707964
 texture = ExtResource("10_weapon")
+offset = Vector2(0, -10)
+
+[node name="Swing" type="Sprite2D" parent="WeaponHandle" unique_id=212938552]
+show_behind_parent = true
+position = Vector2(0, -3)
+texture = ExtResource("11_je7p5")
+offset = Vector2(20, 0)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=109162188]
+libraries/ = SubResource("AnimationLibrary_je7p5")
