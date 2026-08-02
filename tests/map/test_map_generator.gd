@@ -141,3 +141,65 @@ func test_start_room_is_at_origin() -> void:
 	var placements := gen.generate(_catalog(), 99)
 	assert_that(placements[0].origin).is_equal(Vector2i.ZERO)
 	assert_bool(placements[0].template.has_tag(&"start")).is_true()
+
+# --- Compactness ---------------------------------------------------------------
+
+## Mean Chebyshev distance from the origin to each room's centre: the summary
+## statistic compactness is meant to move.
+func _spread(placements: Array[Placement]) -> float:
+	if placements.is_empty():
+		return 0.0
+	var total := 0.0
+	for p in placements:
+		var rect := p.template.footprint(p.origin)
+		var centre := rect.position + rect.size / 2
+		total += float(maxi(absi(centre.x), absi(centre.y)))
+	return total / float(placements.size())
+
+func test_compact_layouts_stay_closer_to_the_origin_than_sprawling_ones() -> void:
+	# Averaged over several seeds: the bias is statistical, so any single seed may
+	# buck the trend even though the tendency across runs is reliable.
+	var compact_total := 0.0
+	var sprawl_total := 0.0
+	var seeds := [1, 7, 13, 42, 99, 256, 1337, 2024]
+	for s: int in seeds:
+		var compact := MapGenerator.new()
+		compact.target_rooms = 14
+		compact.compactness = 1.0
+		compact_total += _spread(compact.generate(_catalog(), s))
+
+		var sprawling := MapGenerator.new()
+		sprawling.target_rooms = 14
+		sprawling.compactness = 0.0
+		sprawl_total += _spread(sprawling.generate(_catalog(), s))
+
+	assert_float(compact_total).is_less(sprawl_total)
+
+func test_compactness_extremes_still_produce_valid_layouts() -> void:
+	for c: float in [0.0, 0.25, 0.5, 0.75, 1.0]:
+		var gen := MapGenerator.new()
+		gen.target_rooms = 12
+		gen.compactness = c
+		var placements := gen.generate(_catalog(), 5150)
+		assert_int(placements.size()).is_greater(1)
+		assert_int(placements.size()).is_less_equal(12)
+		# The core invariant must survive every setting of the knob.
+		for i in placements.size():
+			for j in range(i + 1, placements.size()):
+				var a := placements[i].template.interior(placements[i].origin)
+				var b := placements[j].template.interior(placements[j].origin)
+				assert_bool(a.intersects(b)).is_false()
+
+func test_compactness_layouts_are_deterministic() -> void:
+	var a := MapGenerator.new()
+	a.target_rooms = 12
+	a.compactness = 0.9
+	var b := MapGenerator.new()
+	b.target_rooms = 12
+	b.compactness = 0.9
+	var first := a.generate(_catalog(), 77)
+	var second := b.generate(_catalog(), 77)
+	assert_int(first.size()).is_equal(second.size())
+	for i in first.size():
+		assert_that(first[i].origin).is_equal(second[i].origin)
+		assert_that(first[i].template.id).is_equal(second[i].template.id)

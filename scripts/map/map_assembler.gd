@@ -10,6 +10,9 @@ extends Node2D
 ## scene, so there is no separate catalog resource to keep in sync.
 @export_dir var catalog_dir: String = "res://scenes/rooms"
 @export var target_rooms: int = 8
+## Layout shape: 0 sprawls into long wandering arms, 1 packs a dense blob around the
+## start room, 0.5 is the neutral unbiased growth.
+@export_range(0.0, 1.0, 0.05) var compactness: float = 0.5
 @export var map_seed: int = 0
 ## When true a fresh seed is drawn each run; uncheck to reproduce a fixed layout.
 @export var randomize_seed: bool = true
@@ -36,6 +39,7 @@ func build() -> void:
 
 	var gen := MapGenerator.new()
 	gen.target_rooms = target_rooms
+	gen.compactness = compactness
 	var placements := gen.generate(templates, map_seed)
 	print("[MapAssembler] seed %d -> %d rooms" % [map_seed, placements.size()])
 

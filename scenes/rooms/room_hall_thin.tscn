@@ -1,0 +1,58 @@
+[gd_scene format=4 uid="uid://rfay0apl8ws7"]
+
+[ext_resource type="Script" uid="uid://demgbmg4cottj" path="res://scripts/map/room.gd" id="1_ual8y"]
+[ext_resource type="TileSet" uid="uid://dbqi72jodvegr" path="res://resources/tilesets/dungeon_tileset.tres" id="2_ylvmn"]
+[ext_resource type="Script" uid="uid://brygda3aiwshx" path="res://scripts/map/door.gd" id="3_47lfb"]
+[ext_resource type="Script" uid="uid://xqtnd0548232" path="res://scripts/map/spawn_point.gd" id="4_dd5th"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_tndhx"]
+vertices = PackedVector2Array(177, 86, -1, 86, -1, 10, 177, 10)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-11, 0, 145.59189, 0, 187, 0, 187, 96, -11, 96)])
+
+[node name="Room" type="Node2D" unique_id=836727441]
+y_sort_enabled = true
+script = ExtResource("1_ual8y")
+room_id = &"hall"
+tags = Array[StringName]([&"combat"])
+weight = 2.0
+
+[node name="Floor" type="TileMapLayer" parent="." unique_id=383587806]
+z_index = -1
+tile_map_data = PackedByteArray("AAAAAAEAAAABAAEAAAABAAEAAAABAAEAAAACAAEAAAABAAEAAAADAAEAAAABAAAAAAAEAAEAAAABAAEAAAAFAAEAAAABAAEAAAAGAAEAAAABAAEAAAAHAAEAAAABAAEAAAAIAAEAAAABAAEAAAAJAAEAAAABAAEAAAAKAAEAAAABAAEAAAAAAAIAAAABAAEAAAABAAIAAAAAAAAAAAACAAIAAAABAAAAAAADAAIAAAABAAEAAAAEAAIAAAAAAAAAAAAFAAIAAAAAAAAAAAAGAAIAAAAAAAAAAAAHAAIAAAAAAAAAAAAIAAIAAAAAAAAAAAAJAAIAAAABAAEAAAAKAAIAAAABAAEAAAAAAAMAAAACAAEAAAABAAMAAAAAAAEAAAACAAMAAAAAAAAAAAADAAMAAAAAAAAAAAAEAAMAAAAAAAAAAAAFAAMAAAAAAAAAAAAGAAMAAAABAAEAAAAHAAMAAAABAAEAAAAIAAMAAAABAAEAAAAJAAMAAAAAAAIAAAAKAAMAAAABAAIAAAAAAAQAAAABAAEAAAABAAQAAAABAAEAAAACAAQAAAABAAEAAAADAAQAAAABAAEAAAAEAAQAAAABAAEAAAAFAAQAAAABAAEAAAAGAAQAAAABAAEAAAAHAAQAAAABAAEAAAAIAAQAAAABAAEAAAAJAAQAAAABAAEAAAAKAAQAAAABAAEAAAD//wIAAAAAAAAAAAD//wMAAAAAAAAAAAALAAIAAAAAAAAAAAALAAMAAAAAAAAAAAALAAQAAAAEAAUAADALAAEAAAAEAAUAADD//wEAAAAEAAUAAAD//wQAAAAEAAUAAAA=")
+tile_set = ExtResource("2_ylvmn")
+
+[node name="Floor_Decoration" type="TileMapLayer" parent="." unique_id=1489052751]
+z_index = 1
+tile_map_data = PackedByteArray("AAACAAEAAAABAAUAAAA=")
+tile_set = ExtResource("2_ylvmn")
+
+[node name="Walls" type="TileMapLayer" parent="." unique_id=659741997]
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAD//wEAAQADAAIAAAALAAEAAQABAAIAAAD//wMAAQADAAAAAAALAAMAAQABAAAAAAD//wQAAQABAAIAAAAAAAQAAQACAAMAAAABAAQAAQACAAMAAAACAAQAAQACAAMAAAADAAQAAQACAAMAAAAEAAQAAQACAAMAAAAFAAQAAQACAAMAAAAGAAQAAQACAAMAAAAHAAQAAQACAAMAAAAIAAQAAQACAAMAAAAJAAQAAQACAAMAAAAKAAQAAQACAAMAAAALAAQAAQADAAIAAAALAAAAAQADAAAAAAD//wAAAQABAAAAAAAAAAAAAQACAAMAAAABAAAAAQACAAMAAAACAAAAAQACAAMAAAADAAAAAQACAAMAAAAEAAAAAQACAAMAAAAFAAAAAQACAAMAAAAGAAAAAQACAAMAAAAHAAAAAQACAAMAAAAIAAAAAQACAAMAAAAJAAAAAQACAAMAAAAKAAAAAQACAAMAAAAKAAEAAQARAAEAAAAAAAEAAQARAAEAAAA=")
+tile_set = ExtResource("2_ylvmn")
+
+[node name="Doors" type="Node2D" parent="." unique_id=806505986]
+
+[node name="Door_W" type="Marker2D" parent="Doors" unique_id=561836360]
+position = Vector2(-6, 27)
+script = ExtResource("3_47lfb")
+direction = 3
+width = 3
+
+[node name="Door_E" type="Marker2D" parent="Doors" unique_id=998908723]
+position = Vector2(184, 28)
+script = ExtResource("3_47lfb")
+direction = 2
+width = 3
+
+[node name="SpawnPoints" type="Node2D" parent="." unique_id=1952539242]
+
+[node name="@Marker2D@5" type="Marker2D" parent="SpawnPoints" unique_id=1410518698]
+position = Vector2(88, 40)
+script = ExtResource("4_dd5th")
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=1196965733]
+position = Vector2(0, 18.999998)
+scale = Vector2(0.99312836, 0.5501995)
+navigation_polygon = SubResource("NavigationPolygon_tndhx")
