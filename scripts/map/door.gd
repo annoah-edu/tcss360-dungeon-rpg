@@ -92,7 +92,7 @@ func set_states(new_states: Array[StringName]) -> void:
 	states = new_states  # setter refreshes presentation
 
 func is_blocking() -> bool:
-	var style := _library().resolve(states)
+	var style := _resolve_style()
 	return style != null and style.blocks
 
 # --- Presentation --------------------------------------------------------------
@@ -100,9 +100,23 @@ func is_blocking() -> bool:
 func _library() -> DoorStateLibrary:
 	if state_library != null:
 		return state_library
+	return _fallback_library()
+
+static func _fallback_library() -> DoorStateLibrary:
 	if _default_library == null:
 		_default_library = DoorStateLibrary.create_default()
 	return _default_library
+
+## Resolve the current states to a style, falling back to the built-in library when a
+## custom one has nothing to say about them. An override is meant to *specialize* a few
+## states, not to redefine every one; without this fallback a library that omits
+## `sealed` silently leaves unconnected doorways standing open, because a null style
+## makes _refresh_presentation() bail before it can stamp a wall.
+func _resolve_style() -> DoorStateStyle:
+	var style := _library().resolve(states)
+	if style == null:
+		style = _fallback_library().resolve(states)
+	return style
 
 ## Rebuild the door's presentation from its resolved state. Connected doorways are
 ## left exactly as the author drew them (opening + floor); the engine only overrides
@@ -111,7 +125,7 @@ func _refresh_presentation() -> void:
 	if Engine.is_editor_hint() or not is_inside_tree():
 		return
 	_clear_owned_nodes()
-	var style := _library().resolve(states)
+	var style := _resolve_style()
 	if style == null:
 		return
 	match style.presentation:
