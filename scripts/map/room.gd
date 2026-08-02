@@ -41,6 +41,19 @@ func get_doors() -> Array[Door]:
 				result.append(child)
 	return result
 
+## Cells the Walls layer actually paints, in room-local tile coordinates. These are
+## the sight-blockers the field of view reasons about. Doorway gaps are absent by
+## construction — the author draws walls with holes where doors go — so a connected
+## doorway lets sight through and a sealed one does not, because sealing stamps a wall
+## tile into the gap (see method Door._stamp_wall).
+##
+## Safe on an un-parented instance, so it can be read during catalog extraction.
+func get_wall_cells() -> Array[Vector2i]:
+	var walls := get_walls_layer()
+	if walls == null:
+		return []
+	return walls.get_used_cells()
+
 func get_spawn_points() -> Array[SpawnPoint]:
 	var result: Array[SpawnPoint] = []
 	var container := get_node_or_null("SpawnPoints")
