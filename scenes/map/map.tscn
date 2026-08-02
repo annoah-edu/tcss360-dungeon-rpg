@@ -7,6 +7,7 @@
 [node name="Map" type="Node2D" unique_id=61602942]
 y_sort_enabled = true
 script = ExtResource("1_asm")
+compactness = 1.0
 map_seed = 12345
 randomize_seed = false
 player_scene = ExtResource("2_player")
