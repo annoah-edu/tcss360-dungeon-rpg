@@ -1,6 +1,10 @@
 extends CharacterBody2D
+class_name Enemy
 
+@export var max_health: int = 3
+@export var knockback_recovery_spd: int = 500
 @export var speed: float = 80.0
+
 @export var wander_radius: float = 300.0
 @export var min_wait: float = 2.0
 @export var max_wait: float = 3.0
@@ -10,25 +14,22 @@ extends CharacterBody2D
 
 @onready var nav_agent: NavigationAgent2D = $NavigationAgent2D
 @onready var animation: AnimatedSprite2D = $AnimatedSprite2D
-@onready var health_bar: Line2D = $HealthBar
+@onready var healthbar: TextureProgressBar = $HealthBar
 
-const HIT_JUMP_HEIGHT := 4.0
-const HIT_JUMP_UP_TIME := 0.08
-const HIT_JUMP_DOWN_TIME := 0.12
-const HIT_FLASH_COLOR := Color(1.0, 0.2, 0.2, 1.0)
-const HIT_FLASH_IN_TIME := 0.04
-const HIT_FLASH_OUT_TIME := 0.12
+var health: int
 
 var start_position: Vector2
 var is_waiting: bool = false
-var health: int
-var hit_tween: Tween
-var hit_flash_tween: Tween
-var sprite_rest_position: Vector2
-var sprite_rest_modulate: Color
-var health_bar_full_width: float
+var knockback_velocity: Vector2 = Vector2.ZERO # Used on top of navigation to apply knockback
 
 func _ready() -> void:
+	health = max_health
+	
+	# Hide the healthbar initially, and set its max value
+	healthbar.visible = false
+	healthbar.max_value = max_health
+	
+	# Start the navigation
 	start_position = global_position
 	sprite_rest_position = animation.position
 	sprite_rest_modulate = animation.modulate
@@ -40,17 +41,34 @@ func _ready() -> void:
 	await get_tree().physics_frame
 	_pick_new_target()
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
+	# Apply knockback first before navigation
+	if knockback_velocity.length() > 1.0:
+		velocity = knockback_velocity
+		knockback_velocity = knockback_velocity.move_toward(Vector2.ZERO, delta * knockback_recovery_spd)
+		move_and_slide()
+		return
+	
+	# If idling, don't update navigation
 	if is_waiting:
 		return
-
+	
+	# If the navigation path is finished, find a new target position
 	if nav_agent.is_navigation_finished():
 		_wait_then_pick_new_target()
 		return
-
+	
+	# Determine the next point in the navigation path, and move there
 	var next_point: Vector2 = nav_agent.get_next_path_position()
 	var direction: Vector2 = global_position.direction_to(next_point)
 	nav_agent.set_velocity(direction * speed)
+
+
+func _process(delta: float) -> void:
+	animation.modulate = animation.modulate.lerp(Color.WHITE, delta * 10)
+
+# Navigation and pathfinding functions
+
 
 func _on_velocity_computed(safe_velocity: Vector2) -> void:
 	velocity = safe_velocity
@@ -60,6 +78,7 @@ func _on_velocity_computed(safe_velocity: Vector2) -> void:
 		animation.flip_h = false
 	move_and_slide()
 
+## Stops moving, waits a random amount of time, then pathfinds somewhere else.
 func _wait_then_pick_new_target() -> void:
 	is_waiting = true
 	animation.play("idle")
@@ -68,6 +87,7 @@ func _wait_then_pick_new_target() -> void:
 	is_waiting = false
 	_pick_new_target()
 
+## Picks a new target within a specified range, and sets the navigation agent's goal to that
 func _pick_new_target() -> void:
 	var random_offset := Vector2(
 		randf_range(-wander_radius, wander_radius),
@@ -76,73 +96,19 @@ func _pick_new_target() -> void:
 	nav_agent.target_position = global_position + random_offset
 	animation.play("moving")
 
-## Makes one attack attempt each time the player newly enters the contact area.
-func _on_contact_area_body_entered(body: Node2D) -> void:
-	if not body.has_method("take_damage") or not _contact_attack_succeeds():
-		return
-	body.call("take_damage", contact_damage)
 
-func _contact_attack_succeeds() -> bool:
-	if contact_attack_chance <= 0.0:
-		return false
-	if contact_attack_chance >= 1.0:
-		return true
-	return randf() < contact_attack_chance
+# Attacking and damage functions
 
-## Reduces health, updates the health bar, and removes the enemy at zero health.
-func take_damage(amount: int) -> void:
-	if amount <= 0 or health <= 0:
-		return
-
-	health = maxi(health - amount, 0)
-	_update_health_bar()
-	if health == 0:
+## Takes a specified amount of damage, and dies if health is below 0
+func take_damage(amount: int, source: Vector2, knockback_strength: int) -> void:
+	health -= amount
+	if health <= 0:
 		queue_free()
 		return
-
-	react_to_hit()
-
-func _update_health_bar() -> void:
-	var health_ratio := float(health) / float(max_health)
-	health_bar.set_point_position(1, Vector2(health_bar_full_width * health_ratio, 0.0))
-
-## Gives immediate visual feedback when an attack connects without disturbing
-## navigation or the enemy's physical position.
-func react_to_hit() -> void:
-	if hit_tween != null and hit_tween.is_valid():
-		hit_tween.kill()
-	if hit_flash_tween != null and hit_flash_tween.is_valid():
-		hit_flash_tween.kill()
-	animation.position = sprite_rest_position
-	animation.modulate = sprite_rest_modulate
-
-	hit_tween = create_tween()
-	hit_tween.set_trans(Tween.TRANS_QUAD)
-	hit_tween.set_ease(Tween.EASE_OUT)
-	hit_tween.tween_property(
-		animation,
-		"position",
-		sprite_rest_position + Vector2.UP * HIT_JUMP_HEIGHT,
-		HIT_JUMP_UP_TIME
-	)
-	hit_tween.set_ease(Tween.EASE_IN)
-	hit_tween.tween_property(
-		animation,
-		"position",
-		sprite_rest_position,
-		HIT_JUMP_DOWN_TIME
-	)
-
-	hit_flash_tween = create_tween()
-	hit_flash_tween.tween_property(
-		animation,
-		"modulate",
-		HIT_FLASH_COLOR,
-		HIT_FLASH_IN_TIME
-	)
-	hit_flash_tween.tween_property(
-		animation,
-		"modulate",
-		sprite_rest_modulate,
-		HIT_FLASH_OUT_TIME
-	)
+	
+	var direction: Vector2 = (global_position - source).normalized()
+	knockback_velocity = direction * knockback_strength
+	
+	healthbar.visible = true
+	healthbar.value = health
+	animation.modulate = Color.RED

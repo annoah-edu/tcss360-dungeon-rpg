@@ -28,6 +28,10 @@ window/size/mode=2
 
 enabled=PackedStringArray()
 
+[global_group]
+
+enemy=""
+
 [input]
 
 "move up"={
