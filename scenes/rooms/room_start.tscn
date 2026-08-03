@@ -73,5 +73,5 @@ position = Vector2(104, 104)
 script = ExtResource("4_w3tkv")
 category = 3
 
-[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=1696039948]
+[node name="NavigationRegion" type="NavigationRegion2D" parent="." unique_id=1696039948]
 navigation_polygon = SubResource("NavigationPolygon_3xqj6")

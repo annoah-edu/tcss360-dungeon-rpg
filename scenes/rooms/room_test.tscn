@@ -63,5 +63,5 @@ position = Vector2(0, -10)
 script = ExtResource("6_spawn")
 category = 0
 
-[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=199679897]
+[node name="NavigationRegion" type="NavigationRegion2D" parent="." unique_id=199679897]
 navigation_polygon = SubResource("NavigationPolygon_qkadl")

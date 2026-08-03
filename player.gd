@@ -1,9 +1,10 @@
 extends CharacterBody2D
+class_name Player
 
 const SPEED = 100.0
 
-@export var atk_dmg: int = 1
-@export var knockback_strength: int = 130
+@export var atk_dmg: int = 34
+@export var knockback_strength: int = 150
 @export var atk_rate: float = 0.5
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D # The visual character sprite
@@ -118,4 +119,5 @@ func _enemy_exited(body: Node2D) -> void:
 ## Damages enemies inside the current weapon's range by looping over the array of enemies.
 func _damage_enemies() -> void:
 	for enemy in enemies_in_range:
-		enemy.take_damage(atk_dmg, weapon_hitbox.global_position, knockback_strength)
+		var total_damage: int = round(atk_dmg * randf_range(0.80, 1.20)) # 20% random damage deviation per attack
+		enemy.take_damage(total_damage, weapon_hitbox.global_position, knockback_strength)

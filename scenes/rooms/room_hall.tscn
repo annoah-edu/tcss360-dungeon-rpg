@@ -47,5 +47,5 @@ width = 3
 position = Vector2(88, 40)
 script = ExtResource("4_b8lqt")
 
-[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=1196965733]
+[node name="NavigationRegion" type="NavigationRegion2D" parent="." unique_id=1196965733]
 navigation_polygon = SubResource("NavigationPolygon_tndhx")
