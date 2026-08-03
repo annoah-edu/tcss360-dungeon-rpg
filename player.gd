@@ -3,6 +3,7 @@ extends CharacterBody2D
 const SPEED = 100.0
 
 @export var atk_rate: float = 0.5
+@export_range(1, 100, 1) var max_health: int = 3
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var weapon: Node2D = $WeaponHandle
@@ -11,12 +12,17 @@ const SPEED = 100.0
 @onready var swing: Sprite2D = $WeaponHandle/Swing
 @onready var attack_area: Area2D = $WeaponHandle/Weapon/AttackArea
 @onready var attack_indicator: Polygon2D = $WeaponHandle/Weapon/AttackArea/AttackIndicator
+@onready var health_bar: Line2D = $HealthBar
 
 var x_direction: float
 var y_direction: float
 var atk_cooldown: float = 0
+var health: int
+var health_bar_full_width: float
 
 func _ready() -> void:
+	health = max_health
+	health_bar_full_width = health_bar.get_point_position(1).x
 	_hide_swing()
 	attack_area.monitoring = false
 
@@ -100,3 +106,17 @@ func _hide_swing() -> void:
 func _on_attack_area_body_entered(body: Node2D) -> void:
 	if body.has_method("take_damage"):
 		body.call("take_damage", 1)
+
+## Reduces health, updates the health bar, and removes the player at zero health.
+func take_damage(amount: int) -> void:
+	if amount <= 0 or health <= 0:
+		return
+
+	health = maxi(health - amount, 0)
+	_update_health_bar()
+	if health == 0:
+		queue_free()
+
+func _update_health_bar() -> void:
+	var health_ratio := float(health) / float(max_health)
+	health_bar.set_point_position(1, Vector2(health_bar_full_width * health_ratio, 0.0))

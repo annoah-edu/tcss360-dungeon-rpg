@@ -5,6 +5,8 @@ extends CharacterBody2D
 @export var min_wait: float = 2.0
 @export var max_wait: float = 3.0
 @export_range(1, 100, 1) var max_health: int = 3
+@export_range(0.0, 1.0, 0.01) var contact_attack_chance: float = 0.15
+@export_range(1, 100, 1) var contact_damage: int = 1
 
 @onready var nav_agent: NavigationAgent2D = $NavigationAgent2D
 @onready var animation: AnimatedSprite2D = $AnimatedSprite2D
@@ -73,6 +75,19 @@ func _pick_new_target() -> void:
 	)
 	nav_agent.target_position = global_position + random_offset
 	animation.play("moving")
+
+## Makes one attack attempt each time the player newly enters the contact area.
+func _on_contact_area_body_entered(body: Node2D) -> void:
+	if not body.has_method("take_damage") or not _contact_attack_succeeds():
+		return
+	body.call("take_damage", contact_damage)
+
+func _contact_attack_succeeds() -> bool:
+	if contact_attack_chance <= 0.0:
+		return false
+	if contact_attack_chance >= 1.0:
+		return true
+	return randf() < contact_attack_chance
 
 ## Reduces health, updates the health bar, and removes the enemy at zero health.
 func take_damage(amount: int) -> void:
