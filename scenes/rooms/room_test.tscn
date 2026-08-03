@@ -65,3 +65,4 @@ category = 0
 
 [node name="NavigationRegion" type="NavigationRegion2D" parent="." unique_id=199679897]
 navigation_polygon = SubResource("NavigationPolygon_qkadl")
+enabled = false

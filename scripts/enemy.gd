@@ -1,6 +1,7 @@
 extends CharacterBody2D
 class_name Enemy
 
+@export var los_radius: int = 75
 @export var max_health: int = 100
 @export var knockback_recovery_spd: int = 500
 @export var speed: float = 80.0
@@ -19,6 +20,7 @@ var health: int
 var start_position: Vector2
 var is_waiting: bool = false
 var knockback_velocity: Vector2 = Vector2.ZERO # Used on top of navigation to apply knockback
+var found_player = false # Not associated with line of sight. Will chase the player once attacked permanently
 
 func _ready() -> void:
 	health = max_health
@@ -31,7 +33,7 @@ func _ready() -> void:
 	start_position = global_position
 	health = max_health
 	nav_agent.path_desired_distance = 5.0
-	nav_agent.target_desired_distance = 5.0
+	nav_agent.target_desired_distance = 10.0
 	nav_agent.velocity_computed.connect(_on_velocity_computed)
 	await get_tree().physics_frame
 	_pick_new_target()
@@ -45,7 +47,7 @@ func _physics_process(delta: float) -> void:
 		return
 	
 	# Chase the player when close enough. If idling, don't update navigation
-	if global_position.distance_to(GameState.player.global_position) < 100:
+	if global_position.distance_to(GameState.player.global_position) < los_radius or found_player == true:
 		nav_agent.target_position = GameState.player.global_position
 		animation.play("moving")
 	elif is_waiting:
@@ -61,7 +63,8 @@ func _physics_process(delta: float) -> void:
 
 
 func _process(delta: float) -> void:
-	animation.modulate = animation.modulate.lerp(Color.WHITE, delta * 10)
+	animation.modulate = animation.modulate.lerp(Color.WHITE, delta * 10) # Smooth the color modulation back to pure white
+
 
 # Navigation and pathfinding functions
 
@@ -108,9 +111,13 @@ func take_damage(amount: int, source: Vector2, knockback_strength: int) -> void:
 		queue_free()
 		return
 	
+	# Knockback
 	var direction: Vector2 = (global_position - source).normalized()
 	knockback_velocity = direction * knockback_strength
 	
+	# Visibly flash red
 	healthbar.visible = true
 	healthbar.value = health
 	animation.modulate = Color.RED
+	
+	found_player = true # Target the player after taking damage

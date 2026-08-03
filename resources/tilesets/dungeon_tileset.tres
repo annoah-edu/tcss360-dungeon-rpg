@@ -5,8 +5,24 @@
 [ext_resource type="Texture2D" uid="uid://duenvgal3n30a" path="res://Dungeon Tileset v1.7/atlas_walls_low-16x16.png" id="3_0hwrl"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_h12ur"]
+vertices = PackedVector2Array(8, 8, -8, 8, -8, -8, 8, -8)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)])
+agent_radius = 0.0
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_b5nin"]
+vertices = PackedVector2Array(8, 8, -8, 8, -8, -8, 8, -8)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)])
+agent_radius = 0.0
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_uxlma"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_iru37"]
+vertices = PackedVector2Array(8, 8, -8, 8, -8, -8, 8, -8)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)])
+agent_radius = 0.0
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_uyg1q"]
 
@@ -30,27 +46,27 @@ texture = ExtResource("1_uxlma")
 2:1/0 = 0
 2:1/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_h12ur")
 3:1/0 = 0
-3:1/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_h12ur")
+3:1/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_iru37")
 4:1/0 = 0
-4:1/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_h12ur")
+4:1/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_iru37")
 5:1/0 = 0
-5:1/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_h12ur")
+5:1/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_iru37")
 6:1/0 = 0
-6:1/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_h12ur")
+6:1/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_iru37")
 0:2/0 = 0
 0:2/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_h12ur")
 1:2/0 = 0
 1:2/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_h12ur")
 2:2/0 = 0
-2:2/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_uxlma")
+2:2/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_b5nin")
 3:2/0 = 0
-3:2/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_uxlma")
+3:2/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_iru37")
 4:2/0 = 0
 4:2/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_uxlma")
 5:2/0 = 0
 5:2/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_uxlma")
 6:2/0 = 0
-6:2/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_h12ur")
+6:2/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_iru37")
 0:3/0 = 0
 1:3/0 = 0
 2:3/0 = 0

@@ -49,3 +49,4 @@ script = ExtResource("4_b8lqt")
 
 [node name="NavigationRegion" type="NavigationRegion2D" parent="." unique_id=1196965733]
 navigation_polygon = SubResource("NavigationPolygon_tndhx")
+enabled = false
