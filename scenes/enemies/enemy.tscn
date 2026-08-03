@@ -11,7 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://cm2mp2aquek1m" path="res://Dungeon Tileset v1.7/frames/goblin_run_anim_f3.png" id="8_sb86v"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_qch6t"]
-radius = 1.0
+radius = 0.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_qch6t"]
 size = Vector2(12, 10)
@@ -76,6 +76,7 @@ speed = 40.0
 wander_radius = 100.0
 
 [node name="Collider" type="CollisionShape2D" parent="." unique_id=1472971887]
+position = Vector2(0, -1)
 shape = SubResource("CircleShape2D_qch6t")
 
 [node name="Hitbox" type="StaticBody2D" parent="." unique_id=502844886 groups=["enemy"]]

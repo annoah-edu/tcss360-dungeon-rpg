@@ -56,3 +56,4 @@ script = ExtResource("4_dd5th")
 position = Vector2(0, 18.999998)
 scale = Vector2(0.99312836, 0.5501995)
 navigation_polygon = SubResource("NavigationPolygon_tndhx")
+enabled = false
