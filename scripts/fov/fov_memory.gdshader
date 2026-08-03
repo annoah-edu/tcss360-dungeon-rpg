@@ -53,36 +53,125 @@ bool is_blocker(vec2 tile) {
     return occludes(centre);
 }
 
+// Is this world point inside an authored pillar region? Green channel; see fov_fog.
+bool is_pillar(vec2 p) {
+    vec2 px = p - grid_origin * tile_size;
+    vec2 field_px = grid_size * tile_size;
+    if (px.x < 0.0 || px.y < 0.0 || px.x >= field_px.x || px.y >= field_px.y) {
+        return false;
+    }
+    return texture(blockers, (floor(px) + vec2(0.5)) / field_px).g > 0.5;
+}
+
+// Does the whole-numbered field pixel `pix` occlude? Integer-addressed twin of occludes(),
+// for the grid march below.
+bool occludes_pixel(ivec2 pix) {
+    vec2 px = vec2(pix) - grid_origin * tile_size;
+    vec2 field_px = grid_size * tile_size;
+    if (px.x < 0.0 || px.y < 0.0 || px.x >= field_px.x || px.y >= field_px.y) {
+        return false;
+    }
+    return texture(blockers, (px + vec2(0.5)) / field_px).r > 0.5;
+}
+
 // Raw line of sight to a world point, ignoring the tall-wall overhang.
+//
+// Pixel-exact DDA (Amanatides–Woo), matching fov_fog.gdshader. A fixed stride steps over
+// occluders thinner than the step, which let *remembered* ground leak through thin walls
+// even after the live visibility march was fixed. Walking every pixel the ray enters
+// makes occlusion independent of thickness.
 float raw_visibility(vec2 world) {
     vec2 delta = world - player_world;
     float dist = length(delta);
-    float lit = 0.0;
-    if (dist <= radius_px) {
-        lit = 1.0;
-        vec2 dir = delta / max(dist, 0.0001);
-        float step_len = tile_size * step_scale;
-        int steps = int(dist / step_len);
-        for (int i = 1; i < steps; i++) {
-            vec2 p = player_world + dir * (float(i) * step_len);
-            // Stop short of the destination so a pixel on masonry is lit by its own
-            // surface rather than shadowed by it.
-            if (distance(p, world) < step_len) {
-                break;
-            }
-            if (occludes(p)) {
-                lit = 0.0;
-                break;
-            }
+    if (dist > radius_px) {
+        return 0.0;
+    }
+
+    ivec2 cur = ivec2(floor(player_world));
+    ivec2 goal = ivec2(floor(world));
+    if (cur == goal) {
+        return 1.0;
+    }
+
+    ivec2 stp = ivec2(0);
+    vec2 t_max = vec2(1e30);
+    vec2 t_delta = vec2(1e30);
+    if (delta.x > 0.0) {
+        stp.x = 1;
+        t_max.x = (float(cur.x) + 1.0 - player_world.x) / delta.x;
+        t_delta.x = 1.0 / delta.x;
+    } else if (delta.x < 0.0) {
+        stp.x = -1;
+        t_max.x = (player_world.x - float(cur.x)) / -delta.x;
+        t_delta.x = -1.0 / delta.x;
+    }
+    if (delta.y > 0.0) {
+        stp.y = 1;
+        t_max.y = (float(cur.y) + 1.0 - player_world.y) / delta.y;
+        t_delta.y = 1.0 / delta.y;
+    } else if (delta.y < 0.0) {
+        stp.y = -1;
+        t_max.y = (player_world.y - float(cur.y)) / -delta.y;
+        t_delta.y = -1.0 / delta.y;
+    }
+
+    int max_steps = int(radius_px) * 2 + 2;
+    for (int i = 0; i < max_steps; i++) {
+        if (t_max.x < t_max.y) {
+            cur.x += stp.x;
+            t_max.x += t_delta.x;
+        } else {
+            cur.y += stp.y;
+            t_max.y += t_delta.y;
+        }
+        // The destination pixel is lit by its own surface, so it is never tested.
+        if (cur == goal) {
+            break;
+        }
+        if (occludes_pixel(cur)) {
+            return 0.0;
         }
     }
-    return lit;
+    return 1.0;
+}
+
+// Visibility of a pillar's face: line of sight to the centre of the floor just south of
+// its base. See fov_fog.gdshader; the memory pass must use the same rule (including the
+// shared foot) or remembered ground would disagree with what was lit.
+float pillar_face_visibility(vec2 world) {
+    vec2 p = world;
+    for (int i = 0; i < 64; i++) {
+        p.y += 1.0;
+        if (!is_pillar(p)) {
+            break;
+        }
+    }
+    float base_y = p.y - 1.0;
+    float left_x = world.x;
+    for (int i = 0; i < 64; i++) {
+        if (!is_pillar(vec2(left_x - 1.0, base_y))) {
+            break;
+        }
+        left_x -= 1.0;
+    }
+    float right_x = world.x;
+    for (int i = 0; i < 64; i++) {
+        if (!is_pillar(vec2(right_x + 1.0, base_y))) {
+            break;
+        }
+        right_x += 1.0;
+    }
+    vec2 foot = vec2(floor((left_x + right_x) * 0.5) + 0.5, p.y);
+    return raw_visibility(foot);
 }
 
 // Mirrors fov_fog.gdshader exactly, or remembered ground would not line up with what
 // was lit. See there for why the overhang is a short downward probe rather than
 // inheriting the light of the wall below.
 float visibility_at(vec2 world) {
+    if (is_pillar(world)) {
+        return pillar_face_visibility(world);
+    }
     float lit = raw_visibility(world);
     if (overhang_px > 0.0 && lit < 1.0) {
         vec2 below = world + vec2(0.0, overhang_px);

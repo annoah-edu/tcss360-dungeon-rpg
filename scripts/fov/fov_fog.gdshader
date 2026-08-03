@@ -97,6 +97,19 @@ bool is_wall_art(vec2 p) {
     return texture(blockers, (floor(px) + vec2(0.5)) / field_px).b > 0.5;
 }
 
+// Is this world point inside an authored pillar region? Green channel. A pillar's tall
+// body is drawn north of its base, so its own base occludes the player's line of sight to
+// it from the south even though it is the face they look at — the fog shades these pixels
+// directionally instead of by their own (blocked) sightline. See BlockerField.
+bool is_pillar(vec2 p) {
+    vec2 px = p - grid_origin * tile_size;
+    vec2 field_px = grid_size * tile_size;
+    if (px.x < 0.0 || px.y < 0.0 || px.x >= field_px.x || px.y >= field_px.y) {
+        return false;
+    }
+    return texture(blockers, (floor(px) + vec2(0.5)) / field_px).g > 0.5;
+}
+
 // Should shadow be suppressed at this pixel because it lies within a wall's body?
 //
 // Masking every occupied *cell* was wrong: the sprite fills only part of its cell — an
@@ -121,31 +134,127 @@ bool inside_wall_run(vec2 world) {
     return is_wall_art(world);
 }
 
+// Does the whole-numbered field pixel `pix` occlude? Same red-channel test as occludes(),
+// but addressed by integer pixel so the grid march below cannot drift off a pixel centre.
+bool occludes_pixel(ivec2 pix) {
+    vec2 px = vec2(pix) - grid_origin * tile_size;
+    vec2 field_px = grid_size * tile_size;
+    if (px.x < 0.0 || px.y < 0.0 || px.x >= field_px.x || px.y >= field_px.y) {
+        return false;
+    }
+    return texture(blockers, (px + vec2(0.5)) / field_px).r > 0.5;
+}
+
 // Raw line-of-sight to a single world point, ignoring the tall-wall overhang.
+//
+// Marches the exact grid of art pixels the sightline crosses — a DDA (Amanatides–Woo) —
+// rather than sampling at a fixed stride. A fixed stride steps *over* anything thinner
+// than the step: a hand-authored occluder only a few pixels wide let sight tunnel
+// straight through it. Visiting every pixel the ray enters makes occlusion independent of
+// occluder thickness, so one solid pixel on the line is enough to stop it. Stepping one
+// axis at a time also closes the diagonal corner leak a point march could slip through.
 float raw_visibility(vec2 world) {
     vec2 delta = world - player_world;
     float dist = length(delta);
-    float lit = 0.0;
-    if (dist <= radius_px) {
-        lit = 1.0;
-        vec2 dir = delta / max(dist, 0.0001);
-        float step_len = tile_size * step_scale;
-        int steps = int(dist / step_len);
-        for (int i = 1; i < steps; i++) {
-            vec2 p = player_world + dir * (float(i) * step_len);
-            // Stop just short of the destination so a pixel sitting on masonry is lit
-            // by its own surface rather than shadowed by it. With pixel-accurate
-            // silhouettes this only needs to skip the last step, not a whole tile.
-            if (distance(p, world) < step_len) {
-                break;
-            }
-            if (occludes(p)) {
-                lit = 0.0;
-                break;
-            }
+    if (dist > radius_px) {
+        return 0.0;
+    }
+
+    ivec2 cur = ivec2(floor(player_world));
+    ivec2 goal = ivec2(floor(world));
+    if (cur == goal) {
+        return 1.0;
+    }
+
+    // Parametrise the segment as player_world + t*delta, t in [0,1]. t_max is the t at
+    // which the ray next crosses a pixel boundary on each axis; t_delta is the t spent
+    // crossing one whole pixel. Advancing the smaller t_max walks pixel to pixel.
+    ivec2 stp = ivec2(0);
+    vec2 t_max = vec2(1e30);
+    vec2 t_delta = vec2(1e30);
+    if (delta.x > 0.0) {
+        stp.x = 1;
+        t_max.x = (float(cur.x) + 1.0 - player_world.x) / delta.x;
+        t_delta.x = 1.0 / delta.x;
+    } else if (delta.x < 0.0) {
+        stp.x = -1;
+        t_max.x = (player_world.x - float(cur.x)) / -delta.x;
+        t_delta.x = -1.0 / delta.x;
+    }
+    if (delta.y > 0.0) {
+        stp.y = 1;
+        t_max.y = (float(cur.y) + 1.0 - player_world.y) / delta.y;
+        t_delta.y = 1.0 / delta.y;
+    } else if (delta.y < 0.0) {
+        stp.y = -1;
+        t_max.y = (player_world.y - float(cur.y)) / -delta.y;
+        t_delta.y = -1.0 / delta.y;
+    }
+
+    // A diagonal crossing visits at most dx+dy pixels; 2*radius bounds that comfortably.
+    int max_steps = int(radius_px) * 2 + 2;
+    for (int i = 0; i < max_steps; i++) {
+        if (t_max.x < t_max.y) {
+            cur.x += stp.x;
+            t_max.x += t_delta.x;
+        } else {
+            cur.y += stp.y;
+            t_max.y += t_delta.y;
+        }
+        // Stop at the destination pixel: a fragment sitting on an occluder is lit by its
+        // own surface, not shadowed by it — the old march skipped the final step for the
+        // same reason, here it is exactly one pixel.
+        if (cur == goal) {
+            break;
+        }
+        if (occludes_pixel(cur)) {
+            return 0.0;
         }
     }
-    return lit;
+    return 1.0;
+}
+
+// Visibility of a pillar's face: the line of sight to the floor just south of the pillar.
+//
+// A pillar's tall body is drawn north of its base, so a ray to the body itself is blocked
+// by the base — it is behind the occluder even though it is the face the player sees.
+// Marching south out of the green region lands on the floor at the pillar's near foot;
+// that foot is directly visible from the front (south) and hidden behind the base from
+// the rear (north), which is exactly how the face should light and darken.
+//
+// Every column samples ONE shared foot — the centre of the base's south edge — not its
+// own. Per-column feet blink in and out as the base grazes them at an angle, which read as
+// vertical bands down the body that only filled in once memory had seen the pillar from
+// enough sides. A shared foot makes the whole pillar light and darken as a unit, so there
+// is nothing to band and no first-sighting artifact to circle away.
+float pillar_face_visibility(vec2 world) {
+    // Descend to the floor just below the pillar's base.
+    vec2 p = world;
+    for (int i = 0; i < 64; i++) {
+        p.y += 1.0;
+        if (!is_pillar(p)) {
+            break;
+        }
+    }
+    // Scan the base's bottom row left and right for the region's horizontal centre, so
+    // every column resolves to the same foot pixel.
+    float base_y = p.y - 1.0;
+    float left_x = world.x;
+    for (int i = 0; i < 64; i++) {
+        if (!is_pillar(vec2(left_x - 1.0, base_y))) {
+            break;
+        }
+        left_x -= 1.0;
+    }
+    float right_x = world.x;
+    for (int i = 0; i < 64; i++) {
+        if (!is_pillar(vec2(right_x + 1.0, base_y))) {
+            break;
+        }
+        right_x += 1.0;
+    }
+    vec2 foot = vec2(floor((left_x + right_x) * 0.5) + 0.5, p.y);
+    return raw_visibility(foot);
 }
 
 // Light a wall's tall face along with the wall it belongs to.
@@ -165,6 +274,11 @@ float raw_visibility(vec2 world) {
 // different angle. Probing only `overhang_px` down keeps the effect local to the
 // sprite's own footprint.
 float visibility_at(vec2 world) {
+    // A pillar face inherits the visibility of its near foot, so it lights from the front
+    // and darkens from behind rather than by its own base-blocked sightline.
+    if (is_pillar(world)) {
+        return pillar_face_visibility(world);
+    }
     float lit = raw_visibility(world);
     if (overhang_px > 0.0 && lit < 1.0) {
         // Only the strip immediately above a wall carries that wall's face, so the

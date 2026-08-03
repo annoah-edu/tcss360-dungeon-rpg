@@ -5,16 +5,45 @@
 [ext_resource type="TileSet" uid="uid://dbqi72jodvegr" path="res://resources/tilesets/dungeon_tileset.tres" id="5_trhxj"]
 [ext_resource type="Script" uid="uid://xqtnd0548232" path="res://scripts/map/spawn_point.gd" id="6_spawn"]
 
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_igfvs"]
+polygon = PackedVector2Array(-4, 50, -3, 50, -3, -5, -4, -5)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_ltdr3"]
+polygon = PackedVector2Array(-4, 15, 36, 15, 36, 16, -4, 16)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_qpoms"]
+polygon = PackedVector2Array(-4, 15, 36, 15, 36, 16, -4, 16)
+
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_qkadl"]
 vertices = PackedVector2Array(81, -54, 129, -54, 129, 38, 81, 38, 81, 70, -81, 70, -81, 38, -81, -54, -129, 38, -129, -54, 81, -86, -81, -86)
 polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Array(3, 4, 5, 6), PackedInt32Array(0, 3, 6, 7), PackedInt32Array(6, 8, 9, 7), PackedInt32Array(10, 0, 7, 11)])
 outlines = Array[PackedVector2Array]([PackedVector2Array(-139, -64, -91, -64, -91, -96, 91, -96, 91, -64, 139, -64, 139, 48, 91, 48, 91, 80, -91, 80, -91, 48, -139, 48)])
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_qkadl"]
+polygon = PackedVector2Array(-60, 96, -59, 96, -59, 88, -91, 88, -91, 56, -139, 56, -139, 8, -144, 8, -144, 9, -140, 9, -140, 57, -92, 57, -92, 89, -60, 89)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_wunes"]
+polygon = PackedVector2Array(-21, 96, -21, 88, 91, 88, 91, 56, 139, 56, 139, 8, 144, 8, 144, 9, 140, 9, 140, 57, 92, 57, 92, 89, -20, 89, -20, 96)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_qdryn"]
+polygon = PackedVector2Array(144, -45, 139, -45, 139, -77, 91, -77, 91, -109, 59, -109, 59, -110, 92, -110, 92, -78, 140, -78, 140, -46, 144, -46)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_trhxj"]
+polygon = PackedVector2Array(-144, -45, -139, -45, -139, -77, -91, -77, -91, -109, 21, -109, 21, -110, -92, -110, -92, -78, -140, -78, -140, -46, -144, -46)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_bh341"]
+polygon = PackedVector2Array(-75, -35, -69, -35, -69, -36, -67, -36, -67, -37, -66, -37, -66, -39, -65, -39, -65, -41, -66, -41, -66, -42, -67, -42, -67, -43, -69, -43, -69, -44, -75, -44, -75, -43, -77, -43, -77, -42, -78, -42, -78, -41, -79, -41, -79, -39, -78, -39, -78, -37, -77, -37, -77, -36, -75, -36)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_7mi1l"]
+polygon = PackedVector2Array(69, 29, 75, 29, 75, 28, 77, 28, 77, 27, 79, 27, 79, 26, 80, 26, 80, 24, 79, 24, 79, 21, 78, 21, 78, 3, 79, 3, 79, -1, 78, -1, 78, 0, 77, 0, 77, 1, 76, 1, 76, 2, 68, 2, 68, 1, 67, 1, 67, 0, 66, 0, 66, -1, 65, -1, 65, 3, 66, 3, 66, 21, 65, 21, 65, 24, 64, 24, 64, 26, 65, 26, 65, 27, 67, 27, 67, 28, 69, 28)
 
 [node name="room_test" type="Node2D" unique_id=847835903]
 y_sort_enabled = true
 script = ExtResource("5_room")
 room_id = &"test"
 tags = Array[StringName]([&"combat"])
+metadata/_edit_group_ = true
+metadata/_edit_lock_ = true
 
 [node name="Floor" type="TileMapLayer" parent="." unique_id=2125712501]
 z_index = -1
@@ -24,8 +53,16 @@ tile_set = ExtResource("5_trhxj")
 [node name="Walls" type="TileMapLayer" parent="." unique_id=1510964565]
 z_as_relative = false
 y_sort_enabled = true
-tile_map_data = PackedByteArray("AAD6//r/AQAAAAAAAAAFAPr/AQAAAAAAAAD6/wIAAQADAAAAAAD6/wMAAQAAAAEAAAAFAAQAAQALAAMAAAAEAAQAAQACAAMAAAADAAQAAQACAAMAAAACAAQAAQACAAMAAAABAAQAAQACAAMAAAAAAAQAAQACAAMAAAD//wQAAQACAAMAAAD7/wQAAQACAAMAAAD5//v/AQACAAMAAAD4//v/AQACAAMAAAD4/wIAAQACAAMAAAD5/wIAAQACAAMAAAD6/wQAAQAIAAMAAAAIAAIAAQALAAMAAAAIAAEAAQAAAAEAAAAIAPz/AQAAAAEAAAAIAPv/AQADAAAAAAAGAPv/AQACAAMAAAAHAPv/AQACAAMAAAAFAAIAAQABAAAAAAAGAAIAAQACAAMAAAAHAAIAAQACAAMAAAAFAAMAAQAAAAAAAAD6//v/AQADAAIAAAAFAPv/AQABAAIAAAD3/wIAAQABAAIAAAD3//v/AQABAAAAAAD3//z/AQAAAAEAAAD3//3/AQADAAIAAAD3////AQADAAAAAAD3/wAAAQAAAAEAAAD3/wEAAQAAAAEAAAD6//n/AQABAAAAAAAFAPn/AQADAAAAAAD7//n/AQACAAMAAAD8//n/AQACAAMAAAD9//n/AQACAAMAAAD+//n/AQACAAMAAAD///n/AQACAAMAAAAAAPn/AQACAAMAAAAEAPn/AQACAAMAAAAIAAAAAQAAAAEAAAAIAP3/AQABAAIAAAAIAP//AQABAAAAAAD8/wQAAQADAAAAAAD+/wQAAQABAAAAAAADAPn/AQABAAIAAAABAPn/AQADAAIAAAD7//v/AQAPAAIAAAAEAPv/AQAPAAIAAAAEAP//AQAPAAIAAAD7////AQAPAAIAAAD7//3/AQAPAAMAAAAEAP3/AQAPAAMAAAAEAAEAAQAPAAMAAAD7/wEAAQAPAAMAAAA=")
+tile_map_data = PackedByteArray("AAD6//r/AQAAAAAAAAAFAPr/AQAAAAAAAAD6/wIAAQADAAAAAAD6/wMAAQAAAAEAAAAFAAQAAQALAAMAAAAEAAQAAQACAAMAAAADAAQAAQACAAMAAAACAAQAAQACAAMAAAABAAQAAQACAAMAAAAAAAQAAQACAAMAAAD//wQAAQACAAMAAAD7/wQAAQACAAMAAAD5//v/AQACAAMAAAD4//v/AQACAAMAAAD4/wIAAQACAAMAAAD5/wIAAQACAAMAAAD6/wQAAQAIAAMAAAAIAAIAAQALAAMAAAAIAAEAAQAAAAEAAAAIAPz/AQAAAAEAAAAIAPv/AQADAAAAAAAGAPv/AQACAAMAAAAHAPv/AQACAAMAAAAFAAIAAQABAAAAAAAGAAIAAQACAAMAAAAHAAIAAQACAAMAAAAFAAMAAQAAAAAAAAD6//v/AQADAAIAAAAFAPv/AQABAAIAAAD3/wIAAQABAAIAAAD3//v/AQABAAAAAAD3//z/AQAAAAEAAAD3//3/AQADAAIAAAD3////AQADAAAAAAD3/wAAAQAAAAEAAAD3/wEAAQAAAAEAAAD6//n/AQABAAAAAAAFAPn/AQADAAAAAAD7//n/AQACAAMAAAD8//n/AQACAAMAAAD9//n/AQACAAMAAAD+//n/AQACAAMAAAD///n/AQACAAMAAAAAAPn/AQACAAMAAAAEAPn/AQACAAMAAAAIAAAAAQAAAAEAAAAIAP3/AQABAAIAAAAIAP//AQABAAAAAAD8/wQAAQADAAAAAAD+/wQAAQABAAAAAAADAPn/AQABAAIAAAABAPn/AQADAAIAAAA=")
 tile_set = ExtResource("5_trhxj")
+
+[node name="Decoration" type="TileMapLayer" parent="." unique_id=1394042913]
+z_index = 255
+z_as_relative = false
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAD7//v/AQAPAAIAAAAEAPv/AQAPAAIAAAAEAP//AQAPAAIAAAD7////AQAPAAIAAAD7//3/AQAPAAMAAAAEAP3/AQAPAAMAAAAEAAEAAQAPAAMAAAD7/wEAAQAPAAMAAAA=")
+tile_set = ExtResource("5_trhxj")
+occlusion_enabled = false
 
 [node name="Doors" type="Node2D" parent="." unique_id=1327908583]
 
@@ -36,11 +73,19 @@ direction = 2
 width = 3
 metadata/_custom_type_script = "uid://brygda3aiwshx"
 
+[node name="Door_E_Occluder" type="LightOccluder2D" parent="Doors/Door_E" unique_id=407602626]
+position = Vector2(6, -5)
+occluder = SubResource("OccluderPolygon2D_igfvs")
+
 [node name="Door_N" type="Marker2D" parent="Doors" unique_id=1679768255]
 position = Vector2(23, -105)
 script = ExtResource("4_81dvf")
 width = 3
 metadata/_custom_type_script = "uid://brygda3aiwshx"
+
+[node name="Door_N_Occluder" type="LightOccluder2D" parent="Doors/Door_N" unique_id=2096739223]
+position = Vector2(1, -20)
+occluder = SubResource("OccluderPolygon2D_ltdr3")
 
 [node name="Door_S" type="Marker2D" parent="Doors" unique_id=2126339700]
 position = Vector2(-56, 73)
@@ -49,12 +94,18 @@ direction = 1
 width = 3
 metadata/_custom_type_script = "uid://brygda3aiwshx"
 
+[node name="Door_S_Occluder" type="LightOccluder2D" parent="Doors/Door_S" unique_id=1606695022]
+occluder = SubResource("OccluderPolygon2D_qpoms")
+
 [node name="Door_W" type="Marker2D" parent="Doors" unique_id=682756299]
 position = Vector2(-136, -41)
 script = ExtResource("4_81dvf")
 direction = 3
 width = 3
 metadata/_custom_type_script = "uid://brygda3aiwshx"
+
+[node name="Door_W_Occluder" type="LightOccluder2D" parent="Doors/Door_W" unique_id=637449967]
+occluder = SubResource("OccluderPolygon2D_igfvs")
 
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=191906383]
 
@@ -64,4 +115,51 @@ script = ExtResource("6_spawn")
 category = 0
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=199679897]
+visible = false
 navigation_polygon = SubResource("NavigationPolygon_qkadl")
+
+[node name="Occluders" type="Node2D" parent="." unique_id=888228736]
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Occluders" unique_id=1944257274]
+occluder = SubResource("OccluderPolygon2D_qkadl")
+
+[node name="LightOccluder2D2" type="LightOccluder2D" parent="Occluders" unique_id=1153471769]
+occluder = SubResource("OccluderPolygon2D_wunes")
+
+[node name="LightOccluder2D3" type="LightOccluder2D" parent="Occluders" unique_id=694709783]
+occluder = SubResource("OccluderPolygon2D_qdryn")
+
+[node name="LightOccluder2D4" type="LightOccluder2D" parent="Occluders" unique_id=1186156200]
+occluder = SubResource("OccluderPolygon2D_trhxj")
+
+[node name="LightOccluder2D5" type="LightOccluder2D" parent="Occluders" unique_id=303201475]
+occluder = SubResource("OccluderPolygon2D_bh341")
+
+[node name="LightOccluder2D6" type="LightOccluder2D" parent="Occluders" unique_id=959404556]
+position = Vector2(0, 64)
+occluder = SubResource("OccluderPolygon2D_bh341")
+
+[node name="LightOccluder2D7" type="LightOccluder2D" parent="Occluders" unique_id=1547489915]
+position = Vector2(144, 64)
+occluder = SubResource("OccluderPolygon2D_bh341")
+
+[node name="LightOccluder2D8" type="LightOccluder2D" parent="Occluders" unique_id=2049144016]
+position = Vector2(144, 0)
+occluder = SubResource("OccluderPolygon2D_bh341")
+
+[node name="Pillars" type="Node2D" parent="." unique_id=2126987010]
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Pillars" unique_id=1422969432]
+occluder = SubResource("OccluderPolygon2D_7mi1l")
+
+[node name="LightOccluder2D2" type="LightOccluder2D" parent="Pillars" unique_id=1977528981]
+position = Vector2(0, -64)
+occluder = SubResource("OccluderPolygon2D_7mi1l")
+
+[node name="LightOccluder2D3" type="LightOccluder2D" parent="Pillars" unique_id=303862351]
+position = Vector2(-144, -64)
+occluder = SubResource("OccluderPolygon2D_7mi1l")
+
+[node name="LightOccluder2D4" type="LightOccluder2D" parent="Pillars" unique_id=1892814379]
+position = Vector2(-144, 0)
+occluder = SubResource("OccluderPolygon2D_7mi1l")

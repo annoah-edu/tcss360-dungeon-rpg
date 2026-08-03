@@ -10,6 +10,15 @@ vertices = PackedVector2Array(145, 150, -1, 150, -1, 10, 145, 10)
 polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
 outlines = Array[PackedVector2Array]([PackedVector2Array(-11, 0, 155, 0, 155, 1, 155, 160, -11, 160)])
 
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_75hbt"]
+polygon = PackedVector2Array(-26.999992, 169, -26.999996, 104, -25.999996, 104, -25.999992, 168, 155, 168, 155, 104, 156, 103.99999, 156, 169)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_d52pu"]
+polygon = PackedVector2Array(91, 168, 91, 168, 91, 169, 156, 169, 156, 105, 160, 105, 160, 104, 155, 104, 155, 168)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_kqjmr"]
+polygon = PackedVector2Array(160, 51, 155, 51, 155, -13, 91, -13, 91, -14, 156, -14, 156, 50, 160, 50)
+
 [node name="Room" type="Node2D" unique_id=507464994]
 y_sort_enabled = true
 script = ExtResource("1_75hbt")
@@ -59,3 +68,16 @@ script = ExtResource("4_270w0")
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=1085963902]
 navigation_polygon = SubResource("NavigationPolygon_75hbt")
+
+[node name="Occluders" type="Node2D" parent="." unique_id=1843127765]
+
+[node name="LightOccluder2D2" type="LightOccluder2D" parent="Occluders" unique_id=585577024]
+position = Vector2(157, 13)
+rotation = 1.5707964
+occluder = SubResource("OccluderPolygon2D_75hbt")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Occluders" unique_id=73131430]
+occluder = SubResource("OccluderPolygon2D_d52pu")
+
+[node name="LightOccluder2D3" type="LightOccluder2D" parent="Occluders" unique_id=1641608380]
+occluder = SubResource("OccluderPolygon2D_kqjmr")

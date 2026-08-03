@@ -10,10 +10,28 @@
 script = ExtResource("4_3xqj6")
 metadata/_custom_type_script = "uid://d0ooppy556vxp"
 
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_3xqj6"]
+polygon = PackedVector2Array(-6, -8, 34, -8, 34, -10, -6, -10)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_r2mul"]
+polygon = PackedVector2Array(-6, -7, 34, -7, 34, -9, -6, -9)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_w3tkv"]
+polygon = PackedVector2Array(2, 46, 4, 46, 4, -9, 2, -9)
+
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_3xqj6"]
 vertices = PackedVector2Array(145, 150, -1, 150, -1, 10, 145, 10)
 polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
 outlines = Array[PackedVector2Array]([PackedVector2Array(-11, 0, 155, 0, 155, 160, -11, 160)])
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_p25nh"]
+polygon = PackedVector2Array(51, 176, 53, 176, 53, 168, -11, 168, -11, 104, -16, 104, -16, 106, -13, 106, -13, 170, 51, 170)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_3pxnn"]
+polygon = PackedVector2Array(53, 168, -11, 168, -11, 104, -16, 104, -16, 106, -13, 106, -13, 170, 53, 170)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_jr0d2"]
+polygon = PackedVector2Array(53, 168, -11, 168, -11, 104, -16, 104, -16, 106, -13, 106, -13, 170, 53, 170)
 
 [node name="Room" type="Node2D" unique_id=575657514]
 y_sort_enabled = true
@@ -39,11 +57,18 @@ script = ExtResource("3_r2mul")
 width = 3
 state_library = SubResource("Resource_r2mul")
 
+[node name="Door_N_Occluder" type="LightOccluder2D" parent="Doors/Door_N" unique_id=2057444940]
+occluder = SubResource("OccluderPolygon2D_3xqj6")
+
 [node name="Door_S" type="Marker2D" parent="Doors" unique_id=31776668]
 position = Vector2(54, 152)
 script = ExtResource("3_r2mul")
 direction = 1
 width = 3
+
+[node name="Door_S_Occluder" type="LightOccluder2D" parent="Doors/Door_S" unique_id=1937448407]
+position = Vector2(4, 25)
+occluder = SubResource("OccluderPolygon2D_r2mul")
 
 [node name="Door_E" type="Marker2D" parent="Doors" unique_id=1666101440]
 position = Vector2(153, 59)
@@ -51,11 +76,18 @@ script = ExtResource("3_r2mul")
 direction = 2
 width = 3
 
+[node name="Door_E_Occluder" type="LightOccluder2D" parent="Doors/Door_E" unique_id=1039389853]
+occluder = SubResource("OccluderPolygon2D_w3tkv")
+
 [node name="Door_W" type="Marker2D" parent="Doors" unique_id=1156791555]
 position = Vector2(-7, 54)
 script = ExtResource("3_r2mul")
 direction = 3
 width = 3
+
+[node name="Door_W_Occluder" type="LightOccluder2D" parent="Doors/Door_W" unique_id=999719558]
+position = Vector2(-7, 5)
+occluder = SubResource("OccluderPolygon2D_w3tkv")
 
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=839708853]
 
@@ -75,3 +107,23 @@ category = 3
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=1696039948]
 navigation_polygon = SubResource("NavigationPolygon_3xqj6")
+
+[node name="Occluders" type="Node2D" parent="." unique_id=1390223007]
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Occluders" unique_id=1242293164]
+occluder = SubResource("OccluderPolygon2D_p25nh")
+
+[node name="LightOccluder2D2" type="LightOccluder2D" parent="Occluders" unique_id=1216982500]
+position = Vector2(144, 0)
+scale = Vector2(-1, 1)
+occluder = SubResource("OccluderPolygon2D_p25nh")
+
+[node name="LightOccluder2D3" type="LightOccluder2D" parent="Occluders" unique_id=1139738311]
+position = Vector2(144, 155)
+scale = Vector2(-1, -1)
+occluder = SubResource("OccluderPolygon2D_3pxnn")
+
+[node name="LightOccluder2D4" type="LightOccluder2D" parent="Occluders" unique_id=328045218]
+position = Vector2(0, 155)
+scale = Vector2(1, -1)
+occluder = SubResource("OccluderPolygon2D_jr0d2")

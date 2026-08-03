@@ -327,19 +327,31 @@ func _entity_in_sight(node: Node2D) -> bool:
 ## local tile coordinates into the shared world grid. Neighbouring rooms share a wall
 ## line and so register the same cells twice; VisibilityMap treats blockers as a set,
 ## which makes that harmless.
+##
+## Three consumers of this room at different resolutions. The CPU cast works per tile and
+## answers gameplay queries; the packed field's blue channel stores each tile's sprite
+## outline so the fog can keep its veil off masonry; and its red channel is filled from
+## the room's *authored* occluder polygons, so the fog stops sight exactly where the
+## author drew rather than on the sprite silhouette. Occluders arrive in room-local
+## pixels, shifted here into the shared world grid — where a neighbour's overlapping
+## boundary occluder unions with this one, closing the seam.
 func _register_blockers(room: Room, origin: Vector2i) -> void:
 	var walls := room.get_walls_layer()
 	for cell in room.get_wall_cells():
 		var world_cell: Vector2i = origin + cell
-		# Two consumers of the same data at different resolutions. The CPU cast works
-		# per tile and answers gameplay queries; the packed field stores each tile's
-		# actual sprite outline, so the fog shader occludes on the masonry the player
-		# can see rather than on whole cells.
 		visibility.set_blocker(world_cell)
 		if walls != null:
 			_blockers.add_from_layer(walls, cell, world_cell)
 		else:
 			_blockers.add(world_cell)
+
+	var world_offset := Vector2(origin * Room.TILE_SIZE)
+	for polygon in room.get_occluder_polygons():
+		_blockers.add_polygon(polygon, world_offset)
+	# Pillar regions mark where the fog shades directionally (a tall body lit from the
+	# front, dark from behind); they never block sight, so they go to the green channel.
+	for polygon in room.get_pillar_polygons():
+		_blockers.add_pillar_polygon(polygon, world_offset)
 
 ## World tile the given point falls in, for driving the field of view from a node's
 ## position.

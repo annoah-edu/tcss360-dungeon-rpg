@@ -17,6 +17,7 @@ enum Direction { NORTH, SOUTH, EAST, WEST }
 const TILE_SIZE := 16
 const BARRIER_NAME := "_DoorBarrier"
 const VISUAL_NAME := "_DoorVisual"
+const OCCLUDER_NAME := "_DoorOccluder"
 
 ## Outward-facing side of the room this door sits on.
 @export var direction: Direction = Direction.NORTH:
@@ -128,6 +129,11 @@ func _refresh_presentation() -> void:
 	var style := _resolve_style()
 	if style == null:
 		return
+	# A hand-authored seal occluder (a LightOccluder2D child) blocks sight only while the
+	# door is sealed, so switch it on for a WALL_TILE seal and off otherwise. The author
+	# sees it in the editor; the door decides when it is live.
+	var sealed := style.presentation == DoorStateStyle.Presentation.WALL_TILE
+	_set_authored_occluders_active(sealed)
 	match style.presentation:
 		DoorStateStyle.Presentation.OPEN:
 			pass  # Connected doorway's trust tile's default state (i.e. create rooms with all their doors open)
@@ -141,7 +147,7 @@ func _refresh_presentation() -> void:
 ## Remove any presentation nodes a previous state left behind. Tiles are left alone
 ## here — only sealing overrides them (see _seal).
 func _clear_owned_nodes() -> void:
-	for child_name in [BARRIER_NAME, VISUAL_NAME]:
+	for child_name in [BARRIER_NAME, VISUAL_NAME, OCCLUDER_NAME]:
 		var n := get_node_or_null(NodePath(child_name))
 		if n != null:
 			remove_child(n)
@@ -153,6 +159,51 @@ func _clear_owned_nodes() -> void:
 func _seal(style: DoorStateStyle) -> void:
 	_seal_floor(style)
 	_stamp_wall(style)
+	# The author may have drawn the seal occluder by hand (now switched on above); only
+	# compute one when they have not, so hand-authored geometry is never doubled up.
+	if _authored_occluders().is_empty():
+		_stamp_occluder()
+
+## LightOccluder2D children the author placed to mark where this door blocks sight once
+## sealed — everything except the one the door stamps for itself (OCCLUDER_NAME).
+func _authored_occluders() -> Array[LightOccluder2D]:
+	var result: Array[LightOccluder2D] = []
+	for child in get_children():
+		if child is LightOccluder2D and child.name != OCCLUDER_NAME:
+			result.append(child as LightOccluder2D)
+	return result
+
+## Show or hide the authored seal occluders. Hidden ones are ignored by
+## Room.get_occluder_polygons, so an open door contributes no occlusion even though its
+## occluder still sits in the scene for the author to see and edit.
+func _set_authored_occluders_active(active: bool) -> void:
+	for occ in _authored_occluders():
+		occ.visible = active
+
+## Block sight across a sealed doorway. The rooms author occluders only over the walls
+## they actually drew, so the opening they left for this door is a hole in the sight
+## barrier; when the door seals it with a wall tile, it must plug that hole in the
+## occluder field too, or the fog would still pour through the closed doorway.
+##
+## Used only when the author has not drawn their own seal occluder. The occluder is a
+## LightOccluder2D child covering the opening footprint, which Room.get_occluder_polygons
+## picks up alongside the authored ones. Points are in door-local space (matching the
+## editor preview in _draw); the door's own transform carries them back to room-local when
+## the field is built.
+func _stamp_occluder() -> void:
+	var top_left := Vector2(get_threshold_cell() * TILE_SIZE) - position
+	var size := _opening_size()
+	var poly := OccluderPolygon2D.new()
+	poly.polygon = PackedVector2Array([
+		top_left,
+		top_left + Vector2(size.x, 0.0),
+		top_left + size,
+		top_left + Vector2(0.0, size.y),
+	])
+	var occ := LightOccluder2D.new()
+	occ.name = OCCLUDER_NAME
+	occ.occluder = poly
+	add_child(occ)
 
 ## Stamp a wall tile across the doorway. Which tile to use is decided by the door's
 ## orientation — a NORTH/SOUTH door sits on a horizontal wall, an EAST/WEST door on a
