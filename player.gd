@@ -9,6 +9,8 @@ const SPEED = 100.0
 @onready var weapon_sprite: Sprite2D = $WeaponHandle/Weapon
 @onready var anim_player: AnimationPlayer = $AnimationPlayer
 @onready var swing: Sprite2D = $WeaponHandle/Swing
+@onready var attack_area: Area2D = $WeaponHandle/Weapon/AttackArea
+@onready var attack_indicator: Polygon2D = $WeaponHandle/Weapon/AttackArea/AttackIndicator
 
 var x_direction: float
 var y_direction: float
@@ -16,6 +18,7 @@ var atk_cooldown: float = 0
 
 func _ready() -> void:
 	_hide_swing()
+	attack_area.monitoring = false
 
 func _physics_process(_delta: float) -> void:
 	_handle_movement()
@@ -84,7 +87,16 @@ func _show_swing() -> void:
 	swing.visible = true
 	swing.position = weapon_sprite.position
 	swing.rotation = weapon_sprite.rotation + PI * 1.15
+	attack_area.monitoring = true
+	attack_indicator.visible = true
 
 ## Hides the swing effect.
 func _hide_swing() -> void:
 	swing.visible = false
+	attack_area.monitoring = false
+	attack_indicator.visible = false
+
+## Notifies a body that the active sword swing connected with it.
+func _on_attack_area_body_entered(body: Node2D) -> void:
+	if body.has_method("take_damage"):
+		body.call("take_damage", 1)

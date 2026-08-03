@@ -67,6 +67,12 @@ sprite_frames = SubResource("SpriteFrames_kugq1")
 animation = &"idle"
 frame_progress = 0.502982
 
+[node name="HealthBar" type="Line2D" parent="."]
+position = Vector2(-6, -15)
+points = PackedVector2Array(0, 0, 12, 0)
+width = 2.0
+default_color = Color(0.9, 0.05, 0.05, 1)
+
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=937005590]
 path_postprocessing = 1
 simplify_path = true
