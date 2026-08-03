@@ -16,6 +16,7 @@ const SPEED = 100.0
 
 var x_direction: float
 var y_direction: float
+var velocity_vector: Vector2
 var atk_cooldown: float = 0
 var enemies_in_range: Array[Enemy] # The array of enemies inside the physics area
 
@@ -45,9 +46,9 @@ func _handle_movement() -> void:
 	# Get x input and apply
 	x_direction = Input.get_axis("move left", "move right")
 	if x_direction:
-		velocity.x = x_direction * SPEED
+		velocity_vector.x = x_direction
 	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED)
+		velocity_vector.x = move_toward(velocity_vector.x, 0, SPEED)
 	
 	# Flip the sprite if necessary
 	if not x_direction == 0:
@@ -59,10 +60,11 @@ func _handle_movement() -> void:
 	# Get y input and apply
 	y_direction = Input.get_axis("move up", "move down")
 	if y_direction:
-		velocity.y = y_direction * SPEED
+		velocity_vector.y = y_direction
 	else:
-		velocity.y = move_toward(velocity.y, 0, SPEED)
+		velocity_vector.y = move_toward(velocity_vector.y, 0, SPEED)
 	
+	velocity = velocity_vector.normalized() * SPEED
 	move_and_slide()
 
 ## Uses input axis to determine whether the player's animation should be moving or not.
