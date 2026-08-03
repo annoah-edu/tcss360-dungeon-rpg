@@ -191,7 +191,7 @@ collision_mask = 4
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="WeaponHandle/Hitbox" unique_id=1770137427]
 position = Vector2(0, 3)
-polygon = PackedVector2Array(0, -3, 15, -30, 25, -28, 32, -17, 36, -3, 32, 10, 25, 21, 15, 23)
+polygon = PackedVector2Array(0, -3, 25, -28, 32, -17, 36, -3, 32, 10, 24, 21)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=109162188]
 libraries/ = SubResource("AnimationLibrary_je7p5")
