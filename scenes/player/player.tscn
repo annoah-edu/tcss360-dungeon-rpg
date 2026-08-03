@@ -52,9 +52,6 @@ animations = [{
 "speed": 10.0
 }]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_attack"]
-size = Vector2(6, 20)
-
 [sub_resource type="Animation" id="Animation_je7p5"]
 length = 0.001
 tracks/0/type = "value"
@@ -183,21 +180,6 @@ rotation = 1.5707964
 texture = ExtResource("10_weapon")
 offset = Vector2(0, -10)
 
-[node name="AttackArea" type="Area2D" parent="WeaponHandle/Weapon" unique_id=1408182064]
-collision_layer = 0
-collision_mask = 4
-monitoring = false
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WeaponHandle/Weapon/AttackArea" unique_id=277954622]
-position = Vector2(0, -10)
-shape = SubResource("RectangleShape2D_attack")
-
-[node name="AttackIndicator" type="Polygon2D" parent="WeaponHandle/Weapon/AttackArea" unique_id=26914897]
-visible = false
-show_behind_parent = true
-color = Color(1, 1, 1, 0.65)
-polygon = PackedVector2Array(-3, -20, 3, -20, 3, 0, -3, 0)
-
 [node name="Swing" type="Sprite2D" parent="WeaponHandle" unique_id=212938552]
 show_behind_parent = true
 position = Vector2(0, -3)
@@ -209,9 +191,7 @@ collision_mask = 4
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="WeaponHandle/Hitbox" unique_id=1770137427]
 position = Vector2(0, 3)
-polygon = PackedVector2Array(0, -3, 25, -28, 32, -17, 36, -3, 32, 10, 24, 21)
+polygon = PackedVector2Array(0, -3, 15, -30, 25, -28, 32, -17, 36, -3, 32, 10, 25, 21, 15, 23)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=109162188]
 libraries/ = SubResource("AnimationLibrary_je7p5")
-
-[connection signal="body_entered" from="WeaponHandle/Weapon/AttackArea" to="." method="_on_attack_area_body_entered"]
