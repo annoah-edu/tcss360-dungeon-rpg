@@ -101,8 +101,6 @@ func _show_swing() -> void:
 	swing.visible = true
 	swing.position = weapon_sprite.position
 	swing.rotation = weapon_sprite.rotation + PI * 1.15
-	attack_area.monitoring = true
-	attack_indicator.visible = true
 
 ## Hides the swing effect.
 func _hide_swing() -> void:
