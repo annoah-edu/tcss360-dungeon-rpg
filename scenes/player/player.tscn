@@ -30,7 +30,7 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("5_idle3")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 10.0
 }, {
@@ -47,10 +47,13 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("9_run3")
 }],
-"loop": true,
+"loop": 1,
 "name": &"moving",
 "speed": 10.0
 }]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_attack"]
+size = Vector2(6, 20)
 
 [sub_resource type="Animation" id="Animation_je7p5"]
 length = 0.001
@@ -169,6 +172,18 @@ position = Vector2(0, -6)
 sprite_frames = SubResource("SpriteFrames_player")
 animation = &"idle"
 
+[node name="HealthBarBackground" type="Line2D" parent="." unique_id=1096148589]
+position = Vector2(-6, -15)
+points = PackedVector2Array(0, 0, 12, 0)
+width = 2.0
+default_color = Color(0.9, 0.05, 0.05, 1)
+
+[node name="HealthBar" type="Line2D" parent="." unique_id=767983131]
+position = Vector2(-6, -15)
+points = PackedVector2Array(0, 0, 12, 0)
+width = 2.0
+default_color = Color(0.1, 0.9, 0.15, 1)
+
 [node name="Camera2D" type="Camera2D" parent="." unique_id=333364546]
 zoom = Vector2(5, 5)
 
@@ -179,6 +194,21 @@ position = Vector2(0, 3)
 rotation = 1.5707964
 texture = ExtResource("10_weapon")
 offset = Vector2(0, -10)
+
+[node name="AttackArea" type="Area2D" parent="WeaponHandle/Weapon" unique_id=1408182064]
+collision_layer = 0
+collision_mask = 4
+monitoring = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WeaponHandle/Weapon/AttackArea" unique_id=277954622]
+position = Vector2(0, -10)
+shape = SubResource("RectangleShape2D_attack")
+
+[node name="AttackIndicator" type="Polygon2D" parent="WeaponHandle/Weapon/AttackArea" unique_id=26914897]
+visible = false
+show_behind_parent = true
+color = Color(1, 1, 1, 0.65)
+polygon = PackedVector2Array(-3, -20, 3, -20, 3, 0, -3, 0)
 
 [node name="Swing" type="Sprite2D" parent="WeaponHandle" unique_id=212938552]
 show_behind_parent = true
@@ -195,3 +225,5 @@ polygon = PackedVector2Array(0, -3, 25, -28, 32, -17, 36, -3, 32, 10, 24, 21)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=109162188]
 libraries/ = SubResource("AnimationLibrary_je7p5")
+
+[connection signal="body_entered" from="WeaponHandle/Weapon/AttackArea" to="." method="_on_attack_area_body_entered"]

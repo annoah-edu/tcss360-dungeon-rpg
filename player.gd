@@ -5,6 +5,7 @@ const SPEED = 100.0
 @export var atk_dmg: int = 1
 @export var knockback_strength: int = 130
 @export var atk_rate: float = 0.5
+@export_range(1, 100, 1) var max_health: int = 3
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D # The visual character sprite
 @onready var weapon: Node2D = $WeaponHandle # The weapon handle to rotate around the mouse
@@ -100,6 +101,8 @@ func _show_swing() -> void:
 	swing.visible = true
 	swing.position = weapon_sprite.position
 	swing.rotation = weapon_sprite.rotation + PI * 1.15
+	attack_area.monitoring = true
+	attack_indicator.visible = true
 
 ## Hides the swing effect.
 func _hide_swing() -> void:
