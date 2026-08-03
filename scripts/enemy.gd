@@ -8,9 +8,6 @@ class_name Enemy
 @export var wander_radius: float = 300.0
 @export var min_wait: float = 2.0
 @export var max_wait: float = 3.0
-@export_range(1, 100, 1) var max_health: int = 3
-@export_range(0.0, 1.0, 0.01) var contact_attack_chance: float = 0.15
-@export_range(1, 100, 1) var contact_damage: int = 1
 
 @onready var nav_agent: NavigationAgent2D = $NavigationAgent2D
 @onready var animation: AnimatedSprite2D = $AnimatedSprite2D
@@ -31,10 +28,7 @@ func _ready() -> void:
 	
 	# Start the navigation
 	start_position = global_position
-	sprite_rest_position = animation.position
-	sprite_rest_modulate = animation.modulate
 	health = max_health
-	health_bar_full_width = health_bar.get_point_position(1).x
 	nav_agent.path_desired_distance = 5.0
 	nav_agent.target_desired_distance = 5.0
 	nav_agent.velocity_computed.connect(_on_velocity_computed)
