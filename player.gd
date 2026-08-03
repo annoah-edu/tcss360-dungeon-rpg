@@ -5,7 +5,6 @@ const SPEED = 100.0
 @export var atk_dmg: int = 1
 @export var knockback_strength: int = 130
 @export var atk_rate: float = 0.5
-@export_range(1, 100, 1) var max_health: int = 3
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D # The visual character sprite
 @onready var weapon: Node2D = $WeaponHandle # The weapon handle to rotate around the mouse
