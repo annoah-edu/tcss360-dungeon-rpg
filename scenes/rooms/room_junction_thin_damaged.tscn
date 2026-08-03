@@ -6,9 +6,9 @@
 [ext_resource type="Script" uid="uid://xqtnd0548232" path="res://scripts/map/spawn_point.gd" id="4_wkrfy"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_tndhx"]
-vertices = PackedVector2Array(120.640625, 77.140625, 120.640625, 202.39063, 61.648438, 201.24219, 61.648438, 78.359375, 184.4375, 75.578125, -1, 78.90625, -1, 10, 129.39063, 10, 184.4375, 11.3125)
-polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Array(4, 0, 3, 5, 6, 7, 8)])
-outlines = Array[PackedVector2Array]([PackedVector2Array(-11, 0, 52, 0, 129.6271, -3.8146973e-06, 196.46608, 1.5518208, 194.44066, 85.35036, 130.63982, 86.90218, 130.63982, 212.6, 51.6483, 211.04816, 51.6483, 88.45401, -11, 89)])
+vertices = PackedVector2Array(184.67188, 75.578125, 120.63281, 77.140625, 61.65625, 78.359375, -1, 78.90625, -1, 10, 129.39844, 10, 186.21875, 11.3125, 120.71094, 222.39063, 61.476563, 222.39063)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3, 4, 5, 6), PackedInt32Array(7, 8, 2, 1)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-11, 0, 52, 0, 129.6271, -3.8146973e-06, 196.46608, 1.5518208, 194.44066, 85.35036, 130.63982, 86.90218, 130.72073, 232.39423, 51.464855, 232.39423, 51.6483, 88.45401, -11, 89)])
 
 [node name="Room" type="Node2D" unique_id=836727441]
 y_sort_enabled = true
@@ -62,7 +62,7 @@ width = 3
 position = Vector2(88, 40)
 script = ExtResource("4_wkrfy")
 
-[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=1196965733]
+[node name="NavigationRegion" type="NavigationRegion2D" parent="." unique_id=1196965733]
 position = Vector2(-2.842171e-14, 19.000002)
 scale = Vector2(0.9715369, 0.5895155)
 navigation_polygon = SubResource("NavigationPolygon_tndhx")

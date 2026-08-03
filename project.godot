@@ -17,6 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+GameState="*uid://hrgcnaxhmf8"
 SpawnDirector="*res://scripts/autoload/spawn_director.gd"
 EnemySpawner="*uid://ccpoi4jhvkcog"
 

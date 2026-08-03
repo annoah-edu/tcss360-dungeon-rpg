@@ -80,6 +80,7 @@ func _spawn_player(start_room: Room) -> void:
 	if player_scene == null or start_room == null:
 		return
 	var player := player_scene.instantiate()
+	GameState.player = player # Set the game state's player reference to the player being spawned
 	add_child(player)
 	var start_marker := _find_player_start(start_room)
 	if start_marker != null:

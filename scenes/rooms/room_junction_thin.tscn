@@ -6,9 +6,9 @@
 [ext_resource type="Script" uid="uid://xqtnd0548232" path="res://scripts/map/spawn_point.gd" id="4_i41pq"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_tndhx"]
-vertices = PackedVector2Array(120.640625, 76.89844, 120.640625, 202.39063, 61.648438, 201.24219, 61.648438, 78.359375, 62.039063, 10, 119.63281, 9.7734375, -1, 78.90625, -1, 10, 61.6875, -87.77344, 119.63281, -87.77344, 186.35156, 11.3203125, 185.57031, 76.89844)
-polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3, 4, 5), PackedInt32Array(3, 6, 7, 4), PackedInt32Array(4, 8, 9, 5), PackedInt32Array(0, 5, 10, 11)])
-outlines = Array[PackedVector2Array]([PackedVector2Array(-11, 0, 52, 0, 51.6483, -97.76497, 129.6271, -97.76497, 129.6271, -3.8146973e-06, 196.46608, 1.5518208, 195.45337, 86.90218, 130.63982, 86.90218, 130.63982, 212.6, 51.6483, 211.04816, 51.6483, 88.45401, -11, 89)])
+vertices = PackedVector2Array(61.671875, 78.359375, -7.1328125, 78.96875, -7.1328125, 10, 62.039063, 10, 120.671875, 76.89844, 61.6875, -87.77344, 119.63281, -87.77344, 119.63281, 9.7734375, 120.21875, 222.95313, 61.40625, 222.95313, 186.35156, 11.3203125, 185.57031, 76.89844)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3, 4), PackedInt32Array(3, 5, 6, 7), PackedInt32Array(8, 9, 0, 4), PackedInt32Array(4, 3, 7, 10, 11)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-17.130053, 0, 52, 0, 51.6483, -97.76497, 129.6271, -97.76497, 129.6271, -3.8146973e-06, 196.46608, 1.5518208, 195.45337, 86.90218, 130.63982, 86.90218, 130.1884, 232.942, 51.39016, 232.942, 51.6483, 88.45401, -17.130053, 89.066055)])
 
 [node name="Room" type="Node2D" unique_id=836727441]
 y_sort_enabled = true
@@ -62,7 +62,7 @@ width = 3
 position = Vector2(88, 40)
 script = ExtResource("4_i41pq")
 
-[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=1196965733]
+[node name="NavigationRegion" type="NavigationRegion2D" parent="." unique_id=1196965733]
 position = Vector2(8, 20)
 scale = Vector2(0.87565404, 0.5838363)
 navigation_polygon = SubResource("NavigationPolygon_tndhx")
