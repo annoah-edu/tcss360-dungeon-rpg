@@ -1,9 +1,8 @@
 extends Node
 
-## Autoload registry that decouples rooms from the gameplay systems that don't
-## exist yet. Rooms register their SpawnPoints here; future EnemySystem /
-## LootSystem / NpcSystem code will call method get_points() for a category and
-## instantiate the real content. For now method populate() just reports coverage.
+## Autoload registry that decouples rooms from gameplay systems. Rooms register
+## their SpawnPoints here; enemy, loot, and future NPC systems query points by
+## category and instantiate their own content.
 
 var _points: Dictionary = {}  # Category -> Array[SpawnPoint]
 

@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 GameState="*uid://hrgcnaxhmf8"
+GameDatabase="*res://scripts/database/game_database.gd"
 SpawnDirector="*res://scripts/autoload/spawn_director.gd"
 EnemySpawner="*uid://ccpoi4jhvkcog"
 
@@ -27,7 +28,7 @@ window/size/mode=2
 
 [editor_plugins]
 
-enabled=PackedStringArray()
+enabled=PackedStringArray("res://addons/godot-sqlite/plugin.cfg", "res://addons/gdUnit4/plugin.cfg")
 
 [global_group]
 

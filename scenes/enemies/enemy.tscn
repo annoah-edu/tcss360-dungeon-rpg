@@ -72,8 +72,6 @@ collision_layer = 4
 motion_mode = 1
 wall_min_slide_angle = 0.0
 script = ExtResource("1_qch6t")
-speed = 40.0
-wander_radius = 100.0
 
 [node name="Collider" type="CollisionShape2D" parent="." unique_id=1472971887]
 position = Vector2(0, -1)

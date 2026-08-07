@@ -4,3 +4,6 @@
 
 # GdUnit4 generated test reports
 reports/
+
+# Godot editor recovery files
+*.tmp
