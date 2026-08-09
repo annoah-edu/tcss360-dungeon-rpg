@@ -60,12 +60,12 @@ colors = PackedColorArray(1, 0, 0, 1)
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_y5th1"]
 gradient = SubResource("Gradient_qch6t")
 
-[sub_resource type="Gradient" id="Gradient_tihwb"]
+[sub_resource type="Gradient" id="Gradient_y5th1"]
 offsets = PackedFloat32Array(0.97402596)
 colors = PackedColorArray(0, 1, 0, 1)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_p7w77"]
-gradient = SubResource("Gradient_tihwb")
+gradient = SubResource("Gradient_y5th1")
 
 [node name="Enemy" type="CharacterBody2D" unique_id=1820684569]
 collision_layer = 4
