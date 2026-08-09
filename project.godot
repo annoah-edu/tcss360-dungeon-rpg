@@ -27,11 +27,12 @@ window/size/mode=2
 
 [editor_plugins]
 
-enabled=PackedStringArray()
+enabled=PackedStringArray("res://addons/gut/plugin.cfg")
 
 [global_group]
 
 enemy=""
+outer=""
 
 [input]
 

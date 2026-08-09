@@ -2,7 +2,7 @@
 
 [ext_resource type="TileSet" uid="uid://dbqi72jodvegr" path="res://resources/tilesets/dungeon_tileset.tres" id="1_efxa6"]
 
-[node name="Node2D" type="Node2D" unique_id=2009252023]
+[node name="Node2D" type="Node2D" unique_id=2009252023 groups=["outer"]]
 y_sort_enabled = true
 
 [node name="Floor" type="TileMapLayer" parent="." unique_id=151279841]
