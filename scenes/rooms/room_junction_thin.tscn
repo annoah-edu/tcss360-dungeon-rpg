@@ -37,7 +37,7 @@ polygon = PackedVector2Array(-11, 19, -11, 3, 53, 3, 53, -61, 69, -61, 69, -62, 
 [node name="Room" type="Node2D" unique_id=836727441]
 y_sort_enabled = true
 script = ExtResource("1_ip3nd")
-room_id = &"hall"
+room_id = &"junction_thin"
 tags = Array[StringName]([&"combat"])
 weight = 2.0
 

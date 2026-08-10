@@ -1,4 +1,4 @@
-class_name MapAssembler
+eclass_name MapAssembler
 extends Node2D
 
 ## Turns the generator's abstract Placement list into real room instances in the
@@ -9,6 +9,28 @@ const SEEN_MASK_SHADER := "res://scripts/fov/seen_mask.gdshader"
 ## How often to sweep the scene for newly spawned entities to track. Walking the tree
 ## every frame is wasteful when spawns are occasional.
 const TRACK_INTERVAL := 0.5
+
+## Tiles the procedural connector corridors are painted with, matching the atlas the
+## authored rooms use. Occlusion is authored separately as full-cell polygons, so these are
+## cosmetic + collision only.
+const CONNECTOR_TILESET := "res://resources/tilesets/dungeon_tileset.tres"
+const CONNECTOR_FLOOR_SOURCE := 0
+const CONNECTOR_FLOOR_ATLAS := Vector2i(1, 1)
+const CONNECTOR_WALL_SOURCE := 1
+## Side-wall art picked by the corridor's orientation: a vertical (N/S) run's walls run
+## north–south (vertical wall tile); a horizontal (E/W) run's walls run east–west (the
+## taller horizontal wall tile). Same tiles the rooms seal their doors with.
+const CONNECTOR_WALL_V_ATLAS := Vector2i(0, 1)
+const CONNECTOR_WALL_H_ATLAS := Vector2i(2, 3)
+## Floor filler stamped into a side-wall cell so the starfield void doesn't read through
+## from outside the world. North walls need none — their tall face covers upward — but the
+## other three do, matching the rooms: south uses (0,0); east and west share (5,5), the west
+## one flipped to mirror it. Painted on the floor layer, under the wall sprite.
+const CONNECTOR_FILLER_SOURCE := 0
+const CONNECTOR_FILLER_SOUTH_ATLAS := Vector2i(0, 0)
+const CONNECTOR_FILLER_EW_ATLAS := Vector2i(5, 5)
+## FLIP_H | FLIP_V, mirroring the east filler into a west one exactly as the rooms author it.
+const WEST_FILLER_TRANSFORM := TileSetAtlasSource.TRANSFORM_FLIP_H | TileSetAtlasSource.TRANSFORM_FLIP_V
 
 ## Directory scanned for room scenes. Every Room scene here with `in_catalog`
 ## set is eligible for generation; its tags/weight/doors are read straight off the
@@ -133,6 +155,12 @@ func build() -> void:
 		_register_blockers(room, pl.origin)
 		if start_room == null and pl.template.has_tag(&"start"):
 			start_room = room
+
+	# Corridors joining the rooms. Built after the rooms so a connector never registers
+	# blockers a room then overwrites; each is its own Room node, so the fog and seen-mask
+	# passes pick it up exactly like an authored room.
+	for conn in gen.connectors:
+		_build_connector(conn)
 
 	_spawn_player(start_room)
 	_spawn_chests()
@@ -352,6 +380,71 @@ func _register_blockers(room: Room, origin: Vector2i) -> void:
 	# front, dark from behind); they never block sight, so they go to the green channel.
 	for polygon in room.get_pillar_polygons():
 		_blockers.add_pillar_polygon(polygon, world_offset)
+
+## Build one corridor as its own Room node: paint floor and side walls at world cells,
+## drop a full-cell occluder over each wall, then register it through the same blocker path
+## the rooms use. Cells are world coordinates and the node sits at the origin, so its
+## occlusion, its seen-mask clipping and its collision all fall out of the Room pipeline
+## with no special casing.
+func _build_connector(conn: Connector) -> void:
+	var tileset := load(CONNECTOR_TILESET) as TileSet
+	var room := Room.new()
+	room.name = "Connector"
+	room.y_sort_enabled = true
+
+	var floor_layer := TileMapLayer.new()
+	floor_layer.name = "Floor"
+	floor_layer.tile_set = tileset
+	floor_layer.z_index = -1
+	room.add_child(floor_layer)
+
+	var walls_layer := TileMapLayer.new()
+	walls_layer.name = "Walls"
+	walls_layer.tile_set = tileset
+	walls_layer.y_sort_enabled = true
+	room.add_child(walls_layer)
+
+	for cell in conn.floor_cells():
+		floor_layer.set_cell(cell, CONNECTOR_FLOOR_SOURCE, CONNECTOR_FLOOR_ATLAS, 0)
+
+	# Side walls are directional. A vertical (N/S) corridor's near edge faces west and its
+	# far edge east; a horizontal (E/W) corridor's near edge faces north and its far edge
+	# south. Each wall gets its orientation's tile plus the under-wall filler that hides the
+	# void — every facing but north.
+	var vertical := conn.is_vertical()
+	var wall_atlas := CONNECTOR_WALL_V_ATLAS if vertical else CONNECTOR_WALL_H_ATLAS
+	for cell in conn.near_wall_cells():
+		walls_layer.set_cell(cell, CONNECTOR_WALL_SOURCE, wall_atlas, 0)
+		if vertical:
+			floor_layer.set_cell(cell, CONNECTOR_FILLER_SOURCE, CONNECTOR_FILLER_EW_ATLAS, WEST_FILLER_TRANSFORM)
+		# A horizontal run's near edge is the north wall — no filler needed.
+	for cell in conn.far_wall_cells():
+		walls_layer.set_cell(cell, CONNECTOR_WALL_SOURCE, wall_atlas, 0)
+		if vertical:
+			floor_layer.set_cell(cell, CONNECTOR_FILLER_SOURCE, CONNECTOR_FILLER_EW_ATLAS, 0)
+		else:
+			floor_layer.set_cell(cell, CONNECTOR_FILLER_SOURCE, CONNECTOR_FILLER_SOUTH_ATLAS, 0)
+
+	var occluders := Node2D.new()
+	occluders.name = "Occluders"
+	room.add_child(occluders)
+	for cell in conn.wall_cells():
+		occluders.add_child(_cell_occluder(cell))
+
+	add_child(room)
+	# Cells were painted in world coordinates, so there is no per-room origin to add.
+	_register_blockers(room, Vector2i.ZERO)
+
+## A LightOccluder2D covering one whole world cell — a connector side wall's occlusion.
+func _cell_occluder(cell: Vector2i) -> LightOccluder2D:
+	var tl := Vector2(cell * Room.TILE_SIZE)
+	var s := float(Room.TILE_SIZE)
+	var poly := OccluderPolygon2D.new()
+	poly.polygon = PackedVector2Array([
+		tl, tl + Vector2(s, 0.0), tl + Vector2(s, s), tl + Vector2(0.0, s)])
+	var occ := LightOccluder2D.new()
+	occ.occluder = poly
+	return occ
 
 ## World tile the given point falls in, for driving the field of view from a node's
 ## position.
