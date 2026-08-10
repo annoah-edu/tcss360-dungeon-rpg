@@ -66,18 +66,6 @@ category = 3
 position = Vector2(40, 104)
 script = ExtResource("4_270w0")
 
-[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=1085963902]
+[node name="NavigationRegion" type="NavigationRegion2D" parent="." unique_id=1085963902]
 navigation_polygon = SubResource("NavigationPolygon_75hbt")
-
-[node name="Occluders" type="Node2D" parent="." unique_id=1843127765]
-
-[node name="LightOccluder2D2" type="LightOccluder2D" parent="Occluders" unique_id=585577024]
-position = Vector2(157, 13)
-rotation = 1.5707964
-occluder = SubResource("OccluderPolygon2D_75hbt")
-
-[node name="LightOccluder2D" type="LightOccluder2D" parent="Occluders" unique_id=73131430]
-occluder = SubResource("OccluderPolygon2D_d52pu")
-
-[node name="LightOccluder2D3" type="LightOccluder2D" parent="Occluders" unique_id=1641608380]
-occluder = SubResource("OccluderPolygon2D_kqjmr")
+enabled = false

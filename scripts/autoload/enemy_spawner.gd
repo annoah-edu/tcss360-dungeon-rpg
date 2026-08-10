@@ -11,7 +11,7 @@ func _spawn_one() -> void:
 	if points.is_empty():
 		return
 	var sp: SpawnPoint = points[randi() % points.size()]
-	var enemy := enemy_scene.instantiate()
+	var enemy: Enemy = enemy_scene.instantiate()
 	get_tree().current_scene.add_child(enemy)
 	enemy.global_position = sp.global_position
 

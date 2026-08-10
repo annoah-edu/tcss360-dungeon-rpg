@@ -1,8 +1,11 @@
 extends CharacterBody2D
 class_name Enemy
 
-@export var max_health: int = 3
+@export var los_radius: int = 75
+@export var max_health: int = 100
+@export var atk_dmg: int = 15
 @export var knockback_recovery_spd: int = 500
+@export var atk_rate: float = 0.5
 @export var speed: float = 80.0
 
 @export var wander_radius: float = 300.0
@@ -12,12 +15,15 @@ class_name Enemy
 @onready var nav_agent: NavigationAgent2D = $NavigationAgent2D
 @onready var animation: AnimatedSprite2D = $AnimatedSprite2D
 @onready var healthbar: TextureProgressBar = $HealthBar
+@onready var damage_number: PackedScene = preload("res://scenes/effects/damage_number.tscn")
 
 var health: int
+var atk_cooldown: float = 0
 
 var start_position: Vector2
 var is_waiting: bool = false
 var knockback_velocity: Vector2 = Vector2.ZERO # Used on top of navigation to apply knockback
+var found_player = false # Not associated with line of sight. Will chase the player once attacked permanently
 
 func _ready() -> void:
 	health = max_health
@@ -30,7 +36,7 @@ func _ready() -> void:
 	start_position = global_position
 	health = max_health
 	nav_agent.path_desired_distance = 5.0
-	nav_agent.target_desired_distance = 5.0
+	nav_agent.target_desired_distance = 10.0
 	nav_agent.velocity_computed.connect(_on_velocity_computed)
 	await get_tree().physics_frame
 	_pick_new_target()
@@ -43,12 +49,16 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		return
 	
-	# If idling, don't update navigation
-	if is_waiting:
+	# Chase the player when close enough. If idling, don't update navigation
+	if is_instance_valid(GameState.player):
+		var dist_to_player: float = global_position.distance_to(GameState.player.global_position)
+		if dist_to_player < los_radius or found_player == true:
+			nav_agent.target_position = GameState.player.global_position
+			animation.play("moving")
+			_attack_loop(dist_to_player)
+	elif is_waiting:
 		return
-	
-	# If the navigation path is finished, find a new target position
-	if nav_agent.is_navigation_finished():
+	elif nav_agent.is_navigation_finished(): # If the navigation path is finished, find a new target position
 		_wait_then_pick_new_target()
 		return
 	
@@ -59,7 +69,9 @@ func _physics_process(delta: float) -> void:
 
 
 func _process(delta: float) -> void:
-	animation.modulate = animation.modulate.lerp(Color.WHITE, delta * 10)
+	atk_cooldown -= delta
+	animation.modulate = animation.modulate.lerp(Color.WHITE, delta * 5) # Smooth the color modulation back to pure white
+
 
 # Navigation and pathfinding functions
 
@@ -95,14 +107,32 @@ func _pick_new_target() -> void:
 
 ## Takes a specified amount of damage, and dies if health is below 0
 func take_damage(amount: int, source: Vector2, knockback_strength: int) -> void:
+	# Create a damage number
+	var damage_popup: DamageNumber = damage_number.instantiate()
+	damage_popup.text_label = str(amount)
+	damage_popup.global_position = global_position - Vector2(0, animation.sprite_frames.get_frame_texture("idle", 0).get_height() / 2.0)
+	get_tree().current_scene.add_child(damage_popup)
+	
 	health -= amount
 	if health <= 0:
 		queue_free()
 		return
 	
+	# Knockback
 	var direction: Vector2 = (global_position - source).normalized()
 	knockback_velocity = direction * knockback_strength
 	
+	# Visibly flash red
 	healthbar.visible = true
 	healthbar.value = health
 	animation.modulate = Color.RED
+	
+	found_player = true # Target the player after taking damage
+
+func _attack_loop(dist_to_player: float) -> void:
+	if atk_cooldown > 0:
+		return
+	if dist_to_player < 10:
+		var total_damage: int = round(atk_dmg * randf_range(0.80, 1.20)) # 20% random damage deviation per attack
+		GameState.player.take_damage(total_damage)
+		atk_cooldown = atk_rate
