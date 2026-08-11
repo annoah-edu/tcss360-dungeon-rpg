@@ -3,6 +3,10 @@ class_name Player
 
 const SPEED = 100.0
 
+const RUN_SUMMARY_SCENE := "res://scenes/ui/run_summary.tscn"
+## Beat between death and the summary appearing, so the death reads before the cut.
+const DEATH_SUMMARY_DELAY := 0.8
+
 @export var max_health: int = 200
 @export var atk_dmg: int = 34
 @export var knockback_strength: int = 150
@@ -24,6 +28,13 @@ var health: int
 var atk_cooldown: float = 0
 var enemies_in_range: Array[Enemy] # The array of enemies inside the physics area
 
+# Distance-traveled tracking. The assembler teleports the player to the start marker
+# after _ready, so the first frame's displacement is skipped to avoid counting that jump.
+var _prev_position: Vector2
+var _distance_tracking := false
+## Set the moment health hits zero, so the death hand-off runs exactly once.
+var _dead := false
+
 func _ready() -> void:
 	health = max_health
 	_hide_swing() # Hide the swinging sprite in case it wasn't hidden in-editor yet
@@ -41,6 +52,17 @@ func _physics_process(_delta: float) -> void:
 	_handle_animations()
 	if atk_cooldown <= 0:
 		_handle_weapon_rotation()
+	_track_distance()
+
+## Feed real per-frame displacement to the run stats. Using the position delta rather
+## than intended velocity means blocked movement into a wall correctly counts as no travel.
+func _track_distance() -> void:
+	if not _distance_tracking:
+		_prev_position = global_position
+		_distance_tracking = true
+		return
+	Stats.add_distance_pixels(global_position.distance_to(_prev_position))
+	_prev_position = global_position
 
 func _process(delta: float) -> void:
 	atk_cooldown -= delta
@@ -138,26 +160,41 @@ func _damage_enemies() -> void:
 	for enemy in enemies_in_range:
 		var total_damage: int = round(atk_dmg * randf_range(0.80, 1.20)) # 20% random damage deviation per attack
 		enemy.take_damage(total_damage, weapon_hitbox.global_position, knockback_strength)
+		Stats.add_damage(total_damage)
 
 ## Takes a specified amount of damage, and dies if health is below 0
 func take_damage(amount: int) -> void:
+	if _dead: # Ignore hits landed during the death hand-off so the run ends once.
+		return
 	# Create a damage number
 	var damage_popup: DamageNumber = damage_number.instantiate()
 	damage_popup.text_label = str(amount)
 	damage_popup.text_color = Color.CRIMSON
 	damage_popup.global_position = global_position - Vector2(0, sprite.sprite_frames.get_frame_texture("idle", 0).get_height() / 2.0)
 	get_tree().current_scene.add_child(damage_popup)
-	
+
 	health -= amount
 	if health <= 0:
-		var camera: Camera2D = find_child("Camera2D")
-		if camera:
-			camera.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF # Disable interpolation to prevent weird snapping when reparenting
-			camera.reparent(get_tree().current_scene)
-		queue_free()
+		_die()
 		return
 	
 	# Visibly flash red
 	healthbar.visible = true
 	healthbar.value = health
 	sprite.modulate = Color.RED
+
+## End the run on death and hand off to the summary. Freezes the player and waits a beat
+## so the death registers before the screen changes, rather than cutting away instantly.
+func _die() -> void:
+	_dead = true
+	Stats.end_run(true)
+	set_physics_process(false)
+	set_process(false)
+	velocity = Vector2.ZERO
+	sprite.modulate = Color.RED
+	# SceneTreeTimer lives on the tree, not this node, so it still fires as we tear down.
+	# Capture the tree so the callback never reaches back through a possibly-freed self.
+	var tree := get_tree()
+	tree.create_timer(DEATH_SUMMARY_DELAY).timeout.connect(func() -> void:
+		tree.change_scene_to_file(RUN_SUMMARY_SCENE)
+	)

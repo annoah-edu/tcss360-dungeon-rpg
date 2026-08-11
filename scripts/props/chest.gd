@@ -16,6 +16,7 @@ func open() -> void:
 
 	is_open = true
 	sprite.texture = open_texture
+	Stats.add_chest()
 
 func _on_interaction_area_body_entered(body: Node2D) -> void:
 	if body is CharacterBody2D:

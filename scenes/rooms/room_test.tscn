@@ -57,7 +57,6 @@ tile_map_data = PackedByteArray("AAD6//r/AQAAAAAAAAAFAPr/AQAAAAAAAAD6/wIAAQADAAA
 tile_set = ExtResource("5_trhxj")
 
 [node name="Decoration" type="TileMapLayer" parent="." unique_id=1394042913]
-z_index = 255
 z_as_relative = false
 y_sort_enabled = true
 tile_map_data = PackedByteArray("AAD7//v/AQAPAAIAAAAEAPv/AQAPAAIAAAAEAP//AQAPAAIAAAD7////AQAPAAIAAAD7//3/AQAPAAMAAAAEAP3/AQAPAAMAAAAEAAEAAQAPAAMAAAD7/wEAAQAPAAMAAAA=")

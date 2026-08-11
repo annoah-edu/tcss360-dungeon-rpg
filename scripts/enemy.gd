@@ -115,6 +115,7 @@ func take_damage(amount: int, source: Vector2, knockback_strength: int) -> void:
 	
 	health -= amount
 	if health <= 0:
+		Stats.add_kill()
 		queue_free()
 		return
 	

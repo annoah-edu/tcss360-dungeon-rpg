@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://bh7l4xa2a7he1" path="res://scripts/map/map_assembler.gd" id="1_asm"]
 [ext_resource type="PackedScene" uid="uid://crrvjyg5m7pnt" path="res://scenes/player/player.tscn" id="2_player"]
 [ext_resource type="PackedScene" uid="uid://cv2qujo21r36" path="res://scenes/props/chest.tscn" id="3_a2pkv"]
+[ext_resource type="PackedScene" uid="uid://cbbrrn3uru3ea" path="res://scenes/props/exit.tscn" id="4_exit"]
 
 [node name="Map" type="Node2D" unique_id=61602942]
 y_sort_enabled = true
@@ -12,5 +13,6 @@ map_seed = 12345
 randomize_seed = false
 player_scene = ExtResource("2_player")
 chest_scene = ExtResource("3_a2pkv")
+exit_scene = ExtResource("4_exit")
 minimap_size = 300.0
-minimap_scale = 0.09999999999999999
+minimap_scale = 0.1
