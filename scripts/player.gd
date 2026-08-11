@@ -144,7 +144,7 @@ func take_damage(amount: int) -> void:
 	# Create a damage number
 	var damage_popup: DamageNumber = damage_number.instantiate()
 	damage_popup.text_label = str(amount)
-	damage_popup.text_color = Color.CRIMSON
+	damage_popup.text_color = Color.RED
 	damage_popup.global_position = global_position - Vector2(0, sprite.sprite_frames.get_frame_texture("idle", 0).get_height() / 2.0)
 	get_tree().current_scene.add_child(damage_popup)
 	

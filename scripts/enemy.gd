@@ -3,9 +3,9 @@ class_name Enemy
 
 @export var los_radius: int = 75
 @export var max_health: int = 100
-@export var atk_dmg: int = 15
+@export var atk_dmg: int = 35
 @export var knockback_recovery_spd: int = 500
-@export var atk_rate: float = 0.5
+@export var atk_rate: float = 1.0
 @export var speed: float = 80.0
 
 @export var wander_radius: float = 300.0
