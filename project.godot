@@ -17,6 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+GameState="*uid://hrgcnaxhmf8"
 SpawnDirector="*res://scripts/autoload/spawn_director.gd"
 EnemySpawner="*uid://ccpoi4jhvkcog"
 
@@ -26,11 +27,12 @@ window/size/mode=2
 
 [editor_plugins]
 
-enabled=PackedStringArray()
+enabled=PackedStringArray("res://addons/gut/plugin.cfg")
 
 [global_group]
 
 enemy=""
+outer=""
 
 [input]
 

@@ -67,10 +67,11 @@ occluder = SubResource("OccluderPolygon2D_47lfb")
 position = Vector2(88, 40)
 script = ExtResource("4_dd5th")
 
-[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=1196965733]
+[node name="NavigationRegion" type="NavigationRegion2D" parent="." unique_id=1196965733]
 position = Vector2(0, 18.999998)
 scale = Vector2(0.99312836, 0.5501995)
 navigation_polygon = SubResource("NavigationPolygon_tndhx")
+enabled = false
 
 [node name="Occluders" type="Node2D" parent="." unique_id=1335146360]
 

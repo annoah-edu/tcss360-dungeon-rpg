@@ -114,9 +114,10 @@ position = Vector2(0, -10)
 script = ExtResource("6_spawn")
 category = 0
 
-[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=199679897]
+[node name="NavigationRegion" type="NavigationRegion2D" parent="." unique_id=199679897]
 visible = false
 navigation_polygon = SubResource("NavigationPolygon_qkadl")
+enabled = false
 
 [node name="Occluders" type="Node2D" parent="." unique_id=888228736]
 
