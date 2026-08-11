@@ -63,6 +63,14 @@ const FOG_SHADER := "res://scripts/fov/fov_fog.gdshader"
 		overhang_px = value
 		_push(&"overhang_px", value, true)
 		_push(&"overhang_px", value, false)
+## Width, in world pixels, of the soft-shadow ramp across a pillar's cast-shadow terminator.
+## 0 restores the hard per-column edge. Pushed to both passes so remembered pillars
+## accumulate the same gradient the fog draws.
+@export_range(0.0, 12.0, 0.5) var pillar_penumbra: float = 4.0:
+	set(value):
+		pillar_penumbra = value
+		_push(&"pillar_penumbra", value, true)
+		_push(&"pillar_penumbra", value, false)
 
 var _field: BlockerField
 var _tile_size: float = 16.0
@@ -207,6 +215,7 @@ func _push_static() -> void:
 		_push(&"radius_px", _radius_px, is_fog)
 		_push(&"step_scale", step_scale, is_fog)
 		_push(&"overhang_px", overhang_px, is_fog)
+		_push(&"pillar_penumbra", pillar_penumbra, is_fog)
 	_push(&"remembered_darkness", remembered_darkness, true)
 	_push(&"unseen_opacity", unseen_opacity, true)
 	_push(&"rim_width", rim_width, true)

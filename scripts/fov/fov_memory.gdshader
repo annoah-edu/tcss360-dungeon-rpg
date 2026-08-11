@@ -33,6 +33,9 @@ uniform float radius_px = 144.0;
 uniform float step_scale : hint_range(0.05, 1.0) = 0.25;
 // World pixels a wall's art reaches above its own cell. Must match the fog shader.
 uniform float overhang_px : hint_range(0.0, 16.0) = 6.0;
+// Pillar penumbra width. Must match the fog shader, or remembered pillars would accumulate
+// a different gradient than the one that was lit.
+uniform float pillar_penumbra : hint_range(0.0, 12.0) = 4.0;
 
 // Does `p` land on solid masonry? The blocker texture holds the wall art's silhouette
 // at art-pixel resolution, since the tiles do not fill their cells. See
@@ -135,9 +138,33 @@ float raw_visibility(vec2 world) {
     return 1.0;
 }
 
-// Visibility of a pillar's face: line of sight to the centre of the floor just south of
-// its base. See fov_fog.gdshader; the memory pass must use the same rule (including the
-// shared foot) or remembered ground would disagree with what was lit.
+// Soft directional shading for a pillar body, mirroring fov_fog.gdshader's
+// pillar_shadow_ramp: a smoothstep across the base's cast-shadow terminator so the memory
+// accumulates the same penumbra the fog draws. See there for the full rationale.
+float pillar_shadow_ramp(float cx, float foot_y) {
+    bool here = raw_visibility(vec2(cx, foot_y)) > 0.5;
+    if (pillar_penumbra <= 0.0) {
+        return here ? 1.0 : 0.0;
+    }
+    float reach = pillar_penumbra + 3.0;
+    float dist = reach;
+    for (int i = 1; i <= 16; i++) {
+        float o = float(i);
+        if (o > reach) { break; }
+        if ((raw_visibility(vec2(cx + o, foot_y)) > 0.5) != here) { dist = o; break; }
+    }
+    for (int i = 1; i <= 16; i++) {
+        float o = float(i);
+        if (o > reach || o >= dist) { break; }
+        if ((raw_visibility(vec2(cx - o, foot_y)) > 0.5) != here) { dist = min(dist, o); break; }
+    }
+    float signed_dist = here ? dist : -dist;
+    return smoothstep(-pillar_penumbra, pillar_penumbra, signed_dist);
+}
+
+// Visibility of a pillar's face. Descends to the floor just south of the base in this
+// column, then softens the base's shadow terminator (see fov_fog.gdshader); the memory
+// pass must use the same rule or remembered ground disagrees with what was lit.
 float pillar_face_visibility(vec2 world) {
     vec2 p = world;
     for (int i = 0; i < 64; i++) {
@@ -146,23 +173,7 @@ float pillar_face_visibility(vec2 world) {
             break;
         }
     }
-    float base_y = p.y - 1.0;
-    float left_x = world.x;
-    for (int i = 0; i < 64; i++) {
-        if (!is_pillar(vec2(left_x - 1.0, base_y))) {
-            break;
-        }
-        left_x -= 1.0;
-    }
-    float right_x = world.x;
-    for (int i = 0; i < 64; i++) {
-        if (!is_pillar(vec2(right_x + 1.0, base_y))) {
-            break;
-        }
-        right_x += 1.0;
-    }
-    vec2 foot = vec2(floor((left_x + right_x) * 0.5) + 0.5, p.y);
-    return raw_visibility(foot);
+    return pillar_shadow_ramp(world.x, p.y);
 }
 
 // Mirrors fov_fog.gdshader exactly, or remembered ground would not line up with what

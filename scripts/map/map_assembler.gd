@@ -1,4 +1,4 @@
-eclass_name MapAssembler
+class_name MapAssembler
 extends Node2D
 
 ## Turns the generator's abstract Placement list into real room instances in the
@@ -10,27 +10,14 @@ const SEEN_MASK_SHADER := "res://scripts/fov/seen_mask.gdshader"
 ## every frame is wasteful when spawns are occasional.
 const TRACK_INTERVAL := 0.5
 
-## Tiles the procedural connector corridors are painted with, matching the atlas the
-## authored rooms use. Occlusion is authored separately as full-cell polygons, so these are
-## cosmetic + collision only.
-const CONNECTOR_TILESET := "res://resources/tilesets/dungeon_tileset.tres"
-const CONNECTOR_FLOOR_SOURCE := 0
-const CONNECTOR_FLOOR_ATLAS := Vector2i(1, 1)
-const CONNECTOR_WALL_SOURCE := 1
-## Side-wall art picked by the corridor's orientation: a vertical (N/S) run's walls run
-## north–south (vertical wall tile); a horizontal (E/W) run's walls run east–west (the
-## taller horizontal wall tile). Same tiles the rooms seal their doors with.
-const CONNECTOR_WALL_V_ATLAS := Vector2i(0, 1)
-const CONNECTOR_WALL_H_ATLAS := Vector2i(2, 3)
-## Floor filler stamped into a side-wall cell so the starfield void doesn't read through
-## from outside the world. North walls need none — their tall face covers upward — but the
-## other three do, matching the rooms: south uses (0,0); east and west share (5,5), the west
-## one flipped to mirror it. Painted on the floor layer, under the wall sprite.
-const CONNECTOR_FILLER_SOURCE := 0
-const CONNECTOR_FILLER_SOUTH_ATLAS := Vector2i(0, 0)
-const CONNECTOR_FILLER_EW_ATLAS := Vector2i(5, 5)
-## FLIP_H | FLIP_V, mirroring the east filler into a west one exactly as the rooms author it.
-const WEST_FILLER_TRANSFORM := TileSetAtlasSource.TRANSFORM_FLIP_H | TileSetAtlasSource.TRANSFORM_FLIP_V
+## Authored one-tile corridor slices, tiled along a connector's length instead of painting
+## its cells by hand. Each slice is a Room carrying its floor, side walls, under-wall filler
+## and edge occluders, so a placed slice registers through the exact pipeline the rooms use.
+## The vertical slice serves NORTH/SOUTH runs, the horizontal one EAST/WEST; both are 3 wide,
+## matching every door, so no width variants are needed. Each slice's node origin sits on its
+## far side wall (east on the vertical slice, south on the horizontal one).
+const CONNECTOR_VERTICAL_SCENE := preload("res://scenes/rooms/connector_south_north.tscn")
+const CONNECTOR_HORIZONTAL_SCENE := preload("res://scenes/rooms/connector_east_west.tscn")
 
 ## Directory scanned for room scenes. Every Room scene here with `in_catalog`
 ## set is eligible for generation; its tags/weight/doors are read straight off the
@@ -91,6 +78,20 @@ const WEST_FILLER_TRANSFORM := TileSetAtlasSource.TRANSFORM_FLIP_H | TileSetAtla
 ## tile art. Keep in step with the player camera's zoom.
 @export var starfield_pixel_scale: int = 5
 
+@export_group("Minimap")
+## Draw the bottom-right minimap of explored rooms and corridors.
+@export var minimap_enabled: bool = true
+## Minimap square side, in screen pixels (rounded to a whole number of minimap pixels).
+@export var minimap_size: float = 200.0
+## Screen pixels per minimap pixel. Match the player camera's zoom (5) so the minimap
+## renders on the same pixel grid as the game rather than as hairline lines.
+@export var minimap_pixel_size: int = 5
+## Minimap pixels per world pixel. Below 1 so a whole room shrinks into the square; held
+## fixed so the drawn density stays uniform instead of jumping between rooms.
+@export_range(0.01, 1.0, 0.01) var minimap_scale: float = 0.05
+## Gap from the bottom-right corner, in screen pixels.
+@export var minimap_margin: float = 12.0
+
 ## Field-of-view state for the assembled dungeon: which tiles are lit now and which
 ## are remembered. Built during method build() and read by the fog overlay.
 var visibility := VisibilityMap.new()
@@ -101,6 +102,12 @@ var _blockers := BlockerField.new()
 ## Room tile layers clipped to the seen memory, so the mask can be toggled with the fog.
 var _masked_layers: Array[ShaderMaterial] = []
 var _starfield: Starfield
+var _minimap: Minimap
+## Minimap feature data, accumulated as rooms, corridors and chests are placed, then
+## handed to the minimap once the build finishes.
+var _mm_rooms: Array[Dictionary] = []
+var _mm_connectors: Array[Dictionary] = []
+var _mm_chests: Array[Dictionary] = []
 ## Diagnostic ray drawing. Null unless `debug_rays` has been on since the last build.
 var _ray_overlay: RayDebugOverlay
 var _ray_probe: RayProbe
@@ -140,6 +147,9 @@ func build() -> void:
 	visibility.reset()
 	_blockers.clear()
 	_masked_layers.clear()
+	_mm_rooms.clear()
+	_mm_connectors.clear()
+	_mm_chests.clear()
 
 	var start_room: Room = null
 	for pl in placements:
@@ -153,6 +163,7 @@ func build() -> void:
 		# tile into its gap, so the blockers read here already include doors that
 		# closed. A connected doorway keeps its gap and stays see-through.
 		_register_blockers(room, pl.origin)
+		_record_minimap_room(room, pl.origin)
 		if start_room == null and pl.template.has_tag(&"start"):
 			start_room = room
 
@@ -168,6 +179,7 @@ func build() -> void:
 		director.populate()
 	_setup_fog()
 	_setup_starfield()
+	_setup_minimap()
 
 ## Add the star-map backdrop. Rebuilt alongside everything else, since build() frees
 ## all children; it holds no dungeon state, so recreating it costs nothing.
@@ -267,7 +279,7 @@ func _apply_seen_mask() -> void:
 	for child in get_children():
 		if not (child is Room):
 			continue
-		for layer in [(child as Room).get_floor_layer(), (child as Room).get_walls_layer()]:
+		for layer in (child as Room).get_tile_layers():
 			if layer == null:
 				continue
 			var mat := ShaderMaterial.new()
@@ -381,70 +393,102 @@ func _register_blockers(room: Room, origin: Vector2i) -> void:
 	for polygon in room.get_pillar_polygons():
 		_blockers.add_pillar_polygon(polygon, world_offset)
 
-## Build one corridor as its own Room node: paint floor and side walls at world cells,
-## drop a full-cell occluder over each wall, then register it through the same blocker path
-## the rooms use. Cells are world coordinates and the node sits at the origin, so its
-## occlusion, its seen-mask clipping and its collision all fall out of the Room pipeline
-## with no special casing.
+## Build one corridor by tiling an authored slice scene along its length: one slice per
+## step, each positioned so its far-wall origin lands on that step's far-wall world cell,
+## which aligns every floor and wall tile of the slice to the corridor grid. Each slice is
+## its own Room, so its occlusion, seen-mask clipping and collision all fall out of the Room
+## pipeline with no special casing — the same path the placed rooms take.
 func _build_connector(conn: Connector) -> void:
-	var tileset := load(CONNECTOR_TILESET) as TileSet
-	var room := Room.new()
-	room.name = "Connector"
-	room.y_sort_enabled = true
+	var scene := CONNECTOR_VERTICAL_SCENE if conn.is_vertical() else CONNECTOR_HORIZONTAL_SCENE
+	var step := conn.step()
+	# The slice's node origin sits on its far side wall, `width - 1` cells across from the
+	# near wall; offsetting the placement by that lands the slice's local cells (which run
+	# back toward the near wall) on the corridor's world cells.
+	var far := conn.across() * (conn.width - 1)
+	for s in range(1, conn.length + 1):
+		var slice: Room = scene.instantiate()
+		slice.name = "Connector"
+		var cell := conn.origin + step * s + far
+		slice.position = Vector2(cell * Room.TILE_SIZE)
+		add_child(slice)
+		_register_blockers(slice, cell)
+	_record_minimap_connector(conn)
 
-	var floor_layer := TileMapLayer.new()
-	floor_layer.name = "Floor"
-	floor_layer.tile_set = tileset
-	floor_layer.z_index = -1
-	room.add_child(floor_layer)
+## Capture a placed room's silhouette for the minimap: its world-tile footprint (for
+## deciding which room the player is in), its centre in world pixels (the view target),
+## and the outline of its floor traced into world-pixel line segments.
+func _record_minimap_room(room: Room, origin: Vector2i) -> void:
+	var floor_layer := room.get_floor_layer()
+	var cells: Array[Vector2i] = []
+	if floor_layer != null:
+		for cell in floor_layer.get_used_cells():
+			cells.append(origin + cell)
+	var local := room.get_bounds()
+	var world_bounds := Rect2i(origin + local.position, local.size)
+	var center := (Vector2(world_bounds.position) + Vector2(world_bounds.size) * 0.5) * Room.TILE_SIZE
+	_mm_rooms.append({
+		"bounds": world_bounds,
+		"center": center,
+		"edges": Minimap.trace_outline(cells),
+	})
 
-	var walls_layer := TileMapLayer.new()
-	walls_layer.name = "Walls"
-	walls_layer.tile_set = tileset
-	walls_layer.y_sort_enabled = true
-	room.add_child(walls_layer)
+## Capture a corridor's outline for the minimap and resolve which placed rooms it joins,
+## so entering either room reveals the corridor. A connector's mouth (origin) sits in the
+## host room's wall and its far opening in the neighbour's; both fall inside the matching
+## room's footprint rect.
+func _record_minimap_connector(conn: Connector) -> void:
+	var step := conn.step()
+	var across := conn.across()
+	var far := conn.origin + step * (conn.length + 1)
+	var probes: Array[Vector2i] = [
+		conn.origin, conn.origin + across * (conn.width - 1),
+		far, far + across * (conn.width - 1),
+	]
+	var rooms: Array[int] = []
+	for i in _mm_rooms.size():
+		var bounds: Rect2i = _mm_rooms[i]["bounds"]
+		for p in probes:
+			if bounds.has_point(p):
+				rooms.append(i)
+				break
+	_mm_connectors.append({
+		"edges": _connector_side_walls(conn),
+		"rooms": rooms,
+	})
 
-	for cell in conn.floor_cells():
-		floor_layer.set_cell(cell, CONNECTOR_FLOOR_SOURCE, CONNECTOR_FLOOR_ATLAS, 0)
-
-	# Side walls are directional. A vertical (N/S) corridor's near edge faces west and its
-	# far edge east; a horizontal (E/W) corridor's near edge faces north and its far edge
-	# south. Each wall gets its orientation's tile plus the under-wall filler that hides the
-	# void — every facing but north.
+## The corridor's two long side walls only, as world-pixel segments — no end caps. Tracing
+## the full floor outline would draw a closed rectangle whose near cap sits on the room's
+## doorway and pokes into it; keeping just the runs parallel to the corridor leaves the
+## ends open, so it reads as a passage that stops short of the rooms.
+func _connector_side_walls(conn: Connector) -> PackedVector2Array:
+	var outline := Minimap.trace_outline(conn.floor_cells())
 	var vertical := conn.is_vertical()
-	var wall_atlas := CONNECTOR_WALL_V_ATLAS if vertical else CONNECTOR_WALL_H_ATLAS
-	for cell in conn.near_wall_cells():
-		walls_layer.set_cell(cell, CONNECTOR_WALL_SOURCE, wall_atlas, 0)
-		if vertical:
-			floor_layer.set_cell(cell, CONNECTOR_FILLER_SOURCE, CONNECTOR_FILLER_EW_ATLAS, WEST_FILLER_TRANSFORM)
-		# A horizontal run's near edge is the north wall — no filler needed.
-	for cell in conn.far_wall_cells():
-		walls_layer.set_cell(cell, CONNECTOR_WALL_SOURCE, wall_atlas, 0)
-		if vertical:
-			floor_layer.set_cell(cell, CONNECTOR_FILLER_SOURCE, CONNECTOR_FILLER_EW_ATLAS, 0)
-		else:
-			floor_layer.set_cell(cell, CONNECTOR_FILLER_SOURCE, CONNECTOR_FILLER_SOUTH_ATLAS, 0)
+	var sides := PackedVector2Array()
+	var i := 0
+	while i + 1 < outline.size():
+		var a := outline[i]
+		var b := outline[i + 1]
+		var seg_horizontal := is_equal_approx(a.y, b.y)
+		if seg_horizontal != vertical:
+			sides.append(a)
+			sides.append(b)
+		i += 2
+	return sides
 
-	var occluders := Node2D.new()
-	occluders.name = "Occluders"
-	room.add_child(occluders)
-	for cell in conn.wall_cells():
-		occluders.add_child(_cell_occluder(cell))
-
-	add_child(room)
-	# Cells were painted in world coordinates, so there is no per-room origin to add.
-	_register_blockers(room, Vector2i.ZERO)
-
-## A LightOccluder2D covering one whole world cell — a connector side wall's occlusion.
-func _cell_occluder(cell: Vector2i) -> LightOccluder2D:
-	var tl := Vector2(cell * Room.TILE_SIZE)
-	var s := float(Room.TILE_SIZE)
-	var poly := OccluderPolygon2D.new()
-	poly.polygon = PackedVector2Array([
-		tl, tl + Vector2(s, 0.0), tl + Vector2(s, s), tl + Vector2(0.0, s)])
-	var occ := LightOccluder2D.new()
-	occ.occluder = poly
-	return occ
+## Create the minimap and hand it the assembled feature data. Rebuilt with everything
+## else, since build() frees all children.
+func _setup_minimap() -> void:
+	_minimap = null
+	if not minimap_enabled or _player == null:
+		return
+	_minimap = Minimap.new()
+	_minimap.name = "Minimap"
+	_minimap.view_size = minimap_size
+	_minimap.pixel_size = minimap_pixel_size
+	_minimap.world_scale = minimap_scale
+	_minimap.margin = minimap_margin
+	add_child(_minimap)
+	_minimap.setup(_mm_rooms, _mm_connectors, _mm_chests, _player)
 
 ## World tile the given point falls in, for driving the field of view from a node's
 ## position.
@@ -507,3 +551,8 @@ func _spawn_chests() -> void:
 		var chest := chest_scene.instantiate()
 		add_child(chest)
 		chest.global_position = point.global_position
+		_mm_chests.append({
+			"pos": point.global_position,
+			"tile": world_to_tile(point.global_position),
+			"revealed": false,
+		})

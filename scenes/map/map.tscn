@@ -12,3 +12,5 @@ map_seed = 12345
 randomize_seed = false
 player_scene = ExtResource("2_player")
 chest_scene = ExtResource("3_a2pkv")
+minimap_size = 300.0
+minimap_scale = 0.09999999999999999

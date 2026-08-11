@@ -5,6 +5,12 @@
 [ext_resource type="Script" uid="uid://brygda3aiwshx" path="res://scripts/map/door.gd" id="3_tjlwy"]
 [ext_resource type="Script" uid="uid://xqtnd0548232" path="res://scripts/map/spawn_point.gd" id="4_b8lqt"]
 
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_jbdm1"]
+polygon = PackedVector2Array(-5, 46, -6, 46, -6, -9, -5, -9)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_tjlwy"]
+polygon = PackedVector2Array(3, 45, 4, 45, 4, -10, 3, -10)
+
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_tndhx"]
 vertices = PackedVector2Array(177, 86, -1, 86, -1, 10, 177, 10)
 polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
@@ -38,11 +44,17 @@ script = ExtResource("3_tjlwy")
 direction = 3
 width = 3
 
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Doors/Door_W" unique_id=1034695147]
+occluder = SubResource("OccluderPolygon2D_jbdm1")
+
 [node name="Door_E" type="Marker2D" parent="Doors" unique_id=998908723]
 position = Vector2(184, 28)
 script = ExtResource("3_tjlwy")
 direction = 2
 width = 3
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Doors/Door_E" unique_id=235134872]
+occluder = SubResource("OccluderPolygon2D_tjlwy")
 
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=1952539242]
 

@@ -34,6 +34,16 @@ func get_floor_layer() -> TileMapLayer:
 func get_walls_layer() -> TileMapLayer:
 	return get_node_or_null("Walls") as TileMapLayer
 
+## Every TileMapLayer the room draws, not just Floor and Walls. Rooms may carry extra
+## layers — floor decoration, half-height broken walls — and all of them must be clipped
+## to the seen memory, or they show through the transparent never-seen fog before the
+## player has explored the room (see MapAssembler._apply_seen_mask).
+func get_tile_layers() -> Array[TileMapLayer]:
+	var result: Array[TileMapLayer] = []
+	for node in find_children("*", "TileMapLayer", true, false):
+		result.append(node as TileMapLayer)
+	return result
+
 ## Doors in a stable order that matches the template and the placement's
 ## `connected` array.
 func get_doors() -> Array[Door]:

@@ -32,6 +32,10 @@ uniform float step_scale : hint_range(0.05, 1.0) = 0.25;
 // overhang at all; the probe below only fires where a wall actually sits, so they are
 // unaffected. 0 disables the handling entirely.
 uniform float overhang_px : hint_range(0.0, 16.0) = 6.0;
+// Soft-shadow width for pillar bodies, in world pixels. The base's cast shadow crosses the
+// pillar as a hard per-column edge; this many pixels of smoothstep are spread across that
+// terminator for a penumbra. 0 restores the hard per-column edge.
+uniform float pillar_penumbra : hint_range(0.0, 12.0) = 4.0;
 
 // How dark remembered-but-unlit ground is drawn.
 uniform float remembered_darkness : hint_range(0.0, 1.0) = 0.55;
@@ -214,21 +218,25 @@ float raw_visibility(vec2 world) {
     return 1.0;
 }
 
-// Visibility of a pillar's face: the line of sight to the floor just south of the pillar.
+// The floor pixel just south of the pillar's base, in THIS pixel's own column.
 //
 // A pillar's tall body is drawn north of its base, so a ray to the body itself is blocked
 // by the base — it is behind the occluder even though it is the face the player sees.
-// Marching south out of the green region lands on the floor at the pillar's near foot;
-// that foot is directly visible from the front (south) and hidden behind the base from
-// the rear (north), which is exactly how the face should light and darken.
+// Marching straight south out of the green region lands on the floor at the base's near
+// foot; that foot is directly visible from the front (south) and hidden behind the base
+// from the rear (north), which is exactly how the face should light and darken.
 //
-// Every column samples ONE shared foot — the centre of the base's south edge — not its
-// own. Per-column feet blink in and out as the base grazes them at an angle, which read as
-// vertical bands down the body that only filled in once memory had seen the pillar from
-// enough sides. A shared foot makes the whole pillar light and darken as a unit, so there
-// is nothing to band and no first-sighting artifact to circle away.
-float pillar_face_visibility(vec2 world) {
-    // Descend to the floor just below the pillar's base.
+// Per-column, not a single shared foot: each column of the body inherits the sightline to
+// the foot directly beneath it, so the pillar shades as a gradient — columns whose foot
+// clears the base light up, columns whose foot is behind it stay dark, and the boundary
+// tracks the base's cast shadow. A shared foot instead lights the whole pillar as one flat
+// unit, which loses that directional read. The hard per-column edge (and its shimmer as the
+// boundary grazes columns) is softened downstream by pillar_shadow_ramp.
+//
+// The descend runs through the whole green region, which is authored to reach down past
+// the base occluder (see the pillar polygons in the room scenes), so the foot lands on
+// open floor south of the base rather than on the occluder itself.
+vec2 pillar_foot(vec2 world) {
     vec2 p = world;
     for (int i = 0; i < 64; i++) {
         p.y += 1.0;
@@ -236,25 +244,58 @@ float pillar_face_visibility(vec2 world) {
             break;
         }
     }
-    // Scan the base's bottom row left and right for the region's horizontal centre, so
-    // every column resolves to the same foot pixel.
-    float base_y = p.y - 1.0;
-    float left_x = world.x;
-    for (int i = 0; i < 64; i++) {
-        if (!is_pillar(vec2(left_x - 1.0, base_y))) {
-            break;
-        }
-        left_x -= 1.0;
+    return vec2(world.x, p.y);
+}
+
+// Soft directional shading for a pillar body: a smooth ramp across the base's cast-shadow
+// terminator instead of the hard per-column on/off.
+//
+// Along the foot row each column is either lit or shadowed by the base — raw_visibility of
+// its own foot, a 0/1 step. The place that step flips is where the base's shadow crosses the
+// pillar. Rather than take the raw value here, we measure how far this column sits from that
+// boundary (scanning left and right along the foot row for the nearest flip) and smoothstep
+// across `pillar_penumbra` pixels of it. That gives an analytic penumbra whose width is a
+// fixed artistic parameter rather than something tied to the march resolution; a uniform
+// region with no boundary in reach saturates to fully lit or fully dark. Feeding the smooth
+// value into the memory pass as well (fov_memory mirrors this) means explored ground
+// accumulates the ramp, not a stack of hard per-column edges.
+float pillar_shadow_ramp(float cx, float foot_y) {
+    bool here = raw_visibility(vec2(cx, foot_y)) > 0.5;
+    if (pillar_penumbra <= 0.0) {
+        return here ? 1.0 : 0.0;
     }
-    float right_x = world.x;
-    for (int i = 0; i < 64; i++) {
-        if (!is_pillar(vec2(right_x + 1.0, base_y))) {
-            break;
-        }
-        right_x += 1.0;
+    float reach = pillar_penumbra + 3.0;
+    float dist = reach;
+    // Nearest column to the right whose foot flips visibility.
+    for (int i = 1; i <= 16; i++) {
+        float o = float(i);
+        if (o > reach) { break; }
+        if ((raw_visibility(vec2(cx + o, foot_y)) > 0.5) != here) { dist = o; break; }
     }
-    vec2 foot = vec2(floor((left_x + right_x) * 0.5) + 0.5, p.y);
-    return raw_visibility(foot);
+    // ...and to the left; keep whichever boundary is closer, and stop once we pass it.
+    for (int i = 1; i <= 16; i++) {
+        float o = float(i);
+        if (o > reach || o >= dist) { break; }
+        if ((raw_visibility(vec2(cx - o, foot_y)) > 0.5) != here) { dist = min(dist, o); break; }
+    }
+    float signed_dist = here ? dist : -dist;
+    return smoothstep(-pillar_penumbra, pillar_penumbra, signed_dist);
+}
+
+// Step the outer band of the sight pool down to one flat level rather than fading it, and
+// cut everything past the radius to full dark. `point` is the world pixel whose distance
+// from the player drives the falloff — for a pillar this is its column's foot, not the
+// body pixel being shaded, so the pillar's falloff matches the floor it stands on rather
+// than glowing at its top past the pool's edge. raw_visibility has already zeroed anything
+// past the radius, so lit==0 pixels are left untouched here.
+float apply_rim(float lit, vec2 point) {
+    if (lit > 0.0 && rim_width > 0.0) {
+        float inner = radius_px * (1.0 - rim_width);
+        if (distance(point, player_world) > inner) {
+            return rim_level;
+        }
+    }
+    return lit;
 }
 
 // Light a wall's tall face along with the wall it belongs to.
@@ -275,9 +316,12 @@ float pillar_face_visibility(vec2 world) {
 // sprite's own footprint.
 float visibility_at(vec2 world) {
     // A pillar face inherits the visibility of its near foot, so it lights from the front
-    // and darkens from behind rather than by its own base-blocked sightline.
+    // and darkens from behind rather than by its own base-blocked sightline. The per-column
+    // boundary is softened into a penumbra (see pillar_shadow_ramp); the rim falloff is
+    // measured from this column's foot.
     if (is_pillar(world)) {
-        return pillar_face_visibility(world);
+        float fy = pillar_foot(world).y;
+        return apply_rim(pillar_shadow_ramp(world.x, fy), vec2(world.x, fy));
     }
     float lit = raw_visibility(world);
     if (overhang_px > 0.0 && lit < 1.0) {
@@ -294,7 +338,8 @@ float visibility_at(vec2 world) {
             lit = max(lit, raw_visibility(top_of_wall));
         }
     }
-    return lit;
+    // Ordinary ground and wall faces take the rim from their own pixel.
+    return apply_rim(lit, world);
 }
 
 void fragment() {
@@ -308,17 +353,9 @@ void fragment() {
         // makes every fragment of an art pixel resolve identically, so shadow edges
         // fall on the same grid as the tile art.
         vec2 world = floor(view_origin + screen_position * view_scale) + vec2(0.5);
+        // visibility_at folds in the outer-rim step-down, measured from the pillar foot
+        // for pillars and from the pixel itself for everything else.
         float lit = visibility_at(world);
-
-        // Step the outer band down to one flat level rather than fading it. Applied
-        // after the sight test so the ring only dims ground that is genuinely visible;
-        // shadowed ground is already dark and must not be lifted by it.
-        if (lit > 0.0 && rim_width > 0.0) {
-            float inner = radius_px * (1.0 - rim_width);
-            if (distance(world, player_world) > inner) {
-                lit = rim_level;
-            }
-        }
 
         // Memory is stored over the blocker field's extent; anything outside it has
         // certainly never been seen.

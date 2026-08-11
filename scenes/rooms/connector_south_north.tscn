@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://c0s3qveqnhqoa"]
+
+[ext_resource type="Script" uid="uid://demgbmg4cottj" path="res://scripts/map/room.gd" id="1_g3dbd"]
+[ext_resource type="TileSet" uid="uid://dbqi72jodvegr" path="res://resources/tilesets/dungeon_tileset.tres" id="2_algi3"]
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_g3dbd"]
+polygon = PackedVector2Array(11, 0, 11, 24, 12, 24, 12, 0)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_algi3"]
+polygon = PackedVector2Array(-27, 0, -28, 0, -28, 24, -27, 24)
+
+[node name="Room" type="Node2D" unique_id=836727441]
+y_sort_enabled = true
+script = ExtResource("1_g3dbd")
+room_id = &"connector"
+in_catalog = false
+
+[node name="Floor" type="TileMapLayer" parent="." unique_id=383587806]
+z_index = -1
+tile_map_data = PackedByteArray(0, 0, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 254, 255, 0, 0, 0, 0, 4, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 5, 0, 0, 0)
+tile_set = ExtResource("2_algi3")
+
+[node name="Walls" type="TileMapLayer" parent="." unique_id=659741997]
+y_sort_enabled = true
+tile_map_data = PackedByteArray(0, 0, 254, 255, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+tile_set = ExtResource("2_algi3")
+
+[node name="SpawnPoints" type="Node2D" parent="." unique_id=1952539242]
+
+[node name="Occluders" type="Node2D" parent="." unique_id=1862735760]
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Occluders" unique_id=367042423]
+occluder = SubResource("OccluderPolygon2D_g3dbd")
+
+[node name="LightOccluder2D2" type="LightOccluder2D" parent="Occluders" unique_id=1217772917]
+occluder = SubResource("OccluderPolygon2D_algi3")
