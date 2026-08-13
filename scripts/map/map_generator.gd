@@ -30,13 +30,19 @@ var compactness: float = 0.5
 ## is capped by the frontier size, so small frontiers are unaffected.
 var selection_pool: int = 4
 
+## Corridors joining the placed rooms, one per connection. Populated by generate()
+## alongside the returned placements, then read by MapAssembler to build the geometry.
+var connectors: Array[Connector] = []
+
 var _rng := RandomNumberGenerator.new()
 
 ## Origin (in world tile coords) at which a room carrying `new_door` must be
 ## placed so that door lines up gap-to-gap with `host_door` on a room at
-## `host_origin`. Pure and side-effect free, so it is unit-tested directly.
-static func aligned_origin(host_origin: Vector2i, host_door: RoomDoor, new_door: RoomDoor) -> Vector2i:
-	return host_origin + host_door.cell + Door.direction_vector(host_door.direction) - new_door.cell
+## `host_origin`. `gap` is the number of tiles between the two door thresholds — 1 for
+## rooms placed flush, or connector_length + 1 when a corridor sits between them. Pure and
+## side-effect free, so it is unit-tested directly.
+static func aligned_origin(host_origin: Vector2i, host_door: RoomDoor, new_door: RoomDoor, gap: int = 1) -> Vector2i:
+	return host_origin + host_door.cell + Door.direction_vector(host_door.direction) * gap - new_door.cell
 
 ## Build a dungeon layout from `templates` using `p_seed`. Returns the placed rooms
 ## in the order they were added (the start room is always first), or an empty array
@@ -44,6 +50,7 @@ static func aligned_origin(host_origin: Vector2i, host_door: RoomDoor, new_door:
 ## produce the same layout.
 func generate(templates: Array[RoomTemplate], p_seed: int) -> Array[Placement]:
 	_rng.seed = p_seed
+	connectors = []
 	var placements: Array[Placement] = []
 	if templates.is_empty():
 		return placements
@@ -125,6 +132,7 @@ func _try_attach(templates: Array[RoomTemplate], placements: Array[Placement], h
 	var best_cand: RoomTemplate = null
 	var best_door := -1
 	var best_origin := Vector2i.ZERO
+	var best_conn: Connector = null
 	var best_score := 0.0
 	var considered := 0
 	var limit := _placement_choices()
@@ -134,25 +142,73 @@ func _try_attach(templates: Array[RoomTemplate], placements: Array[Placement], h
 			var b: RoomDoor = cand.doors[bi]
 			if not a.is_compatible(b):
 				continue
-			# Put b's threshold one tile outward from a's, so the gaps line up.
-			var origin_b: Vector2i = aligned_origin(host.origin, a, b)
-			if _overlaps(cand, origin_b, placements):
+			# A corridor sits between the two rooms, so b's threshold lands connector +
+			# 1 tiles out. Try lengths until one leaves both the corridor and the room
+			# clear; a fit is not guaranteed, so this can come back empty.
+			var fit := _fit_connector(host, a, cand, b, placements)
+			if fit.is_empty():
 				continue
+			var origin_b: Vector2i = fit["origin"]
+			var conn: Connector = fit["connector"]
 			var score := _placement_score(cand, origin_b, placements)
 			if best_cand == null or score > best_score:
 				best_cand = cand
 				best_door = bi
 				best_origin = origin_b
+				best_conn = conn
 				best_score = score
 			considered += 1
 			# At low compactness `limit` is 1, so this keeps the original behaviour of
 			# committing to the first room that fits.
 			if considered >= limit:
-				return _commit(placements, host, door_index, best_cand, best_door, best_origin)
+				return _commit(placements, host, door_index, best_cand, best_door, best_origin, best_conn)
 
 	if best_cand == null:
 		return -1
-	return _commit(placements, host, door_index, best_cand, best_door, best_origin)
+	return _commit(placements, host, door_index, best_cand, best_door, best_origin, best_conn)
+
+## Find a corridor length that lets both the connector and the attached room sit clear of
+## everything placed. Tries a weighted-random length first (so 3 dominates and 2/4 vary),
+## then the remaining lengths as fallbacks so a tight spot still connects when it can.
+## Returns {origin, connector} or {} if no length fits.
+func _fit_connector(host: Placement, a: RoomDoor, cand: RoomTemplate, b: RoomDoor, placements: Array[Placement]) -> Dictionary:
+	var door_world := host.origin + a.cell
+	for length in _connector_lengths():
+		var origin_b := aligned_origin(host.origin, a, b, length + 1)
+		var conn := Connector.new(door_world, a.direction, length, a.width)
+		if _placement_fits(cand, origin_b, conn, placements):
+			return {"origin": origin_b, "connector": conn}
+	return {}
+
+## Candidate corridor lengths, the weighted-random pick first then the rest. Weighted 2:3:4
+## as 1:2:1, so 3 is the default look with 2 and 4 as variation.
+func _connector_lengths() -> Array[int]:
+	var roll := _rng.randf()
+	var first := 3
+	if roll < 0.25:
+		first = 2
+	elif roll >= 0.75:
+		first = 4
+	var rest: Array[int] = [3, 2, 4]
+	rest.erase(first)
+	var order: Array[int] = [first]
+	order.append_array(rest)
+	return order
+
+## Whether an attached room (its interior) and its connector (its footprint) both clear
+## every placed room's interior and every placed corridor.
+func _placement_fits(cand: RoomTemplate, origin_b: Vector2i, conn: Connector, placements: Array[Placement]) -> bool:
+	var room_rect := cand.interior(origin_b)
+	var conn_rect := conn.footprint()
+	for pl in placements:
+		var pl_in := pl.template.interior(pl.origin)
+		if room_rect.intersects(pl_in) or conn_rect.intersects(pl_in):
+			return false
+	for other in connectors:
+		var other_rect := other.footprint()
+		if room_rect.intersects(other_rect) or conn_rect.intersects(other_rect):
+			return false
+	return true
 
 ## How many fitting candidates to weigh against each other before committing. Only
 ## compactness above neutral looks past the first fit; sprawling layouts gain nothing
@@ -179,19 +235,13 @@ func _placement_score(cand: RoomTemplate, origin: Vector2i, placements: Array[Pl
 			touching += 1
 	return float(touching) * 10.0 - distance
 
-func _commit(placements: Array[Placement], host: Placement, door_index: int, cand: RoomTemplate, cand_door: int, origin: Vector2i) -> int:
+func _commit(placements: Array[Placement], host: Placement, door_index: int, cand: RoomTemplate, cand_door: int, origin: Vector2i, conn: Connector) -> int:
 	var pl := Placement.new(cand, origin)
 	pl.connected[cand_door] = true
 	placements.append(pl)
 	host.connected[door_index] = true
+	connectors.append(conn)
 	return placements.size() - 1
-
-func _overlaps(cand: RoomTemplate, origin: Vector2i, placements: Array[Placement]) -> bool:
-	var rect := cand.interior(origin)
-	for pl in placements:
-		if rect.intersects(pl.template.interior(pl.origin)):
-			return true
-	return false
 
 func _pick_start(templates: Array[RoomTemplate]) -> RoomTemplate:
 	for t in templates:
