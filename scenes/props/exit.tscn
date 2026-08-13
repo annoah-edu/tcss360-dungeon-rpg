@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://cbbrrn3uru3ea"]
+
+[ext_resource type="Script" path="res://scripts/props/exit.gd" id="1_exit"]
+
+[node name="Exit" type="Area2D"]
+collision_mask = 2
+script = ExtResource("1_exit")
