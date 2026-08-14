@@ -34,6 +34,18 @@ func test_ready_connects_hitbox_signals() -> void:
 	)
 
 
+func test_rusty_sword_defaults_match_current_combat_contract() -> void:
+	assert_eq(player.atk_dmg, 34)
+	assert_almost_eq(player.atk_rate, 0.5, 0.0001)
+	assert_eq(player.knockback_strength, 150)
+	assert_eq(
+		player.weapon_sprite.texture.resource_path,
+		"res://Dungeon Tileset v1.7/frames/weapon_rusty_sword.png",
+	)
+	assert_eq(player.weapon_sprite.offset, Vector2(0, -10))
+	assert_eq(player.weapon_hitbox.collision_mask, 4)
+
+
 # ---------- _process() ----------
 
 func test_process_decrements_attack_cooldown_by_delta() -> void:
@@ -157,6 +169,7 @@ func test_apply_weapon_facing_treats_zero_x_as_not_negative() -> void:
 	var direction := Vector2(0, 10)
 	player._apply_weapon_facing(direction)
 	assert_eq(player.weapon.scale.x, 1.0)
+	assert_almost_eq(player.weapon.rotation, direction.angle(), 0.001)
 
 
 func test_handle_weapon_rotation_delegates_without_error() -> void:
@@ -193,6 +206,33 @@ func test_handle_attacking_does_nothing_when_not_pressed() -> void:
 	player._handle_attacking()
 
 	assert_eq(player.atk_cooldown, 0.0, "Cooldown should stay at 0 when attack isn't pressed")
+
+
+func test_swing_animation_has_one_damage_event_at_authored_hit_time() -> void:
+	var swing_animation: Animation = player.anim_player.get_animation(&"swing")
+	assert_not_null(swing_animation)
+	if swing_animation == null:
+		return
+
+	var damage_key_times: Array[float] = []
+	for track_index in swing_animation.get_track_count():
+		if swing_animation.track_get_type(track_index) != Animation.TYPE_METHOD:
+			continue
+		for key_index in swing_animation.track_get_key_count(track_index):
+			var key_value: Dictionary = swing_animation.track_get_key_value(
+				track_index,
+				key_index,
+			)
+			if key_value.get("method", &"") != &"_damage_enemies":
+				continue
+			assert_eq(swing_animation.track_get_path(track_index), NodePath("."))
+			damage_key_times.append(
+				swing_animation.track_get_key_time(track_index, key_index),
+			)
+
+	assert_eq(damage_key_times.size(), 1, "Swing should request damage exactly once")
+	if damage_key_times.size() == 1:
+		assert_almost_eq(damage_key_times[0], 1.0 / 6.0, 0.0001)
 
 
 # ---------- _show_swing() / _hide_swing() ----------
