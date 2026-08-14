@@ -36,6 +36,7 @@ func test_ready_connects_hitbox_signals() -> void:
 
 func test_rusty_sword_defaults_match_current_combat_contract() -> void:
 	assert_same(player.equipped_weapon, player.starting_weapon)
+	assert_same(player.weapon_equipment.equipped_weapon, player.starting_weapon)
 	assert_eq(player.atk_dmg, 34)
 	assert_almost_eq(player.damage_variance, 0.20, 0.0001)
 	assert_almost_eq(player.atk_rate, 0.5, 0.0001)

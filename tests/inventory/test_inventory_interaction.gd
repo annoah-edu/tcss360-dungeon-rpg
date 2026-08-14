@@ -29,6 +29,64 @@ func test_player_and_chest_have_requested_slot_counts() -> void:
 	assert_eq(player.inventory.slots.size(), 6)
 	assert_eq(chest.inventory.capacity, 4)
 	assert_eq(chest.inventory.slots.size(), 4)
+	assert_same(player.weapon_equipment.equipped_weapon, player.starting_weapon)
+
+
+func test_player_inventory_shows_labeled_non_draggable_equipment_slot() -> void:
+	player.inventory_ui.show_player(player.inventory)
+
+	assert_eq(player.inventory_ui._equipment_label.text, "EQUIPPED")
+	assert_true(player.inventory_ui._equipment_slot.visible)
+	assert_same(
+		player.inventory_ui._equipment_slot._equipment,
+		player.weapon_equipment,
+	)
+	assert_null(
+		player.inventory_ui._equipment_slot._get_drag_data(Vector2.ZERO),
+		"The equipped weapon cannot be dragged out",
+	)
+	assert_eq(player.inventory_ui._player_panel._grid.columns, 3)
+	assert_eq(player.inventory_ui._player_panel._slots.size(), 6)
+
+
+func test_player_weapon_drop_atomically_equips_and_updates_combat() -> void:
+	var incoming_weapon := _create_test_weapon(&"incoming_weapon")
+	var previous_weapon := player.weapon_equipment.equipped_weapon
+	player.inventory.add_item(incoming_weapon)
+	player.inventory_ui.show_player(player.inventory)
+	var drag_data := {"inventory": player.inventory, "index": 0}
+
+	assert_true(
+		player.inventory_ui._equipment_slot._can_drop_data(Vector2.ZERO, drag_data)
+	)
+	player.inventory_ui._equipment_slot._drop_data(Vector2.ZERO, drag_data)
+
+	assert_same(player.weapon_equipment.equipped_weapon, incoming_weapon)
+	assert_same(player.equipped_weapon, incoming_weapon)
+	assert_same(player.inventory.item_at(0), previous_weapon)
+	assert_same(player.weapon_sprite.texture, incoming_weapon.held_texture)
+	assert_eq(player.weapon_sprite.offset, incoming_weapon.grip_offset)
+	assert_eq(player.atk_dmg, incoming_weapon.base_damage)
+	assert_almost_eq(player.damage_variance, incoming_weapon.damage_variance, 0.0001)
+	assert_almost_eq(player.atk_rate, incoming_weapon.attack_interval_seconds, 0.0001)
+	assert_eq(player.knockback_strength, incoming_weapon.knockback_strength)
+
+
+func test_equipment_slot_rejects_chest_items_and_non_weapons() -> void:
+	var chest_weapon := _create_test_weapon(&"chest_weapon")
+	chest.inventory.slots[0] = chest_weapon
+	var chest_drag := {"inventory": chest.inventory, "index": 0}
+	assert_false(
+		player.inventory_ui._equipment_slot._can_drop_data(Vector2.ZERO, chest_drag)
+	)
+
+	var potion := ItemData.create(&"potion", "Potion", chest_weapon.icon)
+	player.inventory.add_item(potion)
+	var potion_drag := {"inventory": player.inventory, "index": 0}
+	assert_false(
+		player.inventory_ui._equipment_slot._can_drop_data(Vector2.ZERO, potion_drag)
+	)
+	assert_same(player.inventory.item_at(0), potion)
 
 
 func test_chest_contains_the_shared_rusty_sword_definition() -> void:
@@ -79,6 +137,7 @@ func test_inventory_panels_are_centered_with_separate_grid_dimensions() -> void:
 	assert_almost_eq(row_center.y, viewport_center.y, 0.5)
 	assert_eq(player.inventory_ui._player_panel._grid.columns, 3)
 	assert_eq(player.inventory_ui._chest_panel._grid.columns, 2)
+	assert_true(player.inventory_ui._equipment_slot.visible)
 	var player_style := (
 		player.inventory_ui._player_panel.get_theme_stylebox(&"panel") as StyleBoxFlat
 	)
@@ -136,3 +195,20 @@ func test_looted_item_remains_in_player_inventory_after_closing_and_leaving() ->
 	assert_true(chest.is_open)
 	assert_eq(chest.sprite.animation, Chest.EMPTY_OPEN_ANIMATION)
 	assert_eq(chest.sprite.frame, 2)
+
+
+func _create_test_weapon(weapon_id: StringName) -> WeaponData:
+	var texture: Texture2D = preload(
+		"res://Dungeon Tileset v1.7/frames/weapon_regular_sword.png"
+	)
+	var weapon := WeaponData.new()
+	weapon.id = weapon_id
+	weapon.display_name = String(weapon_id)
+	weapon.icon = texture
+	weapon.held_texture = texture
+	weapon.base_damage = 21
+	weapon.damage_variance = 0.05
+	weapon.attack_interval_seconds = 0.25
+	weapon.knockback_strength = 90
+	weapon.grip_offset = Vector2(1, -8)
+	return weapon

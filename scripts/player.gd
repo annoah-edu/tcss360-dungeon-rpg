@@ -29,10 +29,14 @@ var enemies_in_range: Array[Enemy] # The array of enemies inside the physics are
 var inventory: InventoryData
 var nearby_chests: Array[Chest] = []
 var equipped_weapon: WeaponData
+var weapon_equipment: WeaponEquipment
 
 func _ready() -> void:
 	inventory = InventoryData.new(6)
-	equip_weapon(starting_weapon)
+	weapon_equipment = WeaponEquipment.new(starting_weapon)
+	weapon_equipment.equipped_weapon_changed.connect(_on_equipped_weapon_changed)
+	equip_weapon(weapon_equipment.equipped_weapon)
+	inventory_ui.bind_player(inventory, weapon_equipment)
 	health = max_health
 	_hide_swing() # Hide the swinging sprite in case it wasn't hidden in-editor yet
 	
@@ -159,6 +163,10 @@ func equip_weapon(weapon_data: WeaponData) -> void:
 	damage_variance = weapon_data.damage_variance
 	atk_rate = weapon_data.attack_interval_seconds
 	knockback_strength = weapon_data.knockback_strength
+
+
+func _on_equipped_weapon_changed(_previous: WeaponData, current: WeaponData) -> void:
+	equip_weapon(current)
 
 ## Rotates the weapon to face a position. Uses scale to flip the weapon in order to keep animations upright.
 func _apply_weapon_facing(direction: Vector2) -> void:

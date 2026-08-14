@@ -16,6 +16,10 @@ var _inventory_center: CenterContainer
 var _panel_row: HBoxContainer
 var _player_panel: InventoryPanel
 var _chest_panel: InventoryPanel
+var _equipment_label: Label
+var _equipment_slot: EquipmentSlot
+var _player_inventory: InventoryData
+var _weapon_equipment: WeaponEquipment
 
 
 func _ready() -> void:
@@ -28,6 +32,21 @@ func is_open() -> bool:
 	return _root != null and _root.visible
 
 
+## Binds the player's live inventory and equipment state without copying either.
+func bind_player(
+	player_inventory: InventoryData,
+	weapon_equipment: WeaponEquipment,
+) -> void:
+	_player_inventory = player_inventory
+	_weapon_equipment = weapon_equipment
+	if _equipment_slot != null:
+		_equipment_slot.setup(
+			_player_inventory,
+			_weapon_equipment,
+			PLAYER_BORDER_COLOR,
+		)
+
+
 func toggle_player(player_inventory: InventoryData) -> void:
 	if is_open():
 		close()
@@ -37,6 +56,7 @@ func toggle_player(player_inventory: InventoryData) -> void:
 
 func show_player(player_inventory: InventoryData) -> void:
 	_set_active_chest(null)
+	bind_player(player_inventory, _weapon_equipment)
 	_player_panel.bind_inventory(
 		"PLAYER", player_inventory, PLAYER_COLUMNS, PLAYER_BORDER_COLOR
 	)
@@ -55,6 +75,7 @@ func show_chest(player_inventory: InventoryData, chest: Chest) -> void:
 	if chest == null:
 		return
 	_set_active_chest(chest)
+	bind_player(player_inventory, _weapon_equipment)
 	_player_panel.bind_inventory(
 		"PLAYER", player_inventory, PLAYER_COLUMNS, PLAYER_BORDER_COLOR
 	)
@@ -103,9 +124,27 @@ func _build_ui() -> void:
 	_player_panel = InventoryPanel.new()
 	_panel_row.add_child(_player_panel)
 
+	var equipment_column := VBoxContainer.new()
+	equipment_column.add_theme_constant_override(&"separation", 8)
+
+	_equipment_label = Label.new()
+	_equipment_label.text = "EQUIPPED"
+	_equipment_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_equipment_label.add_theme_color_override(&"font_color", PLAYER_BORDER_COLOR)
+	_equipment_label.add_theme_font_size_override(&"font_size", 16)
+	equipment_column.add_child(_equipment_label)
+
+	var equipment_center := CenterContainer.new()
+	equipment_column.add_child(equipment_center)
+
+	_equipment_slot = EquipmentSlot.new()
+	equipment_center.add_child(_equipment_slot)
+	_player_panel.set_accessory(equipment_column)
+	_equipment_slot.setup(_player_inventory, _weapon_equipment, PLAYER_BORDER_COLOR)
+
 	var hint := Label.new()
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint.text = "Drag items between slots - I / E / Esc to close"
+	hint.text = "Drag player weapons onto EQUIPPED - I / E / Esc to close"
 	hint.add_theme_font_size_override(&"font_size", 16)
 	_root.add_child(hint)
 	hint.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
