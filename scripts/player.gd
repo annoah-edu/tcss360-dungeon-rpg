@@ -4,7 +4,9 @@ class_name Player
 const SPEED = 100.0
 
 @export var max_health: int = 200
+@export var starting_weapon: WeaponData
 @export var atk_dmg: int = 34
+@export var damage_variance: float = 0.20
 @export var knockback_strength: int = 150
 @export var atk_rate: float = 0.5
 
@@ -26,9 +28,11 @@ var atk_cooldown: float = 0
 var enemies_in_range: Array[Enemy] # The array of enemies inside the physics area
 var inventory: InventoryData
 var nearby_chests: Array[Chest] = []
+var equipped_weapon: WeaponData
 
 func _ready() -> void:
 	inventory = InventoryData.new(6)
+	equip_weapon(starting_weapon)
 	health = max_health
 	_hide_swing() # Hide the swinging sprite in case it wasn't hidden in-editor yet
 	
@@ -141,6 +145,21 @@ func _handle_weapon_rotation() -> void:
 	var direction: Vector2 = get_global_mouse_position() - weapon.global_position
 	_apply_weapon_facing(direction)
 
+
+## Applies a weapon definition to the legacy Player-owned combat fields. This is a
+## compatibility seam until WeaponController takes ownership in Stage 3.
+func equip_weapon(weapon_data: WeaponData) -> void:
+	if weapon_data == null or not weapon_data.validation_errors(false).is_empty():
+		return
+
+	equipped_weapon = weapon_data
+	weapon_sprite.texture = weapon_data.held_texture
+	weapon_sprite.offset = weapon_data.grip_offset
+	atk_dmg = weapon_data.base_damage
+	damage_variance = weapon_data.damage_variance
+	atk_rate = weapon_data.attack_interval_seconds
+	knockback_strength = weapon_data.knockback_strength
+
 ## Rotates the weapon to face a position. Uses scale to flip the weapon in order to keep animations upright.
 func _apply_weapon_facing(direction: Vector2) -> void:
 	weapon.rotation = direction.angle()
@@ -187,7 +206,9 @@ func _enemy_exited(body: Node2D) -> void:
 ## Damages enemies inside the current weapon's range by looping over the array of enemies.
 func _damage_enemies() -> void:
 	for enemy in enemies_in_range:
-		var total_damage: int = round(atk_dmg * randf_range(0.80, 1.20)) # 20% random damage deviation per attack
+		var total_damage: int = round(
+			atk_dmg * randf_range(1.0 - damage_variance, 1.0 + damage_variance)
+		)
 		enemy.take_damage(total_damage, weapon_hitbox.global_position, knockback_strength)
 
 ## Takes a specified amount of damage, and dies if health is below 0

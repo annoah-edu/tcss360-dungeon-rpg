@@ -35,7 +35,9 @@ func test_ready_connects_hitbox_signals() -> void:
 
 
 func test_rusty_sword_defaults_match_current_combat_contract() -> void:
+	assert_same(player.equipped_weapon, player.starting_weapon)
 	assert_eq(player.atk_dmg, 34)
+	assert_almost_eq(player.damage_variance, 0.20, 0.0001)
 	assert_almost_eq(player.atk_rate, 0.5, 0.0001)
 	assert_eq(player.knockback_strength, 150)
 	assert_eq(
@@ -44,6 +46,32 @@ func test_rusty_sword_defaults_match_current_combat_contract() -> void:
 	)
 	assert_eq(player.weapon_sprite.offset, Vector2(0, -10))
 	assert_eq(player.weapon_hitbox.collision_mask, 4)
+
+
+func test_equip_weapon_applies_test_weapon_to_legacy_combat_fields() -> void:
+	var test_texture: Texture2D = preload(
+		"res://Dungeon Tileset v1.7/frames/weapon_regular_sword.png"
+	)
+	var test_weapon := WeaponData.new()
+	test_weapon.id = &"test_sword"
+	test_weapon.display_name = "Test Sword"
+	test_weapon.icon = test_texture
+	test_weapon.held_texture = test_texture
+	test_weapon.base_damage = 12
+	test_weapon.damage_variance = 0.10
+	test_weapon.attack_interval_seconds = 0.25
+	test_weapon.knockback_strength = 75
+	test_weapon.grip_offset = Vector2(1, -8)
+
+	player.equip_weapon(test_weapon)
+
+	assert_same(player.equipped_weapon, test_weapon)
+	assert_same(player.weapon_sprite.texture, test_texture)
+	assert_eq(player.weapon_sprite.offset, Vector2(1, -8))
+	assert_eq(player.atk_dmg, 12)
+	assert_almost_eq(player.damage_variance, 0.10, 0.0001)
+	assert_almost_eq(player.atk_rate, 0.25, 0.0001)
+	assert_eq(player.knockback_strength, 75)
 
 
 # ---------- _process() ----------

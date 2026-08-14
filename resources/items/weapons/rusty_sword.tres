@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=3 format=3]
+
+[ext_resource type="Script" uid="uid://cj1rrl2018dmv" path="res://scripts/items/weapon_data.gd" id="1_weapon_data"]
+[ext_resource type="Texture2D" uid="uid://b4t3pcglj8h4a" path="res://Dungeon Tileset v1.7/frames/weapon_rusty_sword.png" id="2_texture"]
+
+[resource]
+script = ExtResource("1_weapon_data")
+id = &"rusty_sword"
+display_name = "Rusty Sword"
+icon = ExtResource("2_texture")
+held_texture = ExtResource("2_texture")
+base_damage = 34
+damage_variance = 0.2
+attack_interval_seconds = 0.5
+knockback_strength = 150
+grip_offset = Vector2(0, -10)

@@ -31,6 +31,17 @@ func test_player_and_chest_have_requested_slot_counts() -> void:
 	assert_eq(chest.inventory.slots.size(), 4)
 
 
+func test_chest_contains_the_shared_rusty_sword_definition() -> void:
+	var rusty_sword: WeaponData = preload(
+		"res://resources/items/weapons/rusty_sword.tres"
+	)
+
+	assert_same(chest.inventory.item_at(0), rusty_sword)
+	assert_true(chest.inventory.item_at(0) is WeaponData)
+	for slot_index in range(1, chest.inventory.capacity):
+		assert_null(chest.inventory.item_at(slot_index))
+
+
 func test_chest_animations_use_dedicated_empty_and_full_frame_files() -> void:
 	var frames := chest.sprite.sprite_frames
 	for frame in 3:

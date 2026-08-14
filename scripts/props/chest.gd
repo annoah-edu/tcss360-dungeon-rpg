@@ -8,6 +8,9 @@ extends Node2D
 
 const EMPTY_OPEN_ANIMATION: StringName = &"empty_open"
 const FULL_OPEN_ANIMATION: StringName = &"full_open"
+const RUSTY_SWORD: WeaponData = preload(
+	"res://resources/items/weapons/rusty_sword.tres"
+)
 
 @onready var sprite: AnimatedSprite2D = $ChestSprite
 
@@ -17,11 +20,7 @@ var inventory: InventoryData
 func _ready() -> void:
 	inventory = InventoryData.new(4)
 	inventory.inventory_changed.connect(_on_inventory_changed)
-	inventory.add_item(ItemData.create(
-		&"rusty_sword",
-		"Rusty Sword",
-		preload("res://Dungeon Tileset v1.7/frames/weapon_rusty_sword.png")
-	))
+	inventory.add_item(RUSTY_SWORD)
 	_on_inventory_changed()
 
 func open() -> void:
