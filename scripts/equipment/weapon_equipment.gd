@@ -40,5 +40,5 @@ func swap_from_inventory(inventory: InventoryData, slot_index: int) -> bool:
 func _is_valid_weapon(item: ItemData) -> bool:
 	return (
 		item is WeaponData
-		and (item as WeaponData).validation_errors(false).is_empty()
+		and (item as WeaponData).validation_errors().is_empty()
 	)

@@ -19,14 +19,14 @@ func test_rusty_sword_matches_current_weapon_definition() -> void:
 	assert_almost_eq(RUSTY_SWORD.attack_interval_seconds, 0.5, 0.0001)
 	assert_eq(RUSTY_SWORD.knockback_strength, 150)
 	assert_eq(RUSTY_SWORD.grip_offset, Vector2(0, -10))
-
-
-func test_stage_one_validation_allows_only_the_missing_behavior_scene() -> void:
-	assert_true(RUSTY_SWORD.validation_errors(false).is_empty())
 	assert_eq(
-		RUSTY_SWORD.validation_errors(),
-		PackedStringArray(["attack_behavior_scene must not be null"]),
+		RUSTY_SWORD.attack_behavior_scene.resource_path,
+		"res://scenes/combat/melee_swing_attack.tscn",
 	)
+
+
+func test_stage_three_weapon_definition_is_fully_valid() -> void:
+	assert_true(RUSTY_SWORD.validation_errors().is_empty())
 
 
 func test_validation_reports_every_invalid_weapon_field() -> void:

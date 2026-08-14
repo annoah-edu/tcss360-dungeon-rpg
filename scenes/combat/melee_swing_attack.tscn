@@ -1,0 +1,132 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/melee_swing_attack.gd" id="1_behavior"]
+[ext_resource type="Texture2D" uid="uid://ovmsjrwmx152" path="res://resources/sprites/swing.png" id="2_swing"]
+
+[sub_resource type="Animation" id="Animation_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Weapon:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.5707964]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Weapon:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_swing"]
+resource_name = "swing"
+length = 0.7
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Weapon:rotation")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.23333333, 0.53333336, 0.7),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [1.5707964, 0.0, 3.1415927, 1.3089969, 1.5707964]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.16666667, 0.2000443, 0.23333335, 0.26666668, 0.3, 0.33333334),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"values": [{
+"args": [],
+"method": &"_show_swing"
+}, {
+"args": [],
+"method": &"_show_swing"
+}, {
+"args": [],
+"method": &"_show_swing"
+}, {
+"args": [],
+"method": &"_show_swing"
+}, {
+"args": [],
+"method": &"_show_swing"
+}, {
+"args": [],
+"method": &"_hide_swing"
+}]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Weapon:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.16666667, 0.3, 0.43333334),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, -4), Vector2(10, 9.685737e-08), Vector2(0, 4), Vector2(0, 0)]
+}
+tracks/3/type = "method"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath(".")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0.16666667),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"_request_hit"
+}]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_melee"]
+_data = {
+&"RESET": SubResource("Animation_reset"),
+&"swing": SubResource("Animation_swing")
+}
+
+[node name="MeleeSwingAttack" type="Node2D"]
+position = Vector2(0, 3)
+script = ExtResource("1_behavior")
+
+[node name="Weapon" type="Sprite2D" parent="."]
+rotation = 1.5707964
+offset = Vector2(0, -10)
+
+[node name="Swing" type="Sprite2D" parent="."]
+show_behind_parent = true
+position = Vector2(0, -3)
+texture = ExtResource("2_swing")
+offset = Vector2(20, 0)
+
+[node name="Hitbox" type="Area2D" parent="."]
+collision_mask = 4
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Hitbox"]
+position = Vector2(0, 3)
+polygon = PackedVector2Array(0, -3, 15, -30, 25, -28, 32, -17, 36, -3, 32, 10, 25, 21, 15, 23)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries/ = SubResource("AnimationLibrary_melee")

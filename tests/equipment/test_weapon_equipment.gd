@@ -3,6 +3,9 @@ extends GutTest
 const TEST_TEXTURE: Texture2D = preload(
 	"res://Dungeon Tileset v1.7/frames/weapon_regular_sword.png"
 )
+const MELEE_BEHAVIOR: PackedScene = preload(
+	"res://scenes/combat/melee_swing_attack.tscn"
+)
 
 
 func test_initializes_with_a_valid_weapon() -> void:
@@ -94,4 +97,5 @@ func _create_weapon(weapon_id: StringName) -> WeaponData:
 	weapon.damage_variance = 0.10
 	weapon.attack_interval_seconds = 0.5
 	weapon.knockback_strength = 50
+	weapon.attack_behavior_scene = MELEE_BEHAVIOR
 	return weapon

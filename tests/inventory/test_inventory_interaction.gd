@@ -62,14 +62,11 @@ func test_player_weapon_drop_atomically_equips_and_updates_combat() -> void:
 	player.inventory_ui._equipment_slot._drop_data(Vector2.ZERO, drag_data)
 
 	assert_same(player.weapon_equipment.equipped_weapon, incoming_weapon)
-	assert_same(player.equipped_weapon, incoming_weapon)
+	assert_same(player.weapon_controller.equipped_weapon, incoming_weapon)
 	assert_same(player.inventory.item_at(0), previous_weapon)
-	assert_same(player.weapon_sprite.texture, incoming_weapon.held_texture)
-	assert_eq(player.weapon_sprite.offset, incoming_weapon.grip_offset)
-	assert_eq(player.atk_dmg, incoming_weapon.base_damage)
-	assert_almost_eq(player.damage_variance, incoming_weapon.damage_variance, 0.0001)
-	assert_almost_eq(player.atk_rate, incoming_weapon.attack_interval_seconds, 0.0001)
-	assert_eq(player.knockback_strength, incoming_weapon.knockback_strength)
+	var behavior := player.weapon_controller.active_behavior as MeleeSwingAttack
+	assert_same(behavior.weapon_sprite.texture, incoming_weapon.held_texture)
+	assert_eq(behavior.weapon_sprite.offset, incoming_weapon.grip_offset)
 
 
 func test_equipment_slot_rejects_chest_items_and_non_weapons() -> void:
@@ -211,4 +208,7 @@ func _create_test_weapon(weapon_id: StringName) -> WeaponData:
 	weapon.attack_interval_seconds = 0.25
 	weapon.knockback_strength = 90
 	weapon.grip_offset = Vector2(1, -8)
+	weapon.attack_behavior_scene = preload(
+		"res://scenes/combat/melee_swing_attack.tscn"
+	)
 	return weapon

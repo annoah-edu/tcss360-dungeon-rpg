@@ -103,7 +103,7 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	return (
 		candidate is WeaponData
 		and candidate != _equipment.equipped_weapon
-		and (candidate as WeaponData).validation_errors(false).is_empty()
+		and (candidate as WeaponData).validation_errors().is_empty()
 	)
 
 

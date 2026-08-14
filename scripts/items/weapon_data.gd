@@ -14,8 +14,7 @@ extends ItemData
 @export var attack_behavior_scene: PackedScene
 
 
-## Reports every invalid field. Stages 1 and 2 pass false while melee behavior is
-## still embedded in Player; all later stages require an attack behavior scene.
+## Reports every invalid field. Combat-ready weapons require an attack behavior.
 func validation_errors(require_behavior: bool = true) -> PackedStringArray:
 	var errors := PackedStringArray()
 	if id == &"":
