@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://t2fdmmplrwdi" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f3.png" id="9_run3"]
 [ext_resource type="Texture2D" uid="uid://b4t3pcglj8h4a" path="res://Dungeon Tileset v1.7/frames/weapon_rusty_sword.png" id="10_weapon"]
 [ext_resource type="Texture2D" uid="uid://ovmsjrwmx152" path="res://resources/sprites/swing.png" id="11_je7p5"]
+[ext_resource type="Script" path="res://scripts/ui/inventory_ui.gd" id="12_inventory_ui"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hitbox"]
 size = Vector2(10, 15)
@@ -228,3 +229,6 @@ value = 2.0
 nine_patch_stretch = true
 texture_under = SubResource("GradientTexture1D_je7p5")
 texture_progress = SubResource("GradientTexture1D_fm80t")
+
+[node name="InventoryUI" type="CanvasLayer" parent="."]
+script = ExtResource("12_inventory_ui")
