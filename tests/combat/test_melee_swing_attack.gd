@@ -25,7 +25,16 @@ func test_scene_preserves_authored_presentation_and_hitbox() -> void:
 	assert_eq(polygon.position, Vector2(0, 3))
 	assert_eq(
 		polygon.polygon,
-		PackedVector2Array([Vector2(0, -3), Vector2(15, -30), Vector2(25, -28), Vector2(32, -17), Vector2(36, -3), Vector2(32, 10), Vector2(25, 21), Vector2(15, 23)]),
+		PackedVector2Array([
+			Vector2(0, -3),
+			Vector2(15, -30),
+			Vector2(25, -28),
+			Vector2(32, -17),
+			Vector2(36, -3),
+			Vector2(32, 10),
+			Vector2(25, 21),
+			Vector2(15, 23),
+		]),
 	)
 
 

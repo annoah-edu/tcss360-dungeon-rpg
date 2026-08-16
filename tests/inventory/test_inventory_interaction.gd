@@ -86,15 +86,44 @@ func test_equipment_slot_rejects_chest_items_and_non_weapons() -> void:
 	assert_same(player.inventory.item_at(0), potion)
 
 
-func test_chest_contains_the_shared_rusty_sword_definition() -> void:
-	var rusty_sword: WeaponData = preload(
-		"res://resources/items/weapons/rusty_sword.tres"
+func test_chest_contains_exactly_one_shared_bow_or_axe_definition() -> void:
+	var bow: WeaponData = preload(
+		"res://resources/items/weapons/bow.tres"
+	)
+	var weapon_axe: WeaponData = preload(
+		"res://resources/items/weapons/weapon_axe.tres"
 	)
 
-	assert_same(chest.inventory.item_at(0), rusty_sword)
+	assert_true(chest.inventory.item_at(0) in [bow, weapon_axe])
 	assert_true(chest.inventory.item_at(0) is WeaponData)
 	for slot_index in range(1, chest.inventory.capacity):
 		assert_null(chest.inventory.item_at(slot_index))
+
+
+func test_equal_loot_seed_reproduces_the_same_weapon() -> void:
+	var chest_scene: PackedScene = preload("res://scenes/props/chest.tscn")
+	var first_chest: Chest = chest_scene.instantiate()
+	var second_chest: Chest = chest_scene.instantiate()
+	first_chest.loot_seed = 24680
+	second_chest.loot_seed = 24680
+	add_child_autofree(first_chest)
+	add_child_autofree(second_chest)
+	assert_same(first_chest.inventory.item_at(0), second_chest.inventory.item_at(0))
+
+
+func test_seeded_loot_pool_can_select_both_weapon_definitions() -> void:
+	var chest_scene: PackedScene = preload("res://scenes/props/chest.tscn")
+	var selected_weapons: Array[ItemData] = []
+	for seed_value in 32:
+		var seeded_chest: Chest = chest_scene.instantiate()
+		seeded_chest.loot_seed = seed_value
+		add_child_autofree(seeded_chest)
+		var selected_weapon := seeded_chest.inventory.item_at(0)
+		if not selected_weapons.has(selected_weapon):
+			selected_weapons.append(selected_weapon)
+	assert_eq(selected_weapons.size(), 2)
+	assert_true(selected_weapons.has(Chest.BOW))
+	assert_true(selected_weapons.has(Chest.WEAPON_AXE))
 
 
 func test_chest_animations_use_dedicated_empty_and_full_frame_files() -> void:
@@ -181,13 +210,13 @@ func test_opened_chest_stays_open_after_player_leaves_its_radius() -> void:
 func test_looted_item_remains_in_player_inventory_after_closing_and_leaving() -> void:
 	player.enter_chest_range(chest)
 	player.inventory_ui.show_chest(player.inventory, chest)
-	var sword := chest.inventory.item_at(0)
+	var weapon := chest.inventory.item_at(0)
 
 	assert_true(chest.inventory.transfer_item(0, player.inventory, 0))
 	player.inventory_ui.close()
 	player.exit_chest_range(chest)
 
-	assert_same(player.inventory.item_at(0), sword)
+	assert_same(player.inventory.item_at(0), weapon)
 	assert_null(chest.inventory.item_at(0))
 	assert_true(chest.is_open)
 	assert_eq(chest.sprite.animation, Chest.EMPTY_OPEN_ANIMATION)

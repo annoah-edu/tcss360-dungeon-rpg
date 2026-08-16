@@ -71,6 +71,49 @@ func test_equipment_change_replaces_controller_weapon() -> void:
 	assert_eq(player.weapon_controller.get_child_count(), 1)
 
 
+func test_stage_four_resources_work_through_player_equipment_scene_flow() -> void:
+	var regular_sword: WeaponData = preload(
+		"res://resources/items/weapons/regular_sword.tres"
+	)
+	var weapon_axe: WeaponData = preload(
+		"res://resources/items/weapons/weapon_axe.tres"
+	)
+	player.inventory.add_item(regular_sword)
+	player.inventory.add_item(weapon_axe)
+
+	assert_true(player.weapon_equipment.swap_from_inventory(player.inventory, 0))
+	assert_same(player.weapon_controller.equipped_weapon, regular_sword)
+	assert_same(
+		(player.weapon_controller.active_behavior as MeleeSwingAttack).weapon_sprite.texture,
+		regular_sword.held_texture,
+	)
+	assert_true(player.weapon_controller.try_attack())
+
+	assert_true(player.weapon_equipment.swap_from_inventory(player.inventory, 1))
+	assert_same(player.weapon_controller.equipped_weapon, weapon_axe)
+	assert_same(
+		(player.weapon_controller.active_behavior as MeleeSwingAttack).weapon_sprite.texture,
+		weapon_axe.held_texture,
+	)
+	assert_true(player.weapon_controller.try_attack())
+	assert_same(player.inventory.item_at(0), player.starting_weapon)
+	assert_same(player.inventory.item_at(1), regular_sword)
+
+
+func test_bow_equips_and_attacks_through_the_player_scene_flow() -> void:
+	var bow: WeaponData = preload("res://resources/items/weapons/bow.tres")
+	player.inventory.add_item(bow)
+	assert_true(player.weapon_equipment.swap_from_inventory(player.inventory, 0))
+	assert_same(player.weapon_controller.equipped_weapon, bow)
+	assert_true(player.weapon_controller.active_behavior is BowAttack)
+	Input.action_press("attack")
+	player.weapon_controller.attack_cooldown_seconds = 0.0
+	player._process(0.016)
+	assert_almost_eq(player.weapon_controller.attack_cooldown_seconds, 0.8, 0.0001)
+	var behavior := player.weapon_controller.active_behavior as BowAttack
+	assert_eq(behavior.animation_player.current_animation, &"fire")
+
+
 func test_handle_movement_moving_right_sets_positive_x_and_unflips_sprite() -> void:
 	Input.action_press("move right")
 	player._handle_movement()

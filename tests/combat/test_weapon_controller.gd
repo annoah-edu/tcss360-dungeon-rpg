@@ -3,11 +3,22 @@ extends GutTest
 const RUSTY_SWORD: WeaponData = preload(
 	"res://resources/items/weapons/rusty_sword.tres"
 )
+const REGULAR_SWORD: WeaponData = preload(
+	"res://resources/items/weapons/regular_sword.tres"
+)
+const WEAPON_AXE: WeaponData = preload(
+	"res://resources/items/weapons/weapon_axe.tres"
+)
+const BOW: WeaponData = preload(
+	"res://resources/items/weapons/bow.tres"
+)
 
 var controller: WeaponController
+var spawned_projectile: WeaponHitSource
 
 
 func before_each() -> void:
+	spawned_projectile = null
 	controller = WeaponController.new()
 	add_child_autofree(controller)
 	controller.equip_weapon(RUSTY_SWORD)
@@ -73,10 +84,80 @@ func test_hit_request_damages_every_target_with_weapon_knockback() -> void:
 	var enemy_b: Enemy = double(Enemy).new()
 	controller.damage_rng.seed = 12345
 	var source := Vector2(4, 8)
-	controller._on_hit_requested([enemy_a, enemy_b], source)
+	controller._on_hit_requested([enemy_a, enemy_b], source, RUSTY_SWORD)
 	assert_called_count(enemy_a.take_damage, 1)
 	assert_called_count(enemy_b.take_damage, 1)
 	var parameters: Array = get_call_parameters(enemy_a, "take_damage", 0)
 	assert_between(parameters[0], roundi(34 * 0.8), roundi(34 * 1.2))
 	assert_eq(parameters[1], source)
 	assert_eq(parameters[2], 150)
+
+
+func test_regular_sword_equips_renders_and_attacks_with_its_data() -> void:
+	controller.equip_weapon(REGULAR_SWORD)
+	var behavior := controller.active_behavior as MeleeSwingAttack
+	assert_same(controller.equipped_weapon, REGULAR_SWORD)
+	assert_same(behavior.weapon_sprite.texture, REGULAR_SWORD.held_texture)
+	assert_eq(behavior.weapon_sprite.offset, REGULAR_SWORD.grip_offset)
+	assert_true(controller.try_attack())
+	assert_almost_eq(controller.attack_cooldown_seconds, 0.4, 0.0001)
+	assert_almost_eq(behavior.animation_player.speed_scale, 1.25, 0.0001)
+	_assert_damage_uses_equipped_weapon(REGULAR_SWORD)
+
+
+func test_weapon_axe_equips_renders_and_attacks_with_its_data() -> void:
+	controller.equip_weapon(WEAPON_AXE)
+	var behavior := controller.active_behavior as MeleeSwingAttack
+	assert_same(controller.equipped_weapon, WEAPON_AXE)
+	assert_same(behavior.weapon_sprite.texture, WEAPON_AXE.held_texture)
+	assert_eq(behavior.weapon_sprite.offset, WEAPON_AXE.grip_offset)
+	assert_true(controller.try_attack())
+	assert_almost_eq(controller.attack_cooldown_seconds, 0.7, 0.0001)
+	assert_almost_eq(behavior.animation_player.speed_scale, 0.5 / 0.7, 0.0001)
+	_assert_damage_uses_equipped_weapon(WEAPON_AXE)
+
+
+func test_bow_equips_and_starts_its_distinct_attack_behavior() -> void:
+	controller.equip_weapon(BOW)
+	var behavior := controller.active_behavior as BowAttack
+	assert_same(controller.equipped_weapon, BOW)
+	assert_not_null(behavior)
+	assert_same(behavior.rest_bow.texture, BOW.held_texture)
+	assert_true(controller.try_attack())
+	assert_almost_eq(controller.attack_cooldown_seconds, 0.8, 0.0001)
+	assert_eq(behavior.animation_player.current_animation, &"fire")
+
+
+func test_in_flight_arrow_keeps_bow_damage_after_an_equipment_change() -> void:
+	controller.equip_weapon(BOW)
+	var behavior := controller.active_behavior as BowAttack
+	behavior.hit_source_spawned.connect(_capture_projectile)
+	behavior._fire_projectile()
+	assert_not_null(spawned_projectile)
+	if spawned_projectile == null:
+		return
+	autofree(spawned_projectile)
+	controller.equip_weapon(WEAPON_AXE)
+	var enemy: Enemy = double(Enemy).new()
+	controller.damage_rng.seed = 97531
+	(spawned_projectile as ArrowProjectile)._on_body_entered(enemy)
+	assert_called_count(enemy.take_damage, 1)
+	var parameters: Array = get_call_parameters(enemy, "take_damage", 0)
+	assert_between(parameters[0], roundi(30 * 0.85), roundi(30 * 1.15))
+	assert_eq(parameters[2], 100)
+
+
+func _capture_projectile(projectile: WeaponHitSource) -> void:
+	spawned_projectile = projectile
+
+
+func _assert_damage_uses_equipped_weapon(weapon: WeaponData) -> void:
+	var enemy: Enemy = double(Enemy).new()
+	controller.damage_rng.seed = 2468
+	controller._on_hit_requested([enemy], Vector2.ZERO, weapon)
+	assert_called_count(enemy.take_damage, 1)
+	var parameters: Array = get_call_parameters(enemy, "take_damage", 0)
+	var minimum_damage := roundi(weapon.base_damage * (1.0 - weapon.damage_variance))
+	var maximum_damage := roundi(weapon.base_damage * (1.0 + weapon.damage_variance))
+	assert_between(parameters[0], minimum_damage, maximum_damage)
+	assert_eq(parameters[2], weapon.knockback_strength)

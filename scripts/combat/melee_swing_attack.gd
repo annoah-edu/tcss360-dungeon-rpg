@@ -1,6 +1,9 @@
 class_name MeleeSwingAttack
 extends WeaponAttackBehavior
 
+## Runs the shared melee swing presentation, facing, overlap tracking, and hit event.
+## Requires Weapon, Swing, Hitbox/CollisionPolygon2D, and AnimationPlayer child nodes.
+
 @onready var weapon_sprite: Sprite2D = $Weapon
 @onready var swing: Sprite2D = $Swing
 @onready var hitbox: Area2D = $Hitbox

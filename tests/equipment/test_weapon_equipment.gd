@@ -6,6 +6,15 @@ const TEST_TEXTURE: Texture2D = preload(
 const MELEE_BEHAVIOR: PackedScene = preload(
 	"res://scenes/combat/melee_swing_attack.tscn"
 )
+const REGULAR_SWORD: WeaponData = preload(
+	"res://resources/items/weapons/regular_sword.tres"
+)
+const WEAPON_AXE: WeaponData = preload(
+	"res://resources/items/weapons/weapon_axe.tres"
+)
+const BOW: WeaponData = preload(
+	"res://resources/items/weapons/bow.tres"
+)
 
 
 func test_initializes_with_a_valid_weapon() -> void:
@@ -85,6 +94,29 @@ func test_swap_rejects_same_or_invalid_weapon_without_item_loss() -> void:
 	assert_false(equipment.swap_from_inventory(inventory, 0))
 	assert_same(equipment.equipped_weapon, starting_weapon)
 	assert_same(inventory.item_at(0), invalid_weapon)
+
+
+func test_stage_four_resources_swap_without_losing_any_weapon() -> void:
+	var inventory := InventoryData.new(1)
+	inventory.add_item(REGULAR_SWORD)
+	var equipment := WeaponEquipment.new(WEAPON_AXE)
+
+	assert_true(equipment.swap_from_inventory(inventory, 0))
+	assert_same(equipment.equipped_weapon, REGULAR_SWORD)
+	assert_same(inventory.item_at(0), WEAPON_AXE)
+
+	assert_true(equipment.swap_from_inventory(inventory, 0))
+	assert_same(equipment.equipped_weapon, WEAPON_AXE)
+	assert_same(inventory.item_at(0), REGULAR_SWORD)
+
+
+func test_bow_swaps_through_the_same_equipment_contract() -> void:
+	var inventory := InventoryData.new(1)
+	inventory.add_item(BOW)
+	var equipment := WeaponEquipment.new(WEAPON_AXE)
+	assert_true(equipment.swap_from_inventory(inventory, 0))
+	assert_same(equipment.equipped_weapon, BOW)
+	assert_same(inventory.item_at(0), WEAPON_AXE)
 
 
 func _create_weapon(weapon_id: StringName) -> WeaponData:
