@@ -1,16 +1,18 @@
 class_name InventoryPanel
 extends PanelContainer
 
-## Renders one InventoryData as a titled grid. Its owner supplies dimensions and accent
-## colour so the panel contains no player- or chest-specific state.
+## Renders one InventoryData as a titled grid. Its owner supplies dimensions, accent
+## colour, and optional accessory UI so the panel contains no player- or chest-specific state.
 
 const SLOT_SIZE := 72
 const SLOT_SEPARATION := 6
 
 var _inventory: InventoryData
 var _title_label: Label
+var _content_column: VBoxContainer
 var _grid: GridContainer
 var _slots: Array[InventorySlot] = []
+var _accessory: Control
 
 
 func _ready() -> void:
@@ -21,19 +23,33 @@ func _ready() -> void:
 	padding.add_theme_constant_override(&"margin_bottom", 18)
 	add_child(padding)
 
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override(&"separation", 12)
-	padding.add_child(column)
+	_content_column = VBoxContainer.new()
+	_content_column.add_theme_constant_override(&"separation", 12)
+	padding.add_child(_content_column)
 
 	_title_label = Label.new()
 	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title_label.add_theme_font_size_override(&"font_size", 22)
-	column.add_child(_title_label)
+	_content_column.add_child(_title_label)
 
 	_grid = GridContainer.new()
 	_grid.add_theme_constant_override(&"h_separation", SLOT_SEPARATION)
 	_grid.add_theme_constant_override(&"v_separation", SLOT_SEPARATION)
-	column.add_child(_grid)
+	_content_column.add_child(_grid)
+	_attach_accessory()
+
+
+## Places optional owner-built controls beneath the inventory grid without giving
+## this generic panel ownership of their state or behavior.
+func set_accessory(accessory: Control) -> void:
+	if (
+		_content_column != null
+		and _accessory != null
+		and _accessory.get_parent() == _content_column
+	):
+		_content_column.remove_child(_accessory)
+	_accessory = accessory
+	_attach_accessory()
 
 
 ## Bind a live inventory and configure its visual grid. The panel listens for model
@@ -87,3 +103,10 @@ func _rebuild_slots() -> void:
 func _refresh() -> void:
 	for slot in _slots:
 		slot.refresh()
+
+
+func _attach_accessory() -> void:
+	if _content_column == null or _accessory == null:
+		return
+	if _accessory.get_parent() == null:
+		_content_column.add_child(_accessory)

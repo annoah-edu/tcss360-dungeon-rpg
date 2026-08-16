@@ -1,7 +1,8 @@
 class_name InventorySlot
 extends PanelContainer
 
-## One drag-and-drop target backed directly by an InventoryData slot.
+## One drag-and-drop target backed directly by an InventoryData slot. Drag data has
+## the exact shape {"inventory": InventoryData, "index": int}.
 
 var inventory: InventoryData
 var slot_index: int
