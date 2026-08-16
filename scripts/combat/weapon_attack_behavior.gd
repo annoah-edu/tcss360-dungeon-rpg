@@ -8,6 +8,8 @@ extends Node2D
 signal hit_requested(targets: Array[Enemy], source_position: Vector2)
 ## Announces a detached attack source whose later hits retain this attack's weapon data.
 signal hit_source_spawned(source: WeaponHitSource)
+## Announces that an attack produced its gameplay effect and may consume a single-use weapon.
+signal attack_committed
 
 
 ## Applies immutable weapon presentation and timing data to this behavior instance.

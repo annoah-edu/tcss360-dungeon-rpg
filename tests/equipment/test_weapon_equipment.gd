@@ -119,6 +119,31 @@ func test_bow_swaps_through_the_same_equipment_contract() -> void:
 	assert_same(inventory.item_at(0), WEAPON_AXE)
 
 
+func test_consuming_current_weapon_empties_equipment_once() -> void:
+	var equipment := WeaponEquipment.new(WEAPON_AXE)
+	watch_signals(equipment)
+
+	assert_true(equipment.consume_if_equipped(WEAPON_AXE))
+	assert_null(equipment.equipped_weapon)
+	assert_signal_emitted_with_parameters(
+		equipment,
+		&"equipped_weapon_changed",
+		[WEAPON_AXE, null],
+	)
+	assert_false(equipment.consume_if_equipped(WEAPON_AXE))
+	assert_signal_emit_count(equipment, &"equipped_weapon_changed", 1)
+
+
+func test_empty_equipment_accepts_owned_inventory_weapon() -> void:
+	var inventory := InventoryData.new(1)
+	inventory.add_item(REGULAR_SWORD)
+	var equipment := WeaponEquipment.new()
+
+	assert_true(equipment.swap_from_inventory(inventory, 0))
+	assert_same(equipment.equipped_weapon, REGULAR_SWORD)
+	assert_null(inventory.item_at(0))
+
+
 func _create_weapon(weapon_id: StringName) -> WeaponData:
 	var weapon := WeaponData.new()
 	weapon.id = weapon_id

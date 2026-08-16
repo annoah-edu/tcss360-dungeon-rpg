@@ -12,6 +12,7 @@ extends ItemData
 @export var knockback_strength: int
 @export var grip_offset: Vector2
 @export var attack_behavior_scene: PackedScene
+@export var consumed_on_attack := false
 
 
 ## Reports every invalid field. Combat-ready weapons require an attack behavior.

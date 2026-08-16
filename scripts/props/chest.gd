@@ -1,7 +1,7 @@
 class_name Chest
 extends Node2D
 
-## Owns a four-slot loot inventory with one uniformly selected starting weapon.
+## Owns a six-slot loot inventory filled by uniform selections from the weapon loot pool.
 ## The required ChestSprite child provides empty_open and full_open animations. Inventory
 ## changes select the correct sequence immediately without polling each frame. Opening is
 ## permanent for the lifetime of the chest; ending UI interaction never closes it. Negative
@@ -9,9 +9,11 @@ extends Node2D
 
 const EMPTY_OPEN_ANIMATION: StringName = &"empty_open"
 const FULL_OPEN_ANIMATION: StringName = &"full_open"
-const BOW: WeaponData = preload("res://resources/items/weapons/bow.tres")
-const WEAPON_AXE: WeaponData = preload("res://resources/items/weapons/weapon_axe.tres")
-const STARTING_LOOT_POOL: Array[WeaponData] = [BOW, WEAPON_AXE]
+const INVENTORY_CAPACITY := 6
+const STARTING_WEAPON_COUNT := 6
+const STARTING_LOOT_POOL: WeaponLootPool = preload(
+	"res://resources/items/weapon_loot_pool.tres"
+)
 
 @export var loot_seed: int = -1
 
@@ -26,15 +28,12 @@ func _ready() -> void:
 		_loot_rng.randomize()
 	else:
 		_loot_rng.seed = loot_seed
-	inventory = InventoryData.new(4)
+	inventory = InventoryData.new(INVENTORY_CAPACITY)
+	for _weapon_index in STARTING_WEAPON_COUNT:
+		inventory.add_item(STARTING_LOOT_POOL.random_weapon(_loot_rng))
 	inventory.inventory_changed.connect(_on_inventory_changed)
-	inventory.add_item(_select_starting_loot())
 	_on_inventory_changed()
 
-
-func _select_starting_loot() -> WeaponData:
-	var selected_index := _loot_rng.randi_range(0, STARTING_LOOT_POOL.size() - 1)
-	return STARTING_LOOT_POOL[selected_index]
 
 func open() -> void:
 	if is_open:

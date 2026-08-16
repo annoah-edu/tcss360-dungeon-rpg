@@ -114,6 +114,37 @@ func test_bow_equips_and_attacks_through_the_player_scene_flow() -> void:
 	assert_eq(behavior.animation_player.current_animation, &"fire")
 
 
+func test_throwing_axe_is_consumed_after_release_and_allows_re_equipping() -> void:
+	var throwing_axe: WeaponData = preload(
+		"res://resources/items/weapons/throwing_axe.tres"
+	)
+	player.inventory.add_item(throwing_axe)
+	assert_true(player.weapon_equipment.swap_from_inventory(player.inventory, 0))
+	var behavior := player.weapon_controller.active_behavior as ThrowingAxeAttack
+	var spawned_projectiles: Array[WeaponHitSource] = []
+	behavior.hit_source_spawned.connect(
+		func(projectile: WeaponHitSource) -> void: spawned_projectiles.append(projectile)
+	)
+
+	behavior._throw_projectile()
+	await get_tree().process_frame
+
+	assert_eq(spawned_projectiles.size(), 1)
+	if not spawned_projectiles.is_empty():
+		autofree(spawned_projectiles[0])
+	assert_null(player.weapon_equipment.equipped_weapon)
+	assert_null(player.weapon_controller.equipped_weapon)
+	assert_null(player.weapon_controller.active_behavior)
+	assert_eq(player.weapon_controller.get_child_count(), 0)
+	assert_null(player.inventory_ui._equipment_slot._icon.texture)
+	assert_eq(player.inventory_ui._equipment_slot.tooltip_text, "Empty equipment slot")
+
+	assert_true(player.weapon_equipment.swap_from_inventory(player.inventory, 0))
+	assert_same(player.weapon_equipment.equipped_weapon, player.starting_weapon)
+	assert_same(player.weapon_controller.equipped_weapon, player.starting_weapon)
+	assert_null(player.inventory.item_at(0))
+
+
 func test_handle_movement_moving_right_sets_positive_x_and_unflips_sprite() -> void:
 	Input.action_press("move right")
 	player._handle_movement()

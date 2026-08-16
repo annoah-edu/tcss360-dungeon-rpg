@@ -17,7 +17,7 @@ func _init(initial_weapon: WeaponData = null) -> void:
 ## Atomically replaces the equipped weapon with a valid weapon from one occupied
 ## inventory slot. The previous weapon returns to that same slot.
 func swap_from_inventory(inventory: InventoryData, slot_index: int) -> bool:
-	if inventory == null or equipped_weapon == null:
+	if inventory == null:
 		return false
 	if slot_index < 0 or slot_index >= inventory.slots.size():
 		return false
@@ -34,6 +34,16 @@ func swap_from_inventory(inventory: InventoryData, slot_index: int) -> bool:
 	equipped_weapon = candidate_weapon
 	inventory.inventory_changed.emit()
 	equipped_weapon_changed.emit(previous_weapon, candidate_weapon)
+	return true
+
+
+## Permanently removes the expected single-use weapon if it is still equipped.
+func consume_if_equipped(expected_weapon: WeaponData) -> bool:
+	if expected_weapon == null or equipped_weapon != expected_weapon:
+		return false
+	var previous_weapon := equipped_weapon
+	equipped_weapon = null
+	equipped_weapon_changed.emit(previous_weapon, null)
 	return true
 
 

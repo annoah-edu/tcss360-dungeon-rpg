@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3]
+
+[ext_resource type="Script" uid="uid://cj1rrl2018dmv" path="res://scripts/items/weapon_data.gd" id="1_data"]
+[ext_resource type="Texture2D" uid="uid://cota820kec3va" path="res://Dungeon Tileset v1.7/frames/weapon_big_hammer.png" id="2_texture"]
+[ext_resource type="PackedScene" path="res://scenes/combat/melee_swing_attack.tscn" id="3_behavior"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"big_hammer"
+display_name = "Big Hammer"
+icon = ExtResource("2_texture")
+held_texture = ExtResource("2_texture")
+base_damage = 75
+damage_variance = 0.28
+attack_interval_seconds = 1.0
+knockback_strength = 320
+grip_offset = Vector2(0, -18)
+attack_behavior_scene = ExtResource("3_behavior")

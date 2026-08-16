@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/throwing_axe_projectile.gd" id="1_projectile"]
+[ext_resource type="Texture2D" uid="uid://5ym1txukiq2" path="res://Dungeon Tileset v1.7/frames/weapon_throwing_axe.png" id="2_axe"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_axe"]
+size = Vector2(10, 10)
+
+[node name="ThrowingAxeProjectile" type="Node2D"]
+script = ExtResource("1_projectile")
+speed_pixels_per_second = 200.0
+lifetime_seconds = 2.0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_axe")
+
+[node name="HitDetection" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitDetection"]
+shape = SubResource("RectangleShape2D_axe")
