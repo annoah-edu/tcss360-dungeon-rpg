@@ -26,6 +26,7 @@ var start_position: Vector2
 var is_waiting: bool = false
 var knockback_velocity: Vector2 = Vector2.ZERO # Used on top of navigation to apply knockback
 var found_player = false # Not associated with line of sight. Will chase the player once attacked permanently
+var spawner: EnemySpawner # A reference for the enemy spawner in case enemies want to use it
 
 func _initialize_values() -> void:
 	max_health = data.max_health
@@ -71,7 +72,6 @@ func _physics_process(delta: float) -> void:
 			animation.play("moving")
 			_attack_loop(dist_to_player)
 	if nav_agent.is_navigation_finished() and not is_waiting: # If the navigation path is finished, find a new target position
-		print("path done")
 		_wait_then_pick_new_target()
 		return
 	
@@ -129,6 +129,7 @@ func take_damage(amount: int, source: Vector2, knockback_strength: int) -> void:
 	health -= amount
 	if health <= 0:
 		Stats.add_kill()
+		death_behavior()
 		queue_free()
 		return
 	
@@ -143,6 +144,7 @@ func take_damage(amount: int, source: Vector2, knockback_strength: int) -> void:
 	
 	found_player = true # Target the player after taking damage
 
+## The attack loop that an enemy needs to constantly call when targetting a player.
 func _attack_loop(dist_to_player: float) -> void:
 	if atk_cooldown > 0:
 		return
@@ -150,3 +152,7 @@ func _attack_loop(dist_to_player: float) -> void:
 		var total_damage: int = round(atk_dmg * randf_range(0.80, 1.20)) # 20% random damage deviation per attack
 		GameState.player.take_damage(total_damage)
 		atk_cooldown = atk_rate
+
+## Overrideable death behavior function.
+func death_behavior() -> void:
+	pass

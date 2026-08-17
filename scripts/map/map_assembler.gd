@@ -211,6 +211,10 @@ func build() -> void:
 	var enemy_spawner := get_node_or_null("/root/EnemySpawner")
 	if enemy_spawner != null:
 		enemy_spawner.populate_map()
+	# The pillar spawner is an autoload too.
+	var pillar_spawner := get_node_or_null("/root/PillarSpawner")
+	if pillar_spawner != null:
+		pillar_spawner.populate_map()
 	_setup_fog()
 	_setup_starfield()
 	_setup_minimap()

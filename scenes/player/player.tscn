@@ -11,6 +11,8 @@
 [ext_resource type="Texture2D" uid="uid://t2fdmmplrwdi" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f3.png" id="9_run3"]
 [ext_resource type="Texture2D" uid="uid://b4t3pcglj8h4a" path="res://Dungeon Tileset v1.7/frames/weapon_rusty_sword.png" id="10_weapon"]
 [ext_resource type="Texture2D" uid="uid://ovmsjrwmx152" path="res://resources/sprites/swing.png" id="11_je7p5"]
+[ext_resource type="FontFile" uid="uid://dps7gy0smej58" path="res://resources/fonts/Minecraft.ttf" id="12_fm80t"]
+[ext_resource type="Script" uid="uid://dtrcgxnaxef46" path="res://scenes/player/pillar_bar.gd" id="12_gx1jg"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hitbox"]
 size = Vector2(10, 15)
@@ -170,6 +172,35 @@ colors = PackedColorArray(0, 1, 0, 1)
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_fm80t"]
 gradient = SubResource("Gradient_tihwb")
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_je7p5"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.1, 0.1, 0.1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.65882355, 0.34117648, 0.9490196, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+corner_detail = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fm80t"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.65882355, 0.34117648, 0.9490196, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+corner_detail = 6
+
 [node name="Player" type="CharacterBody2D" unique_id=135659199]
 collision_layer = 2
 script = ExtResource("1_player")
@@ -228,3 +259,41 @@ value = 2.0
 nine_patch_stretch = true
 texture_under = SubResource("GradientTexture1D_je7p5")
 texture_progress = SubResource("GradientTexture1D_fm80t")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=174190817]
+layer = 2
+
+[node name="PillarBar" type="ProgressBar" parent="CanvasLayer" unique_id=1283765671]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -291.0
+offset_top = 20.0
+offset_right = 291.0
+offset_bottom = 83.0
+grow_horizontal = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_je7p5")
+theme_override_styles/fill = SubResource("StyleBoxFlat_fm80t")
+value = 24.72
+show_percentage = false
+script = ExtResource("12_gx1jg")
+
+[node name="Label" type="Label" parent="CanvasLayer/PillarBar" unique_id=956796130]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -77.0
+offset_top = -8.5
+offset_right = 77.0
+offset_bottom = 14.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("12_fm80t")
+theme_override_font_sizes/font_size = 32
+text = "0/4 Pillars Collected"
+horizontal_alignment = 1
+vertical_alignment = 1

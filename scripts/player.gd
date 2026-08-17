@@ -27,6 +27,7 @@ var velocity_vector: Vector2
 var health: int
 var atk_cooldown: float = 0
 var enemies_in_range: Array[Enemy] # The array of enemies inside the physics area
+var pillar_inventory: Array[String] # The player's currently collected pillars
 
 # Distance-traveled tracking. The assembler teleports the player to the start marker
 # after _ready, so the first frame's displacement is skipped to avoid counting that jump.

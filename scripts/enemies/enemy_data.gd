@@ -2,6 +2,7 @@ extends Resource
 class_name EnemyData
 
 @export var name: String = "Goblin"
+@export var enemy_behavior: Script = preload("res://scripts/enemies/enemy.gd")
 @export var max_health: int = 100
 @export var speed: float = 80.0
 @export var atk_dmg: int = 35

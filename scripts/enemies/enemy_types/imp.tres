@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://6ov4sy2yqgyh"]
 
 [ext_resource type="Script" uid="uid://vsr1guyce1dl" path="res://scripts/enemies/enemy_data.gd" id="1_0fxyq"]
+[ext_resource type="Script" uid="uid://bdpqgbnmbp0h7" path="res://scripts/enemies/enemy.gd" id="1_g6aee"]
 [ext_resource type="Texture2D" uid="uid://mxxn5sk13yla" path="res://Dungeon Tileset v1.7/frames/imp_idle_anim_f0.png" id="2_0fxyq"]
 [ext_resource type="Texture2D" uid="uid://bdd2xtffs0xwk" path="res://Dungeon Tileset v1.7/frames/imp_idle_anim_f1.png" id="3_g6aee"]
 [ext_resource type="Texture2D" uid="uid://be0f7yfio3qxq" path="res://Dungeon Tileset v1.7/frames/imp_idle_anim_f2.png" id="4_8j5ea"]

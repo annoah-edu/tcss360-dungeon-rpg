@@ -76,12 +76,21 @@ occluder = SubResource("OccluderPolygon2D_csmyh")
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=2036219517]
 
 [node name="@Marker2D@6" type="Marker2D" parent="SpawnPoints" unique_id=982009975]
-position = Vector2(72, 72)
+position = Vector2(72, 104)
 script = ExtResource("4_270w0")
 category = 3
 
+[node name="_Marker2D_6" type="Marker2D" parent="SpawnPoints" unique_id=574044855]
+position = Vector2(72, 72)
+script = ExtResource("4_270w0")
+category = 4
+
 [node name="@Marker2D@7" type="Marker2D" parent="SpawnPoints" unique_id=174922743]
 position = Vector2(40, 104)
+script = ExtResource("4_270w0")
+
+[node name="_Marker2D_7" type="Marker2D" parent="SpawnPoints" unique_id=1241156125]
+position = Vector2(104, 40)
 script = ExtResource("4_270w0")
 
 [node name="NavigationRegion" type="NavigationRegion2D" parent="." unique_id=1085963902]

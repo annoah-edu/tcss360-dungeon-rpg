@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 GameState="*uid://hrgcnaxhmf8"
 SpawnDirector="*res://scripts/autoload/spawn_director.gd"
 EnemySpawner="*uid://ccpoi4jhvkcog"
+PillarSpawner="*uid://ckiyvqf3loarn"
 Stats="*res://scripts/autoload/stats.gd"
 
 [display]

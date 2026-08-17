@@ -59,8 +59,13 @@ occluder = SubResource("OccluderPolygon2D_tjlwy")
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=1952539242]
 
 [node name="@Marker2D@5" type="Marker2D" parent="SpawnPoints" unique_id=1410518698]
+position = Vector2(88, 72)
+script = ExtResource("4_b8lqt")
+
+[node name="_Marker2D_5" type="Marker2D" parent="SpawnPoints" unique_id=1924185818]
 position = Vector2(88, 40)
 script = ExtResource("4_b8lqt")
+category = 4
 
 [node name="NavigationRegion" type="NavigationRegion2D" parent="." unique_id=1196965733]
 navigation_polygon = SubResource("NavigationPolygon_tndhx")

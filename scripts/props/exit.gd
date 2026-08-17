@@ -43,7 +43,7 @@ func _ready() -> void:
 	if font != null:
 		label.add_theme_font_override("font", font)
 	label.add_theme_color_override("font_color", PORTAL_COLOR)
-	label.position = Vector2(-12, -HALF_SIZE - 14)
+	label.position = Vector2(-9, -HALF_SIZE - 14)
 	add_child(label)
 
 	body_entered.connect(_on_body_entered)
@@ -53,9 +53,16 @@ func _process(delta: float) -> void:
 	_elapsed += delta
 	if _marker != null:
 		_marker.scale = Vector2.ONE * (1.0 + 0.12 * sin(_elapsed * 3.0))
+	
+	if GameState.player.pillar_inventory.size() < 4:
+		modulate = Color.RED
+	else:
+		modulate = Color.WHITE
 
 func _on_body_entered(body: Node2D) -> void:
 	if _triggered or not (body is Player):
+		return
+	if GameState.player.pillar_inventory.size() < 4:
 		return
 	_triggered = true
 	Stats.end_run()

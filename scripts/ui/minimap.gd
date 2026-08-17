@@ -21,7 +21,7 @@ extends CanvasLayer
 
 const TILE_SIZE := Room.TILE_SIZE
 
-const WALL_COLOR := Color(0.66, 0.34, 0.95)
+const WALL_COLOR := Color("a857f2ff")
 const CHEST_COLOR := Color(1.0, 0.84, 0.12)
 const BG_COLOR := Color(0.04, 0.04, 0.07, 0.72)
 const BORDER_COLOR := Color(0.66, 0.34, 0.95, 0.6)

@@ -4,6 +4,7 @@ extends Node2D
 @export var open_texture: Texture2D
 
 @onready var sprite: Sprite2D = $Sprite2D
+@onready var coins: GPUParticles2D = $Coins
 
 var is_open := false
 
@@ -16,6 +17,7 @@ func open() -> void:
 
 	is_open = true
 	sprite.texture = open_texture
+	coins.emitting = true
 	Stats.add_chest()
 
 func _on_interaction_area_body_entered(body: Node2D) -> void:

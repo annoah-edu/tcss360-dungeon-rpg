@@ -14,7 +14,7 @@ const CATEGORY_COLORS := {
 	Category.ENEMY: Color(0.9, 0.2, 0.2),
 	Category.NPC: Color(0.9, 0.8, 0.2),
 	Category.LOOT: Color(0.9, 0.6, 0.1),
-	Category.TREASURE: Color(0.8, 0.7, 0.2),
+	Category.TREASURE: Color(0.357, 0.545, 0.87, 1.0),
 	Category.BOSS: Color(0.7, 0.1, 0.7),
 	Category.PROP: Color(0.5, 0.5, 0.5),
 }

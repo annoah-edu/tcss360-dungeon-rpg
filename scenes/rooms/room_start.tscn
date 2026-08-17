@@ -96,15 +96,6 @@ position = Vector2(72, 72)
 script = ExtResource("4_w3tkv")
 category = 0
 
-[node name="@Marker2D@3" type="Marker2D" parent="SpawnPoints" unique_id=1313867821]
-position = Vector2(40, 40)
-script = ExtResource("4_w3tkv")
-
-[node name="@Marker2D@4" type="Marker2D" parent="SpawnPoints" unique_id=618148777]
-position = Vector2(104, 104)
-script = ExtResource("4_w3tkv")
-category = 3
-
 [node name="NavigationRegion" type="NavigationRegion2D" parent="." unique_id=1696039948]
 navigation_polygon = SubResource("NavigationPolygon_3xqj6")
 enabled = false
