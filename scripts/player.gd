@@ -24,6 +24,7 @@ func _ready() -> void:
 	inventory = InventoryData.new(6)
 	weapon_equipment = WeaponEquipment.new(starting_weapon)
 	weapon_equipment.equipped_weapon_changed.connect(_on_equipped_weapon_changed)
+	weapon_controller.weapon_consumed.connect(_on_weapon_consumed)
 	weapon_controller.equip_weapon(weapon_equipment.equipped_weapon)
 	inventory_ui.bind_player(inventory, weapon_equipment)
 	health = max_health
@@ -127,7 +128,14 @@ func _handle_animations() -> void:
 		sprite.play("moving")
 
 func _on_equipped_weapon_changed(_previous: WeaponData, current: WeaponData) -> void:
-	weapon_controller.equip_weapon(current)
+	if current == null:
+		weapon_controller.clear_weapon(_previous)
+	else:
+		weapon_controller.equip_weapon(current)
+
+
+func _on_weapon_consumed(weapon: WeaponData) -> void:
+	weapon_equipment.consume_if_equipped(weapon)
 
 ## Takes a specified amount of damage, and dies if health is below 0
 func take_damage(amount: int) -> void:

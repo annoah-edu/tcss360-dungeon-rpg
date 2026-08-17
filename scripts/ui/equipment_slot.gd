@@ -1,7 +1,7 @@
 class_name EquipmentSlot
 extends PanelContainer
 
-## Displays the non-empty equipped weapon and accepts replacement weapons only from
+## Displays the equipped weapon or an empty state and accepts weapons only from
 ## the bound player inventory. The drag payload shape is
 ## {"inventory": InventoryData, "index": int}.
 
@@ -76,11 +76,10 @@ func refresh() -> void:
 	var weapon := _equipment.equipped_weapon if _equipment != null else null
 	_icon.texture = weapon.icon if weapon != null else null
 	_name_label.text = weapon.display_name if weapon != null else ""
-	tooltip_text = weapon.display_name if weapon != null else "Equipment unavailable"
+	tooltip_text = weapon.display_name if weapon != null else "Empty equipment slot"
 
 
-## Equipment cannot be dragged out during the first migration; it can only be
-## replaced by a valid player-owned weapon.
+## Equipment cannot be dragged out; it can only be replaced from the player inventory.
 func _get_drag_data(_at_position: Vector2) -> Variant:
 	return null
 

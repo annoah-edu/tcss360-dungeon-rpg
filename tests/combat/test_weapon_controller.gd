@@ -12,6 +12,9 @@ const WEAPON_AXE: WeaponData = preload(
 const BOW: WeaponData = preload(
 	"res://resources/items/weapons/bow.tres"
 )
+const THROWING_AXE: WeaponData = preload(
+	"res://resources/items/weapons/throwing_axe.tres"
+)
 
 var controller: WeaponController
 var spawned_projectile: WeaponHitSource
@@ -145,6 +148,36 @@ func test_in_flight_arrow_keeps_bow_damage_after_an_equipment_change() -> void:
 	var parameters: Array = get_call_parameters(enemy, "take_damage", 0)
 	assert_between(parameters[0], roundi(30 * 0.85), roundi(30 * 1.15))
 	assert_eq(parameters[2], 100)
+
+
+func test_throwing_axe_commit_requests_single_use_consumption() -> void:
+	controller.equip_weapon(THROWING_AXE)
+	var behavior := controller.active_behavior as ThrowingAxeAttack
+	behavior.hit_source_spawned.connect(_capture_projectile)
+	watch_signals(controller)
+
+	behavior._throw_projectile()
+	await get_tree().process_frame
+
+	assert_not_null(spawned_projectile)
+	if spawned_projectile != null:
+		autofree(spawned_projectile)
+	assert_signal_emitted_with_parameters(
+		controller,
+		&"weapon_consumed",
+		[THROWING_AXE],
+	)
+
+
+func test_clear_weapon_removes_only_the_expected_equipped_definition() -> void:
+	controller.clear_weapon(BOW)
+	assert_same(controller.equipped_weapon, RUSTY_SWORD)
+	assert_not_null(controller.active_behavior)
+
+	controller.clear_weapon(RUSTY_SWORD)
+	assert_null(controller.equipped_weapon)
+	assert_null(controller.active_behavior)
+	assert_eq(controller.get_child_count(), 0)
 
 
 func _capture_projectile(projectile: WeaponHitSource) -> void:

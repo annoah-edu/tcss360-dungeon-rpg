@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3]
+
+[ext_resource type="Script" uid="uid://cj1rrl2018dmv" path="res://scripts/items/weapon_data.gd" id="1_data"]
+[ext_resource type="Texture2D" uid="uid://dya0yvv2pso6" path="res://Dungeon Tileset v1.7/frames/weapon_machete.png" id="2_texture"]
+[ext_resource type="PackedScene" path="res://scenes/combat/melee_swing_attack.tscn" id="3_behavior"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"machete"
+display_name = "Machete"
+icon = ExtResource("2_texture")
+held_texture = ExtResource("2_texture")
+base_damage = 36
+damage_variance = 0.15
+attack_interval_seconds = 0.36
+knockback_strength = 115
+grip_offset = Vector2(0, -11)
+attack_behavior_scene = ExtResource("3_behavior")
