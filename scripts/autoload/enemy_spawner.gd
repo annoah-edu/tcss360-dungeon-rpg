@@ -12,7 +12,6 @@ func _ready() -> void:
 
 ## Fill the current map with enemies at its registered ENEMY spawn points.
 func populate_map() -> void:
-	return
 	call_deferred("_spawn_multiple", "Goblin", roundi(spawn_count * 0.5))
 	call_deferred("_spawn_multiple", "Imp", roundi(spawn_count * 0.5))
 	call_deferred("_spawn_multiple", "Masked Orc", 2)
