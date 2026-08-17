@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://b1g5euuoe631v"]
+
+[ext_resource type="Script" uid="uid://vsr1guyce1dl" path="res://scripts/enemies/enemy_data.gd" id="1_wapth"]
+[ext_resource type="Texture2D" uid="uid://cdivh5uy757dr" path="res://Dungeon Tileset v1.7/frames/masked_orc_idle_anim_f0.png" id="2_wapth"]
+[ext_resource type="Texture2D" uid="uid://b5y8lypsrsgk6" path="res://Dungeon Tileset v1.7/frames/masked_orc_idle_anim_f1.png" id="3_i45ii"]
+[ext_resource type="Texture2D" uid="uid://tg0oyb86rjef" path="res://Dungeon Tileset v1.7/frames/masked_orc_idle_anim_f2.png" id="4_augaw"]
+[ext_resource type="Texture2D" uid="uid://cbduxlaew8sdf" path="res://Dungeon Tileset v1.7/frames/masked_orc_idle_anim_f3.png" id="5_rrf8r"]
+[ext_resource type="Texture2D" uid="uid://cjgo20nogxdhj" path="res://Dungeon Tileset v1.7/frames/masked_orc_run_anim_f0.png" id="6_wapth"]
+[ext_resource type="Texture2D" uid="uid://x626gt0i2j5" path="res://Dungeon Tileset v1.7/frames/masked_orc_run_anim_f1.png" id="7_i45ii"]
+[ext_resource type="Texture2D" uid="uid://cclralgec1k1q" path="res://Dungeon Tileset v1.7/frames/masked_orc_run_anim_f2.png" id="8_augaw"]
+[ext_resource type="Texture2D" uid="uid://c21tgewh7xav3" path="res://Dungeon Tileset v1.7/frames/masked_orc_run_anim_f3.png" id="9_rrf8r"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ecwtn"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_wapth")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_i45ii")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_augaw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_rrf8r")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_wapth")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_i45ii")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_augaw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_rrf8r")
+}],
+"loop": true,
+"name": &"moving",
+"speed": 10.0
+}]
+
+[resource]
+script = ExtResource("1_wapth")
+name = "Masked Orc"
+max_health = 250
+speed = 50.0
+atk_dmg = 25
+atk_rate = 0.5
+sprite_frames = SubResource("SpriteFrames_ecwtn")
+metadata/_custom_type_script = "uid://vsr1guyce1dl"
