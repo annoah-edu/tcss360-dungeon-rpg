@@ -1,12 +1,14 @@
 extends CharacterBody2D
 class_name Enemy
 
-@export var los_radius: int = 75
+@export var data: EnemyData
+
 @export var max_health: int = 100
-@export var atk_dmg: int = 15
-@export var knockback_recovery_spd: int = 500
-@export var atk_rate: float = 0.5
 @export var speed: float = 80.0
+@export var atk_dmg: int = 35
+@export var atk_rate: float = 1.0
+@export var los_radius: int = 75
+@export var knockback_recovery_spd: int = 500
 
 @export var wander_radius: float = 300.0
 @export var min_wait: float = 2.0
@@ -24,8 +26,20 @@ var start_position: Vector2
 var is_waiting: bool = false
 var knockback_velocity: Vector2 = Vector2.ZERO # Used on top of navigation to apply knockback
 var found_player = false # Not associated with line of sight. Will chase the player once attacked permanently
+var spawner: EnemySpawner # A reference for the enemy spawner in case enemies want to use it
+
+func _initialize_values() -> void:
+	max_health = data.max_health
+	speed = data.speed
+	atk_dmg = data.atk_dmg
+	atk_rate = data.atk_rate
+	los_radius = data.los_radius
+	knockback_recovery_spd = data.knockback_recovery_spd
+	animation.sprite_frames = data.sprite_frames
+	animation.play("idle")
 
 func _ready() -> void:
+	_initialize_values()
 	health = max_health
 	
 	# Hide the healthbar initially, and set its max value
@@ -54,19 +68,18 @@ func _physics_process(delta: float) -> void:
 		var dist_to_player: float = global_position.distance_to(GameState.player.global_position)
 		if dist_to_player < los_radius or found_player == true:
 			nav_agent.target_position = GameState.player.global_position
+			is_waiting = false
 			animation.play("moving")
 			_attack_loop(dist_to_player)
-	elif is_waiting:
-		return
-	elif nav_agent.is_navigation_finished(): # If the navigation path is finished, find a new target position
+	if nav_agent.is_navigation_finished() and not is_waiting: # If the navigation path is finished, find a new target position
 		_wait_then_pick_new_target()
 		return
 	
 	# Determine the next point in the navigation path, and move there
-	var next_point: Vector2 = nav_agent.get_next_path_position()
-	var direction: Vector2 = global_position.direction_to(next_point)
-	nav_agent.set_velocity(direction * speed)
-
+	if not nav_agent.is_navigation_finished():
+		var next_point: Vector2 = nav_agent.get_next_path_position()
+		var direction: Vector2 = global_position.direction_to(next_point)
+		nav_agent.set_velocity(direction * speed)
 
 func _process(delta: float) -> void:
 	atk_cooldown -= delta
@@ -115,6 +128,8 @@ func take_damage(amount: int, source: Vector2, knockback_strength: int) -> void:
 	
 	health -= amount
 	if health <= 0:
+		Stats.add_kill()
+		death_behavior()
 		queue_free()
 		return
 	
@@ -129,6 +144,7 @@ func take_damage(amount: int, source: Vector2, knockback_strength: int) -> void:
 	
 	found_player = true # Target the player after taking damage
 
+## The attack loop that an enemy needs to constantly call when targetting a player.
 func _attack_loop(dist_to_player: float) -> void:
 	if atk_cooldown > 0:
 		return
@@ -136,3 +152,7 @@ func _attack_loop(dist_to_player: float) -> void:
 		var total_damage: int = round(atk_dmg * randf_range(0.80, 1.20)) # 20% random damage deviation per attack
 		GameState.player.take_damage(total_damage)
 		atk_cooldown = atk_rate
+
+## Overrideable death behavior function.
+func death_behavior() -> void:
+	pass

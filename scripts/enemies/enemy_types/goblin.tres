@@ -1,0 +1,54 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://dd67v6t1oa8m8"]
+
+[ext_resource type="Script" uid="uid://vsr1guyce1dl" path="res://scripts/enemies/enemy_data.gd" id="1_fe3np"]
+[ext_resource type="Texture2D" uid="uid://b60g1cqq63gqg" path="res://Dungeon Tileset v1.7/frames/goblin_idle_anim_f0.png" id="2_8wtfg"]
+[ext_resource type="Texture2D" uid="uid://bhk2qfrx0qg1y" path="res://Dungeon Tileset v1.7/frames/goblin_idle_anim_f1.png" id="3_3r5ap"]
+[ext_resource type="Texture2D" uid="uid://dot46sk54fuj1" path="res://Dungeon Tileset v1.7/frames/goblin_idle_anim_f2.png" id="4_acxra"]
+[ext_resource type="Texture2D" uid="uid://se6cg36cnpad" path="res://Dungeon Tileset v1.7/frames/goblin_idle_anim_f3.png" id="5_afyw6"]
+[ext_resource type="Texture2D" uid="uid://byc6ix4wqtq2y" path="res://Dungeon Tileset v1.7/frames/goblin_run_anim_f0.png" id="6_cipbf"]
+[ext_resource type="Texture2D" uid="uid://dt2p76ner7lms" path="res://Dungeon Tileset v1.7/frames/goblin_run_anim_f1.png" id="7_vbd6t"]
+[ext_resource type="Texture2D" uid="uid://dgvqas3u6fem4" path="res://Dungeon Tileset v1.7/frames/goblin_run_anim_f2.png" id="8_3jmix"]
+[ext_resource type="Texture2D" uid="uid://cm2mp2aquek1m" path="res://Dungeon Tileset v1.7/frames/goblin_run_anim_f3.png" id="9_8x1mg"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_8wtfg"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_8wtfg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_3r5ap")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_acxra")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_afyw6")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_cipbf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_vbd6t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_3jmix")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_8x1mg")
+}],
+"loop": true,
+"name": &"moving",
+"speed": 10.0
+}]
+
+[resource]
+script = ExtResource("1_fe3np")
+speed = 40.0
+sprite_frames = SubResource("SpriteFrames_8wtfg")
+metadata/_custom_type_script = "uid://vsr1guyce1dl"

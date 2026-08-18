@@ -32,6 +32,9 @@ const CONNECTOR_HORIZONTAL_SCENE := preload("res://scenes/rooms/connector_east_w
 @export var randomize_seed: bool = true
 @export var player_scene: PackedScene
 @export var chest_scene: PackedScene
+## Dropped into the room furthest from the start so the sole way out sits at a layout
+## edge. Reaching it ends the run and opens the statistics summary.
+@export var exit_scene: PackedScene
 
 @export_group("Visibility")
 ## Master switch: off leaves the whole dungeon lit, which is handy while authoring
@@ -119,8 +122,20 @@ var _track_accumulator := 0.0
 ## into a new tile, so this gates the per-frame work down to roughly six updates a
 ## second at walking speed.
 var _last_tile := Vector2i(2147483647, 2147483647)
+## Room-exploration tracking, independent of the fog so it works with fog disabled.
+## `_visited_rooms` holds the minimap-room indices already counted this run.
+var _explore_last_tile := Vector2i(2147483647, 2147483647)
+var _visited_rooms: Dictionary = {}
 
 func _ready() -> void:
+	# When launched from the start screen, take the seed it staged and open a tracked run.
+	# Run standalone in the editor there is no request, so the exported seed is used and
+	# no statistics are recorded.
+	if Stats.run_requested:
+		Stats.run_requested = false
+		randomize_seed = Stats.pending_randomize
+		map_seed = Stats.pending_seed
+		Stats.begin_run()
 	if randomize_seed:
 		map_seed = randi()
 	build()
@@ -147,11 +162,17 @@ func build() -> void:
 	visibility.reset()
 	_blockers.clear()
 	_masked_layers.clear()
+	_visited_rooms.clear()
+	_explore_last_tile = Vector2i(2147483647, 2147483647)
 	_mm_rooms.clear()
 	_mm_connectors.clear()
 	_mm_chests.clear()
 
 	var start_room: Room = null
+	# Room whose origin sits furthest (Chebyshev) from the start at the origin — the
+	# layout edge where the single exit goes.
+	var exit_room: Room = null
+	var exit_dist := -1
 	for pl in placements:
 		if pl.template.scene == null:
 			continue
@@ -166,6 +187,11 @@ func build() -> void:
 		_record_minimap_room(room, pl.origin)
 		if start_room == null and pl.template.has_tag(&"start"):
 			start_room = room
+		elif not pl.template.has_tag(&"start"):
+			var dist := maxi(absi(pl.origin.x), absi(pl.origin.y))
+			if dist > exit_dist:
+				exit_dist = dist
+				exit_room = room
 
 	# Corridors joining the rooms. Built after the rooms so a connector never registers
 	# blockers a room then overwrites; each is its own Room node, so the fog and seen-mask
@@ -175,8 +201,20 @@ func build() -> void:
 
 	_spawn_player(start_room)
 	_spawn_chests()
+	# Fall back to the start room if the layout produced no other room, so there is
+	# always exactly one exit.
+	_spawn_exit(exit_room if exit_room != null else start_room)
 	if director != null:
 		director.populate()
+	# The enemy spawner is an autoload, so it can't spawn itself onto a map that only
+	# exists now; drive it from here once the ENEMY spawn points are registered.
+	var enemy_spawner := get_node_or_null("/root/EnemySpawner")
+	if enemy_spawner != null:
+		enemy_spawner.populate_map()
+	# The pillar spawner is an autoload too.
+	var pillar_spawner := get_node_or_null("/root/PillarSpawner")
+	if pillar_spawner != null:
+		pillar_spawner.populate_map()
 	_setup_fog()
 	_setup_starfield()
 	_setup_minimap()
@@ -292,6 +330,7 @@ func _apply_seen_mask() -> void:
 
 func _process(delta: float) -> void:
 	_refresh_visibility(false)
+	_update_exploration()
 	# The dissolve runs on wall-clock time, so it has to tick every frame — unlike the
 	# CPU field of view, which only changes when the player crosses a tile boundary.
 	if _fov != null:
@@ -489,6 +528,38 @@ func _setup_minimap() -> void:
 	_minimap.margin = minimap_margin
 	add_child(_minimap)
 	_minimap.setup(_mm_rooms, _mm_connectors, _mm_chests, _player)
+
+## Count each room the first time the player steps into its footprint. Runs off the
+## player's tile independently of the fog, so exploration is tracked even with fog off.
+## The delegated add_room() is a no-op when no run is active, so this is harmless in the
+## editor's standalone map.
+func _update_exploration() -> void:
+	if _player == null or not is_instance_valid(_player):
+		return
+	var tile := world_to_tile(_player.global_position)
+	if tile == _explore_last_tile:
+		return
+	_explore_last_tile = tile
+	for i in _mm_rooms.size():
+		if _visited_rooms.has(i):
+			continue
+		var bounds: Rect2i = _mm_rooms[i]["bounds"]
+		if bounds.has_point(tile):
+			_visited_rooms[i] = true
+			Stats.add_room()
+
+## Place the single dungeon exit at the given room's centre.
+func _spawn_exit(room: Room) -> void:
+	if exit_scene == null or room == null:
+		if exit_scene == null:
+			push_warning("MapAssembler: no exit scene assigned")
+		return
+	var local := room.get_bounds()
+	var center_tiles := Vector2(local.position) + Vector2(local.size) * 0.5
+	var center := room.global_position + center_tiles * Room.TILE_SIZE
+	var exit := exit_scene.instantiate()
+	add_child(exit)
+	exit.global_position = center
 
 ## World tile the given point falls in, for driving the field of view from a node's
 ## position.

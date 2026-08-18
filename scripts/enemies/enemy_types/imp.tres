@@ -1,0 +1,59 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://6ov4sy2yqgyh"]
+
+[ext_resource type="Script" uid="uid://vsr1guyce1dl" path="res://scripts/enemies/enemy_data.gd" id="1_0fxyq"]
+[ext_resource type="Script" uid="uid://bdpqgbnmbp0h7" path="res://scripts/enemies/enemy.gd" id="1_g6aee"]
+[ext_resource type="Texture2D" uid="uid://mxxn5sk13yla" path="res://Dungeon Tileset v1.7/frames/imp_idle_anim_f0.png" id="2_0fxyq"]
+[ext_resource type="Texture2D" uid="uid://bdd2xtffs0xwk" path="res://Dungeon Tileset v1.7/frames/imp_idle_anim_f1.png" id="3_g6aee"]
+[ext_resource type="Texture2D" uid="uid://be0f7yfio3qxq" path="res://Dungeon Tileset v1.7/frames/imp_idle_anim_f2.png" id="4_8j5ea"]
+[ext_resource type="Texture2D" uid="uid://dave8cpdijtxt" path="res://Dungeon Tileset v1.7/frames/imp_idle_anim_f3.png" id="5_sd2q0"]
+[ext_resource type="Texture2D" uid="uid://belxsykj4n0j8" path="res://Dungeon Tileset v1.7/frames/imp_run_anim_f0.png" id="6_0fxyq"]
+[ext_resource type="Texture2D" uid="uid://fxn7ccgp7i05" path="res://Dungeon Tileset v1.7/frames/imp_run_anim_f1.png" id="7_g6aee"]
+[ext_resource type="Texture2D" uid="uid://bax5dh6xfeh11" path="res://Dungeon Tileset v1.7/frames/imp_run_anim_f2.png" id="8_8j5ea"]
+[ext_resource type="Texture2D" uid="uid://d00jsb4mytr04" path="res://Dungeon Tileset v1.7/frames/imp_run_anim_f3.png" id="9_sd2q0"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_iny7a"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_0fxyq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_g6aee")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_8j5ea")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_sd2q0")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_0fxyq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_g6aee")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_8j5ea")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_sd2q0")
+}],
+"loop": true,
+"name": &"moving",
+"speed": 10.0
+}]
+
+[resource]
+script = ExtResource("1_0fxyq")
+name = "Imp"
+max_health = 150
+speed = 75.0
+los_radius = 95
+knockback_recovery_spd = 550
+sprite_frames = SubResource("SpriteFrames_iny7a")
+metadata/_custom_type_script = "uid://vsr1guyce1dl"

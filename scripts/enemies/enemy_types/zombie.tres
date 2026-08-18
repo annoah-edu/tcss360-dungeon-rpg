@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://cgdaex44ytdy"]
+
+[ext_resource type="Script" uid="uid://br7cfp2wp08fe" path="res://scripts/enemies/zombie.gd" id="1_kijgo"]
+[ext_resource type="Script" uid="uid://vsr1guyce1dl" path="res://scripts/enemies/enemy_data.gd" id="2_xa4v5"]
+[ext_resource type="Texture2D" uid="uid://nigf3fqluvwf" path="res://Dungeon Tileset v1.7/frames/zombie_anim_f1.png" id="3_kijgo"]
+[ext_resource type="Texture2D" uid="uid://qtxnb4n3nr42" path="res://Dungeon Tileset v1.7/frames/zombie_anim_f2.png" id="4_5bmwl"]
+[ext_resource type="Texture2D" uid="uid://dev7n7ebheuc2" path="res://Dungeon Tileset v1.7/frames/zombie_anim_f3.png" id="5_ietel"]
+[ext_resource type="Texture2D" uid="uid://hq0t6k5wrqhr" path="res://Dungeon Tileset v1.7/frames/zombie_anim_f10.png" id="6_c64e5"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_irnyx"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_kijgo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_5bmwl")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_kijgo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_5bmwl")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_ietel")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_c64e5")
+}],
+"loop": true,
+"name": &"moving",
+"speed": 10.0
+}]
+
+[resource]
+script = ExtResource("2_xa4v5")
+name = "Zombie"
+enemy_behavior = ExtResource("1_kijgo")
+max_health = 200
+speed = 45.0
+atk_dmg = 34
+sprite_frames = SubResource("SpriteFrames_irnyx")
+metadata/_custom_type_script = "uid://vsr1guyce1dl"

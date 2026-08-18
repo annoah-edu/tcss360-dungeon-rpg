@@ -57,7 +57,6 @@ tile_map_data = PackedByteArray("AAD6//r/AQAAAAAAAAAFAPr/AQAAAAAAAAD6/wIAAQADAAA
 tile_set = ExtResource("5_trhxj")
 
 [node name="Decoration" type="TileMapLayer" parent="." unique_id=1394042913]
-z_index = 255
 z_as_relative = false
 y_sort_enabled = true
 tile_map_data = PackedByteArray("AAD7//v/AQAPAAIAAAAEAPv/AQAPAAIAAAAEAP//AQAPAAIAAAD7////AQAPAAIAAAD7//3/AQAPAAMAAAAEAP3/AQAPAAMAAAAEAAEAAQAPAAMAAAD7/wEAAQAPAAMAAAA=")
@@ -109,10 +108,17 @@ occluder = SubResource("OccluderPolygon2D_igfvs")
 
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=191906383]
 
-[node name="PLAYER_START" type="Marker2D" parent="SpawnPoints" unique_id=843653349]
-position = Vector2(0, -10)
+[node name="_Marker2D_6" type="Marker2D" parent="SpawnPoints" unique_id=1150606398]
 script = ExtResource("6_spawn")
-category = 0
+category = 4
+
+[node name="_Marker2D_7" type="Marker2D" parent="SpawnPoints" unique_id=1502191316]
+position = Vector2(-40, 8)
+script = ExtResource("6_spawn")
+
+[node name="_Marker2D_8" type="Marker2D" parent="SpawnPoints" unique_id=1611327542]
+position = Vector2(40, -24)
+script = ExtResource("6_spawn")
 
 [node name="NavigationRegion" type="NavigationRegion2D" parent="." unique_id=199679897]
 visible = false
