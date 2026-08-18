@@ -1,20 +1,44 @@
 [gd_scene format=3 uid="uid://cv2qujo21r36"]
 
 [ext_resource type="Script" uid="uid://bmbynj7g24k5w" path="res://scripts/props/chest.gd" id="1_ak388"]
-[ext_resource type="Texture2D" uid="uid://dkhyiv6cly5f0" path="res://Dungeon Tileset v1.7/0x72_DungeonTilesetII_v1.7.png" id="2_r8mbp"]
+[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/chest_empty_open_anim_f0.png" id="2_empty_0"]
 [ext_resource type="Texture2D" uid="uid://ci5olrs24uv2x" path="res://resources/sprites/coin.png" id="3_r8mbp"]
+[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/chest_empty_open_anim_f1.png" id="3_empty_1"]
+[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/chest_empty_open_anim_f2.png" id="4_empty_2"]
+[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/chest_full_open_anim_f0.png" id="5_full_0"]
+[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/chest_full_open_anim_f1.png" id="6_full_1"]
+[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/chest_full_open_anim_f2.png" id="7_full_2"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_cwkqr"]
-atlas = ExtResource("2_r8mbp")
-region = Rect2(304, 400, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_23d6r"]
-atlas = ExtResource("2_r8mbp")
-region = Rect2(336, 400, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_yu1gw"]
-atlas = ExtResource("2_r8mbp")
-region = Rect2(304, 416, 16, 16)
+[sub_resource type="SpriteFrames" id="SpriteFrames_chest"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_empty_0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_empty_1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_empty_2")
+}],
+"loop": false,
+"name": &"empty_open",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_full_0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_full_1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_full_2")
+}],
+"loop": false,
+"name": &"full_open",
+"speed": 8.0
+}]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_6i7qj"]
 radius = 25.0
@@ -35,12 +59,10 @@ alpha_curve = SubResource("CurveTexture_kx13f")
 
 [node name="Chest" type="Node2D" unique_id=1754500058]
 script = ExtResource("1_ak388")
-closed_texture = SubResource("AtlasTexture_cwkqr")
-open_texture = SubResource("AtlasTexture_23d6r")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1779554031]
-texture_repeat = 1
-texture = SubResource("AtlasTexture_yu1gw")
+[node name="ChestSprite" type="AnimatedSprite2D" parent="." unique_id=1779554031]
+sprite_frames = SubResource("SpriteFrames_chest")
+animation = &"full_open"
 
 [node name="InteractionArea" type="Area2D" parent="." unique_id=136344648]
 collision_mask = 2
@@ -56,3 +78,4 @@ explosiveness = 0.9
 process_material = SubResource("ParticleProcessMaterial_ak388")
 
 [connection signal="body_entered" from="InteractionArea" to="." method="_on_interaction_area_body_entered"]
+[connection signal="body_exited" from="InteractionArea" to="." method="_on_interaction_area_body_exited"]

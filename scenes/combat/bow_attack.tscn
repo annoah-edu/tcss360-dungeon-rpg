@@ -1,0 +1,54 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/bow_attack.gd" id="1_bow"]
+[ext_resource type="Texture2D" uid="uid://b12mm3jcl2qvi" path="res://Dungeon Tileset v1.7/frames/weapon_bow_2.png" id="2_drawn"]
+[ext_resource type="PackedScene" path="res://scenes/combat/arrow_projectile.tscn" id="3_projectile"]
+
+[sub_resource type="Animation" id="Animation_reset"]
+length = 0.001
+
+[sub_resource type="Animation" id="Animation_fire"]
+resource_name = "fire"
+length = 0.5
+tracks/0/type = "method"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.21666667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"values": [{
+"args": [],
+"method": &"_show_drawn"
+}, {
+"args": [],
+"method": &"_fire_projectile"
+}, {
+"args": [],
+"method": &"_show_rest"
+}]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_bow"]
+_data = {
+&"RESET": SubResource("Animation_reset"),
+&"fire": SubResource("Animation_fire")
+}
+
+[node name="BowAttack" type="Node2D"]
+position = Vector2(0, 3)
+script = ExtResource("1_bow")
+projectile_scene = ExtResource("3_projectile")
+
+[node name="RestBow" type="Sprite2D" parent="."]
+
+[node name="DrawnBow" type="Sprite2D" parent="."]
+texture = ExtResource("2_drawn")
+
+[node name="Muzzle" type="Marker2D" parent="."]
+position = Vector2(12, 0)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries/ = SubResource("AnimationLibrary_bow")

@@ -21,6 +21,7 @@ const MENU_ITEMS := [
 
 var _font: Font
 var _menu: Control
+var _invincibility_button: Button
 ## The panel currently overlaying the menu (seed/stats/settings), or null on the menu.
 var _panel: Control
 
@@ -47,6 +48,24 @@ func _build_menu() -> void:
 		var btn := _button(item["label"])
 		btn.pressed.connect(Callable(self, item["method"]))
 		box.add_child(btn)
+
+	_invincibility_button = _button("")
+	_invincibility_button.pressed.connect(_on_invincibility_pressed)
+	box.add_child(_invincibility_button)
+	_refresh_invincibility_button()
+
+
+func _on_invincibility_pressed() -> void:
+	GameState.invincibility_enabled = not GameState.invincibility_enabled
+	_refresh_invincibility_button()
+
+
+func _refresh_invincibility_button() -> void:
+	if _invincibility_button == null:
+		return
+	_invincibility_button.text = (
+		"Invincibility: ON" if GameState.invincibility_enabled else "Invincibility: OFF"
+	)
 
 # --- Start Run / seed prompt -------------------------------------------------
 
