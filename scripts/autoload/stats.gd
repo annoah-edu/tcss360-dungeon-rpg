@@ -5,13 +5,12 @@ extends Node
 ## Three jobs:
 ##   1. Hold the *pending run config* (seed + whether stats count) that the start
 ##      screen sets before loading the dungeon, so MapAssembler can read it.
-##   2. Accumulate *lifetime totals* (persisted to user://) and *this-run deltas*,
+##   2. Accumulate SQLite-backed *lifetime totals* and in-memory *this-run deltas*,
 ##      exposing the deltas to the run-summary screen as "(+num)" changes.
 ##   3. Own all the human-readable formatting — the 1K/1M/1G number abbreviation,
 ##      the feet-then-miles distance scale, and the silly Duck-distance nonsense.
 ##
-## Gameplay code just calls the add_* helpers; it never touches persistence or
-## formatting, so hooking a new stat is a one-liner at the call site plus a key here.
+## Gameplay code calls the add_* helpers and never touches persistence directly.
 
 const SAVE_PATH := "user://stats.cfg"
 const SAVE_SECTION := "lifetime"
@@ -21,21 +20,9 @@ const SAVE_SECTION := "lifetime"
 const FEET_PER_TILE := 5.0
 const FEET_PER_MILE := 5280.0
 
-## Every tracked statistic in one place. Adding a key here and a matching add_* call
-## is all a new stat needs; the start screen and run summary iterate this list, so
-## they pick up newcomers automatically.
-##   key   : storage key, also the ConfigFile key
-##   label : shown to the player
-##   kind  : how format_value renders it — "distance" (feet->miles), "time"
-##           (h/m/s) or "count" (1K/1M/1G)
-const STAT_DEFS := [
-	{"key": "distance_feet", "label": "Distance traveled", "kind": "distance"},
-	{"key": "rooms_explored", "label": "Rooms explored", "kind": "count"},
-	{"key": "chests_opened", "label": "Chests opened", "kind": "count"},
-	{"key": "enemies_killed", "label": "Enemies killed", "kind": "count"},
-	{"key": "damage_done", "label": "Damage done", "kind": "count"},
-	{"key": "time_seconds", "label": "Time in game", "kind": "time"},
-]
+## Ordered display definitions loaded from SQLite. The ConfigFile constants remain
+## only for importing statistics created by older builds.
+var statistic_definitions: Array[Dictionary] = []
 
 ## Shorthand units the Duck-distance nonsense cycles through (m / km / mi / ft / in).
 const DUCK_UNITS := ["m", "km", "mi", "ft", "in"]
@@ -69,6 +56,10 @@ var last_run_drift: float = 0.0
 var _running: bool = false
 
 func _ready() -> void:
+	if not GameDatabase.is_available():
+		push_error("Stats: SQLite database is unavailable")
+		return
+	statistic_definitions = GameDatabase.get_statistic_definitions()
 	_load()
 
 func _process(delta: float) -> void:
@@ -145,6 +136,10 @@ func clear() -> void:
 	_totals = _blank_totals()
 	_save()
 
+
+func definitions() -> Array[Dictionary]:
+	return statistic_definitions
+
 # --- Formatting --------------------------------------------------------------
 
 ## Render a value the way its stat kind wants: distance in feet/miles, time as
@@ -206,20 +201,32 @@ static func _trim(value: float) -> String:
 
 func _blank_totals() -> Dictionary:
 	var d: Dictionary = {}
-	for def in STAT_DEFS:
+	for def in statistic_definitions:
 		d[def["key"]] = 0.0
 	return d
 
 func _load() -> void:
 	_totals = _blank_totals()
-	var cfg := ConfigFile.new()
-	if cfg.load(SAVE_PATH) != OK:
+	var stored_totals := GameDatabase.get_lifetime_statistics()
+	for key in stored_totals:
+		if _totals.has(key):
+			_totals[key] = stored_totals[key]
+	_import_legacy_config()
+
+
+func _import_legacy_config() -> void:
+	if GameDatabase.metadata_value("legacy_stats_imported") == "1":
 		return
-	for def in STAT_DEFS:
-		_totals[def["key"]] = float(cfg.get_value(SAVE_SECTION, def["key"], 0.0))
+	var cfg := ConfigFile.new()
+	if cfg.load(SAVE_PATH) == OK:
+		for def in statistic_definitions:
+			_totals[def["key"]] = float(
+				cfg.get_value(SAVE_SECTION, def["key"], _totals[def["key"]])
+			)
+		if not GameDatabase.save_lifetime_statistics(_totals):
+			return
+	GameDatabase.set_metadata_value("legacy_stats_imported", "1")
 
 func _save() -> void:
-	var cfg := ConfigFile.new()
-	for key in _totals:
-		cfg.set_value(SAVE_SECTION, key, _totals[key])
-	cfg.save(SAVE_PATH)
+	if not GameDatabase.save_lifetime_statistics(_totals):
+		push_error("Stats: could not save lifetime statistics")

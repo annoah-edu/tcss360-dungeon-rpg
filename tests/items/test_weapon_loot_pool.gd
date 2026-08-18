@@ -6,7 +6,7 @@ const WEAPON_LOOT_POOL: WeaponLootPool = preload(
 
 
 func test_authored_pool_contains_25_unique_valid_weapons() -> void:
-	assert_eq(WEAPON_LOOT_POOL.weapons.size(), 25)
+	assert_eq(WEAPON_LOOT_POOL.all_weapons().size(), 25)
 	assert_true(WEAPON_LOOT_POOL.validation_errors().is_empty())
 
 

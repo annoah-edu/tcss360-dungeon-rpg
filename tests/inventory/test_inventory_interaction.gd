@@ -87,12 +87,13 @@ func test_equipment_slot_rejects_chest_items_and_non_weapons() -> void:
 
 
 func test_chest_contains_six_shared_weapon_definitions_from_the_full_pool() -> void:
-	assert_eq(Chest.STARTING_LOOT_POOL.weapons.size(), 25)
+	var pool_weapons := Chest.STARTING_LOOT_POOL.all_weapons()
+	assert_eq(pool_weapons.size(), 25)
 	assert_true(Chest.STARTING_LOOT_POOL.validation_errors().is_empty())
 	for slot_index in chest.inventory.capacity:
 		var weapon := chest.inventory.item_at(slot_index) as WeaponData
 		assert_not_null(weapon)
-		assert_true(Chest.STARTING_LOOT_POOL.weapons.has(weapon))
+		assert_true(pool_weapons.has(weapon))
 
 
 func test_equal_loot_seed_reproduces_all_six_weapons() -> void:
