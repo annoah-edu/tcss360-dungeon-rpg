@@ -138,6 +138,20 @@ func test_chest_animations_use_dedicated_empty_and_full_frame_files() -> void:
 	assert_eq(chest.sprite.frame, 0)
 
 
+func test_first_open_emits_coins_and_records_one_chest_statistic() -> void:
+	var previous_counts := Stats.pending_counts
+	Stats.pending_counts = false
+	Stats.begin_run()
+
+	chest.open()
+	chest.open()
+	var run_statistics := Stats.end_run()
+	Stats.pending_counts = previous_counts
+
+	assert_true(chest.coins.emitting)
+	assert_eq(run_statistics["chests_opened"], 1.0)
+
+
 func test_closed_chest_uses_empty_animation_after_last_item_is_removed() -> void:
 	for slot_index in chest.inventory.capacity:
 		chest.inventory.remove_item(slot_index)

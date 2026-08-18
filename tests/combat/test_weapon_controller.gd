@@ -96,6 +96,21 @@ func test_hit_request_damages_every_target_with_weapon_knockback() -> void:
 	assert_eq(parameters[2], 150)
 
 
+func test_hit_request_records_damage_in_team_run_statistics() -> void:
+	var previous_counts := Stats.pending_counts
+	Stats.pending_counts = false
+	Stats.begin_run()
+	var enemy: Enemy = double(Enemy).new()
+	controller.damage_rng.seed = 86420
+
+	controller._on_hit_requested([enemy], Vector2.ZERO, RUSTY_SWORD)
+	var parameters: Array = get_call_parameters(enemy, "take_damage", 0)
+	var run_statistics := Stats.end_run()
+	Stats.pending_counts = previous_counts
+
+	assert_eq(run_statistics["damage_done"], float(parameters[0]))
+
+
 func test_regular_sword_equips_renders_and_attacks_with_its_data() -> void:
 	controller.equip_weapon(REGULAR_SWORD)
 	var behavior := controller.active_behavior as MeleeSwingAttack

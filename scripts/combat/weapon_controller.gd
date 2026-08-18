@@ -133,3 +133,4 @@ func _on_hit_requested(
 			source_position,
 			weapon_data.knockback_strength,
 		)
+		Stats.add_damage(total_damage)

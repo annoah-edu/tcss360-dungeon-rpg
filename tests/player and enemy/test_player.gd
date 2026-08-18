@@ -1,11 +1,14 @@
 extends GutTest
 
 var player: Player
+var _previous_invincibility: bool
 
 const INPUT_ACTIONS := ["move left", "move right", "move up", "move down", "attack"]
 
 
 func before_each() -> void:
+	_previous_invincibility = GameState.invincibility_enabled
+	GameState.invincibility_enabled = true
 	player = preload("res://scenes/player/player.tscn").instantiate()
 	add_child_autofree(player)
 
@@ -13,6 +16,7 @@ func before_each() -> void:
 func after_each() -> void:
 	for action in INPUT_ACTIONS:
 		Input.action_release(action)
+	GameState.invincibility_enabled = _previous_invincibility
 
 
 func test_ready_equips_rusty_sword_through_controller() -> void:
@@ -20,6 +24,42 @@ func test_ready_equips_rusty_sword_through_controller() -> void:
 	assert_same(player.weapon_controller.equipped_weapon, player.starting_weapon)
 	assert_true(player.weapon_controller.active_behavior is MeleeSwingAttack)
 	assert_eq(player.weapon_controller.get_child_count(), 1)
+	assert_true(player.pillar_inventory.is_empty())
+	assert_not_null(player.get_node("CanvasLayer/PillarBar"))
+
+
+func test_player_is_invincible_by_default() -> void:
+	var starting_health := player.health
+
+	player.take_damage(starting_health * 2)
+
+	assert_eq(player.health, starting_health)
+	assert_false(player._dead)
+
+
+func test_player_copies_disabled_invincibility_setting_when_spawned() -> void:
+	GameState.invincibility_enabled = false
+	var vulnerable_player: Player = preload(
+		"res://scenes/player/player.tscn"
+	).instantiate()
+	add_child_autofree(vulnerable_player)
+
+	assert_false(vulnerable_player.invincible)
+
+
+func test_distance_tracking_preserves_team_run_statistics() -> void:
+	var previous_counts := Stats.pending_counts
+	Stats.pending_counts = false
+	Stats.begin_run()
+	player.global_position = Vector2.ZERO
+	player._track_distance()
+	player.global_position = Vector2(32, 0)
+
+	player._track_distance()
+	var run_statistics := Stats.end_run()
+	Stats.pending_counts = previous_counts
+
+	assert_almost_eq(run_statistics["distance_feet"], 10.0, 0.0001)
 
 
 func test_physics_process_forwards_aim_when_ready() -> void:
