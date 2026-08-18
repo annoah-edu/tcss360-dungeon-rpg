@@ -13,7 +13,7 @@ dest_files=["res://.godot/imported/pixel.ttf-ebae8dbc13a3f92eb6bab61b4528d9a8.fo
 [params]
 
 Rendering=null
-antialiasing=1
+antialiasing=0
 generate_mipmaps=false
 disable_embedded_bitmaps=true
 multichannel_signed_distance_field=false

@@ -1,13 +1,14 @@
 [gd_scene format=3 uid="uid://cv2qujo21r36"]
 
 [ext_resource type="Script" uid="uid://bmbynj7g24k5w" path="res://scripts/props/chest.gd" id="1_ak388"]
-[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/chest_empty_open_anim_f0.png" id="2_empty_0"]
+[ext_resource type="Texture2D" uid="uid://nih3lnj1g4hr" path="res://Dungeon Tileset v1.7/frames/chest_empty_open_anim_f0.png" id="2_empty_0"]
+[ext_resource type="Texture2D" uid="uid://bk46vcct6mgq0" path="res://Dungeon Tileset v1.7/frames/chest_empty_open_anim_f1.png" id="3_empty_1"]
 [ext_resource type="Texture2D" uid="uid://ci5olrs24uv2x" path="res://resources/sprites/coin.png" id="3_r8mbp"]
-[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/chest_empty_open_anim_f1.png" id="3_empty_1"]
-[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/chest_empty_open_anim_f2.png" id="4_empty_2"]
-[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/chest_full_open_anim_f0.png" id="5_full_0"]
-[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/chest_full_open_anim_f1.png" id="6_full_1"]
-[ext_resource type="Texture2D" path="res://Dungeon Tileset v1.7/frames/chest_full_open_anim_f2.png" id="7_full_2"]
+[ext_resource type="Texture2D" uid="uid://nqso4dg6hfry" path="res://Dungeon Tileset v1.7/frames/chest_empty_open_anim_f2.png" id="4_empty_2"]
+[ext_resource type="Texture2D" uid="uid://bb1c1ntgylcnn" path="res://Dungeon Tileset v1.7/frames/chest_full_open_anim_f0.png" id="5_full_0"]
+[ext_resource type="Texture2D" uid="uid://cjg561tof4oie" path="res://Dungeon Tileset v1.7/frames/chest_full_open_anim_f1.png" id="6_full_1"]
+[ext_resource type="Texture2D" uid="uid://brjoj4mn1hu8k" path="res://Dungeon Tileset v1.7/frames/chest_full_open_anim_f2.png" id="7_full_2"]
+[ext_resource type="FontFile" uid="uid://gjx27xqeqipa" path="res://resources/fonts/pixel.ttf" id="9_db0e2"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_chest"]
 animations = [{
@@ -76,6 +77,20 @@ texture = ExtResource("3_r8mbp")
 one_shot = true
 explosiveness = 0.9
 process_material = SubResource("ParticleProcessMaterial_ak388")
+
+[node name="Label" type="Label" parent="." unique_id=461686283]
+offset_left = -21.0
+offset_top = -22.0
+offset_right = 21.0
+offset_bottom = -11.0
+theme_override_constants/shadow_offset_x = 4
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("9_db0e2")
+theme_override_font_sizes/font_size = 5
+text = "[E] Open"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [connection signal="body_entered" from="InteractionArea" to="." method="_on_interaction_area_body_entered"]
 [connection signal="body_exited" from="InteractionArea" to="." method="_on_interaction_area_body_exited"]

@@ -19,6 +19,7 @@ const STARTING_LOOT_POOL: WeaponLootPool = preload(
 
 @onready var sprite: AnimatedSprite2D = $ChestSprite
 @onready var coins: GPUParticles2D = $Coins
+@onready var label: Label = $Label
 
 var is_open := false
 var inventory: InventoryData
@@ -26,6 +27,8 @@ var _loot_rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
+	label.visible = false
+	
 	if loot_seed < 0:
 		_loot_rng.randomize()
 	else:
@@ -64,8 +67,10 @@ func _animation_for_contents() -> StringName:
 func _on_interaction_area_body_entered(body: Node2D) -> void:
 	if body is Player:
 		(body as Player).enter_chest_range(self)
+		label.visible = true
 
 
 func _on_interaction_area_body_exited(body: Node2D) -> void:
 	if body is Player:
 		(body as Player).exit_chest_range(self)
+		label.visible = false
