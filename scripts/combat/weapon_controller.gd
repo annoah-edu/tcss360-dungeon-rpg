@@ -58,9 +58,9 @@ func clear_weapon(expected_weapon: WeaponData = null) -> void:
 	attack_cooldown_seconds = 0.0
 
 
-## Updates the behavior's facing while the current attack cooldown is ready.
+## Updates the behavior's facing independently of attack cooldown.
 func aim_at(world_position: Vector2) -> void:
-	if active_behavior == null or attack_cooldown_seconds > 0.0:
+	if active_behavior == null:
 		return
 	active_behavior.aim(world_position - active_behavior.global_position)
 

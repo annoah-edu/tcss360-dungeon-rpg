@@ -72,12 +72,9 @@ func test_try_attack_sets_cooldown_and_repeats_when_ready() -> void:
 	assert_true(controller.try_attack())
 
 
-func test_aim_updates_only_when_cooldown_is_ready() -> void:
+func test_aim_updates_during_attack_cooldown() -> void:
 	controller.attack_cooldown_seconds = 1.0
 	controller.active_behavior.rotation = 999.0
-	controller.aim_at(controller.active_behavior.global_position + Vector2.RIGHT)
-	assert_eq(controller.active_behavior.rotation, 999.0)
-	controller.attack_cooldown_seconds = 0.0
 	controller.aim_at(controller.active_behavior.global_position + Vector2.RIGHT)
 	assert_almost_eq(controller.active_behavior.rotation, 0.0, 0.001)
 

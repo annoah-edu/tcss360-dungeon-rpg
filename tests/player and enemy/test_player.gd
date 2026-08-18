@@ -69,11 +69,11 @@ func test_physics_process_forwards_aim_when_ready() -> void:
 	assert_ne(player.weapon_controller.active_behavior.rotation, 999.0)
 
 
-func test_physics_process_does_not_aim_during_cooldown() -> void:
+func test_physics_process_forwards_aim_during_cooldown() -> void:
 	player.weapon_controller.attack_cooldown_seconds = 1.0
 	player.weapon_controller.active_behavior.rotation = 999.0
 	player._physics_process(0.016)
-	assert_eq(player.weapon_controller.active_behavior.rotation, 999.0)
+	assert_ne(player.weapon_controller.active_behavior.rotation, 999.0)
 
 
 func test_process_forwards_held_attack_when_inventory_is_closed() -> void:
