@@ -35,6 +35,9 @@ func _initialize_values() -> void:
 	atk_rate = data.atk_rate
 	los_radius = data.los_radius
 	knockback_recovery_spd = data.knockback_recovery_spd
+	wander_radius = data.wander_radius
+	min_wait = data.min_wait
+	max_wait = data.max_wait
 	animation.sprite_frames = data.sprite_frames
 	animation.play("idle")
 

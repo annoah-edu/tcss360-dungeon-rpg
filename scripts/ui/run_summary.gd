@@ -43,7 +43,7 @@ func _ready() -> void:
 		box.add_child(_center_label("Practice run — not recorded", MUTED, 16))
 	box.add_child(_spacer(16))
 
-	for def in Stats.STAT_DEFS:
+	for def in Stats.definitions():
 		box.add_child(_summary_row(def))
 
 	# How much closer the Duck crept this run: random(0.01..1.0) * run seconds, always a

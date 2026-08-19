@@ -129,7 +129,7 @@ func _on_statistics_pressed() -> void:
 	box.add_child(_title("Statistics", 32, TEXT_COLOR))
 	box.add_child(_spacer(12))
 
-	for def in Stats.STAT_DEFS:
+	for def in Stats.definitions():
 		box.add_child(_stat_row(def["label"], Stats.format_value(Stats.lifetime(def["key"]), def["kind"])))
 
 	# The joke stat: a caption plus the live vibrating "???" value.
