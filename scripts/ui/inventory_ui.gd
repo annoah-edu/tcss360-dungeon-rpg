@@ -50,8 +50,10 @@ func bind_player(
 func toggle_player(player_inventory: InventoryData) -> void:
 	if is_open():
 		close()
+		get_tree().paused = false
 	else:
 		show_player(player_inventory)
+		get_tree().paused = true
 
 
 func show_player(player_inventory: InventoryData) -> void:
@@ -67,8 +69,10 @@ func show_player(player_inventory: InventoryData) -> void:
 func toggle_chest(player_inventory: InventoryData, chest: Chest) -> void:
 	if is_open() and active_chest == chest:
 		close()
+		get_tree().paused = false
 	else:
 		show_chest(player_inventory, chest)
+		get_tree().paused = true
 
 
 func show_chest(player_inventory: InventoryData, chest: Chest) -> void:

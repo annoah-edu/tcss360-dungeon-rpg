@@ -11,9 +11,9 @@
 [ext_resource type="Texture2D" uid="uid://t2fdmmplrwdi" path="res://Dungeon Tileset v1.7/frames/knight_f_run_anim_f3.png" id="9_run3"]
 [ext_resource type="Resource" path="res://resources/items/weapons/rusty_sword.tres" id="10_weapon_data"]
 [ext_resource type="FontFile" uid="uid://dps7gy0smej58" path="res://resources/fonts/Minecraft.ttf" id="12_fm80t"]
-[ext_resource type="Script" uid="uid://dtrcgxnaxef46" path="res://scenes/player/pillar_bar.gd" id="12_gx1jg"]
-[ext_resource type="Script" path="res://scripts/ui/inventory_ui.gd" id="13_inventory_ui"]
-[ext_resource type="Script" path="res://scripts/combat/weapon_controller.gd" id="14_weapon_controller"]
+[ext_resource type="Script" uid="uid://dtrcgxnaxef46" path="res://scripts/items/pillar_bar.gd" id="12_gx1jg"]
+[ext_resource type="Script" uid="uid://b15shoa0m4fww" path="res://scripts/ui/inventory_ui.gd" id="13_inventory_ui"]
+[ext_resource type="Script" uid="uid://w602kbg8rw12" path="res://scripts/combat/weapon_controller.gd" id="14_weapon_controller"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hitbox"]
 size = Vector2(10, 15)
@@ -99,6 +99,7 @@ corner_radius_bottom_left = 6
 corner_detail = 6
 
 [node name="Player" type="CharacterBody2D" unique_id=135659199]
+process_mode = 3
 collision_layer = 2
 script = ExtResource("1_player")
 starting_weapon = ExtResource("10_weapon_data")
@@ -115,7 +116,8 @@ animation = &"idle"
 [node name="Camera2D" type="Camera2D" parent="." unique_id=333364546]
 zoom = Vector2(5, 5)
 
-[node name="WeaponController" type="Node2D" parent="."]
+[node name="WeaponController" type="Node2D" parent="." unique_id=606004414]
+process_mode = 1
 script = ExtResource("14_weapon_controller")
 
 [node name="HealthBar" type="TextureProgressBar" parent="." unique_id=690126201]
@@ -137,7 +139,8 @@ nine_patch_stretch = true
 texture_under = SubResource("GradientTexture1D_je7p5")
 texture_progress = SubResource("GradientTexture1D_fm80t")
 
-[node name="InventoryUI" type="CanvasLayer" parent="."]
+[node name="InventoryUI" type="CanvasLayer" parent="." unique_id=1134148405]
+process_mode = 3
 script = ExtResource("13_inventory_ui")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=174190817]

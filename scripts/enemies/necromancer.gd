@@ -16,5 +16,5 @@ func _attack_loop(dist_to_player: float) -> void:
 	if summon_timer <= 0:
 		summon_timer = summon_cooldown
 		for i in range(0, randi_range(2, 3)):
-			spawner.spawn_at_position("Skeleton", global_position, 30)
+			spawner.spawn_at_position(&"skeleton", global_position, 30)
 		
