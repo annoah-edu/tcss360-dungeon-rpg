@@ -14,6 +14,17 @@ var pillar_scene: PackedScene = preload("res://scenes/props/pillar.tscn")
 func populate_map() -> void:
 	call_deferred("spawn_pillars")
 
+## Re-place a single saved pillar at an exact position, looking up its texture by name.
+## Used by MapAssembler on load instead of the random spawn_pillars() pass.
+func spawn_saved(pillar_name: String, pos: Vector2) -> void:
+	var index := pillar_names.find(pillar_name)
+	var pillar: Pillar = pillar_scene.instantiate()
+	pillar.pillar_name = pillar_name
+	if index >= 0:
+		pillar.texture = pillar_textures[index]
+	pillar.global_position = pos
+	get_tree().current_scene.add_child(pillar)
+
 func spawn_pillars() -> void:
 	var director := get_node("/root/SpawnDirector")
 	var points: Array = director.get_points(SpawnPoint.Category.ENEMY)

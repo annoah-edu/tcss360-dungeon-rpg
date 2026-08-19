@@ -34,6 +34,25 @@ func spawn_at_position(enemy_name: String, origin: Vector2, spawn_radius: float 
 	
 	return enemy
 
+## Re-create a saved enemy at an exact position with its saved health and aggro state.
+## Used by MapAssembler when restoring a save instead of the random populate_map() pass.
+func spawn_saved(enemy_name: String, pos: Vector2, health: int, found_player: bool) -> Enemy:
+	var enemy := _create_enemy(enemy_name)
+	if enemy == null:
+		return null
+	enemy.global_position = pos
+	enemy.found_player = found_player
+	get_tree().current_scene.add_child(enemy)
+	# _ready() sets health to max after _create_enemy; apply the saved value once the node
+	# is in the tree so its healthbar (an @onready child) exists to update.
+	enemy.health = health
+	if enemy.healthbar != null and health < enemy.max_health:
+		enemy.healthbar.visible = true
+		enemy.healthbar.max_value = enemy.max_health
+		enemy.healthbar.value = health
+	return enemy
+
+
 func _spawn_one(enemy_name: String) -> bool:
 	var director := get_node("/root/SpawnDirector")
 	var points: Array = director.get_points(SpawnPoint.Category.ENEMY)

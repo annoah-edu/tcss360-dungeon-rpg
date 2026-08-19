@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponLootPool" load_steps=28 format=3]
+[gd_resource type="Resource" script_class="WeaponLootPool" format=3 uid="uid://ds7hp3f81he7b"]
 
-[ext_resource type="Script" path="res://scripts/items/weapon_loot_pool.gd" id="1_pool"]
+[ext_resource type="Script" uid="uid://015s81c4p52t" path="res://scripts/items/weapon_loot_pool.gd" id="1_pool"]
 [ext_resource type="Resource" path="res://resources/items/weapons/anime_sword.tres" id="2_anime"]
 [ext_resource type="Resource" path="res://resources/items/weapons/weapon_axe.tres" id="3_axe"]
 [ext_resource type="Resource" path="res://resources/items/weapons/baton_with_spikes.tres" id="4_baton"]

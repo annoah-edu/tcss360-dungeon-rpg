@@ -150,6 +150,40 @@ func _update_current_room() -> void:
 	_current_room = found
 	_reveal_room(found)
 
+## Reveal the whole map at once: every room, connector and chest. Used by save restore
+## (fog was already fully explored) and the reveal-all potion. Centres on room 0 if the
+## view has not settled on a room yet, so it draws immediately.
+func reveal_all() -> void:
+	for ri in _rooms.size():
+		_revealed_rooms[ri] = true
+	for ci in _connectors.size():
+		_revealed_connectors[ci] = true
+	for chest in _chests:
+		chest["revealed"] = true
+	if not _has_center and not _rooms.is_empty():
+		_target_center = _rooms[0]["center"]
+		_display_center = _target_center
+		_has_center = true
+	if _canvas != null:
+		_canvas.queue_redraw()
+
+
+## Reveal every room that contains at least one of the given world tiles, plus the
+## corridors and chests those rooms touch. Used on load to restore the rooms the player had
+## already explored, from the saved seen-tile set (a Dictionary used as a Vector2i set).
+func reveal_seen_tiles(seen: Dictionary) -> void:
+	for ri in _rooms.size():
+		if _revealed_rooms.has(ri):
+			continue
+		var bounds: Rect2i = _rooms[ri]["bounds"]
+		for tile: Vector2i in seen:
+			if bounds.has_point(tile):
+				_reveal_room(ri)
+				break
+	if _canvas != null:
+		_canvas.queue_redraw()
+
+
 func _reveal_room(index: int) -> void:
 	_revealed_rooms[index] = true
 	for ci in _connectors.size():

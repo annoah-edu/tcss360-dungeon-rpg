@@ -16,6 +16,7 @@ const MUTED := Color(0.6, 0.6, 0.68)
 const MENU_ITEMS := [
 	{"label": "Start Run", "method": "_on_start_pressed"},
 	{"label": "Statistics", "method": "_on_statistics_pressed"},
+	{"label": "Controls", "method": "_on_controls_pressed"},
 	{"label": "Settings", "method": "_on_settings_pressed"},
 ]
 
@@ -44,6 +45,12 @@ func _build_menu() -> void:
 
 	box.add_child(_title("DUNGEON RPG", 48, ACCENT))
 	box.add_child(_spacer(24))
+	# Continue is only meaningful when a save exists, so it is added ahead of the fixed
+	# menu items rather than living in MENU_ITEMS.
+	if SaveManager.has_save():
+		var continue_btn := _button("Continue")
+		continue_btn.pressed.connect(_on_continue_pressed)
+		box.add_child(continue_btn)
 	for item in MENU_ITEMS:
 		var btn := _button(item["label"])
 		btn.pressed.connect(Callable(self, item["method"]))
@@ -121,6 +128,18 @@ func _launch_with_text(text: String) -> void:
 
 func _enter_dungeon() -> void:
 	get_tree().change_scene_to_file(MAP_SCENE)
+
+# --- Continue / Controls -----------------------------------------------------
+
+func _on_continue_pressed() -> void:
+	# Stage the save; MapAssembler regenerates the layout and overlays it on build.
+	if SaveManager.load_into_pending():
+		_enter_dungeon()
+
+func _on_controls_pressed() -> void:
+	var panel := ControlsPanel.new()
+	panel.setup(func() -> void: _show_panel(null))
+	_show_panel(panel)
 
 # --- Statistics --------------------------------------------------------------
 

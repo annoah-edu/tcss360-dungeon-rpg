@@ -18,6 +18,12 @@ uniform sampler2D previous : filter_nearest, repeat_disable;
 // False on the first pass of a new dungeon, so stale memory is not carried in.
 uniform bool use_previous = true;
 
+// One-shot injected memory: a save's restored "ever seen" set, or the reveal-all potion's
+// full white. Folded in with max() for a single pass, then use_seed is cleared so the
+// normal accumulation continues from the seeded state.
+uniform sampler2D seed : filter_nearest, repeat_disable;
+uniform bool use_seed = false;
+
 // World tile of the blocker texture's (0,0), and its size in tiles.
 uniform vec2 grid_origin;
 uniform vec2 grid_size;
@@ -202,6 +208,7 @@ void fragment() {
     vec2 world = floor(field_origin + UV * field_size) + vec2(0.5);
     float lit = visibility_at(world);
     float prev = use_previous ? texture(previous, UV).r : 0.0;
-    float acc = max(prev, lit);
+    float injected = use_seed ? texture(seed, UV).r : 0.0;
+    float acc = max(max(prev, lit), injected);
     COLOR = vec4(acc, acc, acc, 1.0);
 }
