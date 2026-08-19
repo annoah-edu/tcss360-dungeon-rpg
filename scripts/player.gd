@@ -86,6 +86,40 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("ui_cancel") and inventory_ui.is_open():
 		inventory_ui.close()
 		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("visibility"):
+		# Debug "Potion of Visibility": reveal the whole map. The player is a child of the
+		# MapAssembler (see _spawn_player), which owns the fog and minimap.
+		var map := get_parent()
+		if map != null and map.has_method("reveal_all_map"):
+			map.reveal_all_map()
+		get_viewport().set_input_as_handled()
+
+
+## Restore this player from a save payload (see SaveManager). Called by MapAssembler after
+## the map is built and _ready() has already created the inventory and equipment objects, so
+## it mutates those in place rather than replacing them.
+func apply_save(data: Dictionary) -> void:
+	health = int(data.get("health", max_health))
+	healthbar.max_value = max_health
+	healthbar.value = health
+	healthbar.visible = health < max_health
+
+	pillar_inventory.clear()
+	for pillar_name in data.get("pillar_inventory", []):
+		pillar_inventory.append(str(pillar_name))
+
+	var slot_paths: Array = data.get("inventory", [])
+	for i in inventory.slots.size():
+		var path := str(slot_paths[i]) if i < slot_paths.size() else ""
+		inventory.slots[i] = (load(path) as ItemData) if not path.is_empty() else null
+	inventory.inventory_changed.emit()
+
+	# Emit the change so WeaponController re-equips (or clears) through the normal path.
+	var equipped_path := str(data.get("equipped", ""))
+	var equipped: WeaponData = (load(equipped_path) as WeaponData) if not equipped_path.is_empty() else null
+	var previous := weapon_equipment.equipped_weapon
+	weapon_equipment.equipped_weapon = equipped
+	weapon_equipment.equipped_weapon_changed.emit(previous, equipped)
 
 
 func enter_chest_range(chest: Chest) -> void:

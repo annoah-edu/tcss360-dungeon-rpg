@@ -132,6 +132,28 @@ func update_from(world_position: Vector2) -> void:
 func clear_memory() -> void:
 	_primed = false
 
+## Inject a memory image into the accumulated "ever seen" texture: a save's restored fog,
+## or the reveal-all potion's full white. The image must match the memory targets' size (the
+## field's world-pixel rect). It is folded in with max() via the memory shader's `seed`
+## channel and left enabled, so the per-move accumulation keeps growing from the seeded
+## state rather than forgetting it. Re-seeding is idempotent, since memory only ever grows.
+func seed_memory(image: Image) -> void:
+	if image == null or _memory_mat.is_empty():
+		return
+	var tex := ImageTexture.create_from_image(image)
+	_push(&"seed", tex, false)
+	_push(&"use_seed", true, false)
+	# Render one pass now so the injected memory shows on the very next frame instead of
+	# waiting for the next update_from, mirroring that method's ping-pong step.
+	var next := 1 - _current
+	if next < _memory_mat.size():
+		_memory_mat[next].set_shader_parameter(&"use_previous", _primed)
+		_memory_vp[next].render_target_update_mode = SubViewport.UPDATE_ONCE
+		_current = next
+		_primed = true
+		if _fog_mat != null:
+			_fog_mat.set_shader_parameter(&"memory", _memory_vp[_current].get_texture())
+
 func set_fog_enabled(enabled: bool) -> void:
 	_push(&"fog_enabled", enabled, true)
 

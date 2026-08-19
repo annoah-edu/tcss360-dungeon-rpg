@@ -126,12 +126,20 @@ var _last_tile := Vector2i(2147483647, 2147483647)
 ## `_visited_rooms` holds the minimap-room indices already counted this run.
 var _explore_last_tile := Vector2i(2147483647, 2147483647)
 var _visited_rooms: Dictionary = {}
+## True while restoring a save: build() then skips its random enemy/pillar populate so
+## apply_save() can place the exact saved entities instead.
+var _loading := false
 
 func _ready() -> void:
-	# When launched from the start screen, take the seed it staged and open a tracked run.
-	# Run standalone in the editor there is no request, so the exported seed is used and
-	# no statistics are recorded.
-	if Stats.run_requested:
+	# A staged save wins: regenerate the exact layout from its seed, then overlay the saved
+	# dynamic state. Otherwise, when launched from the start screen, take the seed it staged
+	# and open a tracked run. Run standalone in the editor there is neither, so the exported
+	# seed is used and no statistics are recorded.
+	if not SaveManager.pending_save.is_empty():
+		_loading = true
+		map_seed = int(SaveManager.pending_save.get("map_seed", map_seed))
+		randomize_seed = false
+	elif Stats.run_requested:
 		Stats.run_requested = false
 		randomize_seed = Stats.pending_randomize
 		map_seed = Stats.pending_seed
@@ -139,6 +147,11 @@ func _ready() -> void:
 	if randomize_seed:
 		map_seed = randi()
 	build()
+	if _loading:
+		apply_save(SaveManager.pending_save)
+		SaveManager.pending_save = {}
+		_loading = false
+	_setup_pause_menu()
 
 ## Generate and assemble a dungeon. Safe to call again to rebuild.
 func build() -> void:
@@ -207,14 +220,17 @@ func build() -> void:
 	if director != null:
 		director.populate()
 	# The enemy spawner is an autoload, so it can't spawn itself onto a map that only
-	# exists now; drive it from here once the ENEMY spawn points are registered.
-	var enemy_spawner := get_node_or_null("/root/EnemySpawner")
-	if enemy_spawner != null:
-		enemy_spawner.populate_map()
-	# The pillar spawner is an autoload too.
-	var pillar_spawner := get_node_or_null("/root/PillarSpawner")
-	if pillar_spawner != null:
-		pillar_spawner.populate_map()
+	# exists now; drive it from here once the ENEMY spawn points are registered. When
+	# restoring a save, apply_save() places the exact saved enemies/pillars instead, so the
+	# random populate passes are skipped.
+	if not _loading:
+		var enemy_spawner := get_node_or_null("/root/EnemySpawner")
+		if enemy_spawner != null:
+			enemy_spawner.populate_map()
+		# The pillar spawner is an autoload too.
+		var pillar_spawner := get_node_or_null("/root/PillarSpawner")
+		if pillar_spawner != null:
+			pillar_spawner.populate_map()
 	_setup_fog()
 	_setup_starfield()
 	_setup_minimap()
@@ -628,3 +644,111 @@ func _spawn_chests() -> void:
 			"tile": world_to_tile(point.global_position),
 			"revealed": false,
 		})
+
+# --- Save / load -------------------------------------------------------------
+
+## Overlay a save's dynamic state onto the freshly (re)generated layout. Called from
+## _ready() right after build(), so the player, chests, spawn points and fog all exist.
+func apply_save(data: Dictionary) -> void:
+	if _player != null and is_instance_valid(_player) and _player.has_method("apply_save"):
+		var pdata: Dictionary = data.get("player", {})
+		_player.apply_save(pdata)
+		if pdata.has("pos"):
+			_player.global_position = pdata["pos"]
+
+	_restore_chests(data.get("chests", []))
+
+	var enemy_spawner := get_node_or_null("/root/EnemySpawner")
+	if enemy_spawner != null:
+		for e in data.get("enemies", []):
+			enemy_spawner.spawn_saved(
+				str(e.get("type", "")),
+				e.get("pos", Vector2.ZERO),
+				int(e.get("health", 1)),
+				bool(e.get("found_player", false)),
+			)
+
+	var pillar_spawner := get_node_or_null("/root/PillarSpawner")
+	if pillar_spawner != null:
+		for p in data.get("pillars_remaining", []):
+			pillar_spawner.spawn_saved(str(p.get("name", "")), p.get("pos", Vector2.ZERO))
+
+	_restore_fog(data.get("seen_cells", []))
+	Stats.restore_run_state(data.get("stats_run", {}))
+
+## Match saved chest state to the deterministically re-spawned chests by spawn (child)
+## order, overwriting the random loot each chest rolled in its own _ready().
+func _restore_chests(chest_saves: Array) -> void:
+	var i := 0
+	for child in get_children():
+		if not (child is Chest):
+			continue
+		if i < chest_saves.size():
+			_apply_chest_save(child as Chest, chest_saves[i])
+		i += 1
+
+func _apply_chest_save(chest: Chest, save: Dictionary) -> void:
+	if chest.inventory == null:
+		return
+	var items: Array = save.get("items", [])
+	for si in chest.inventory.slots.size():
+		var path := str(items[si]) if si < items.size() else ""
+		chest.inventory.slots[si] = (load(path) as ItemData) if not path.is_empty() else null
+	chest.is_open = bool(save.get("is_open", false))
+	# Refresh the sprite to the correct animation/frame for its contents and open-state,
+	# without re-running open() (which would re-count the chest and replay the coin effect).
+	chest.inventory.inventory_changed.emit()
+
+## Restore explored fog from the saved seen-tile set: the CPU visibility (gameplay), the GPU
+## memory (the veil), and the minimap reveal all key off the same set.
+func _restore_fog(seen_cells: Array) -> void:
+	if seen_cells.is_empty():
+		return
+	var seen_set: Dictionary = {}
+	for cell in seen_cells:
+		var c := Vector2i(cell)
+		visibility.mark_seen(c)
+		seen_set[c] = true
+	if _fov != null:
+		_fov.seed_memory(_memory_image_from_seen(seen_cells))
+	if _minimap != null:
+		_minimap.reveal_seen_tiles(seen_set)
+
+## Debug "Potion of Visibility": reveal the entire map — CPU visibility, GPU veil and
+## minimap. Because the saved fog is the seen-tile set, a save taken afterwards persists the
+## reveal (the memory re-seeds fully white on reload).
+func reveal_all_map() -> void:
+	if _blockers != null and _blockers.size != Vector2i.ZERO:
+		for x in range(_blockers.origin.x, _blockers.origin.x + _blockers.size.x):
+			for y in range(_blockers.origin.y, _blockers.origin.y + _blockers.size.y):
+				visibility.mark_seen(Vector2i(x, y))
+	if _fov != null:
+		_fov.seed_memory(_full_white_memory_image())
+	if _minimap != null:
+		_minimap.reveal_all()
+
+## A tile-resolution memory seed image (one texel per tile; the memory shader samples it
+## with nearest filtering, so it upscales cleanly to the field). White where seen.
+func _memory_image_from_seen(seen_cells: Array) -> Image:
+	var w := maxi(_blockers.size.x, 1)
+	var h := maxi(_blockers.size.y, 1)
+	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 1))
+	for cell in seen_cells:
+		var t := Vector2i(cell) - _blockers.origin
+		if t.x >= 0 and t.y >= 0 and t.x < w and t.y < h:
+			img.set_pixel(t.x, t.y, Color.WHITE)
+	return img
+
+func _full_white_memory_image() -> Image:
+	var img := Image.create(maxi(_blockers.size.x, 1), maxi(_blockers.size.y, 1), false, Image.FORMAT_RGBA8)
+	img.fill(Color.WHITE)
+	return img
+
+## Instance the in-run pause menu. Added after build() (which frees all children), so it is
+## created here rather than inside build().
+func _setup_pause_menu() -> void:
+	var pause := PauseMenu.new()
+	pause.name = "PauseMenu"
+	pause.assembler = self
+	add_child(pause)

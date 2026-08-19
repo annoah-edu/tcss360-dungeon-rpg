@@ -125,6 +125,32 @@ func add_damage(amount: float) -> void:
 
 # --- Queries -----------------------------------------------------------------
 
+## Snapshot the live run so a save can resume it later: the per-run accumulators, whether
+## it counts toward lifetime totals, whether it is currently running, and the seed config.
+## Read by SaveManager; the counterpart is restore_run_state().
+func capture_run_state() -> Dictionary:
+	return {
+		"run": _run.duplicate(),
+		"counts": pending_counts,
+		"running": _running,
+		"seed": pending_seed,
+		"randomize": pending_randomize,
+	}
+
+## Re-open a run captured by capture_run_state() after a load, so the resumed run keeps
+## accumulating and the eventual summary math (deltas rolled into totals) stays correct.
+func restore_run_state(d: Dictionary) -> void:
+	_run = _blank_totals()
+	var saved_run: Dictionary = d.get("run", {})
+	for key in _run:
+		_run[key] = float(saved_run.get(key, 0.0))
+	pending_counts = bool(d.get("counts", true))
+	pending_seed = int(d.get("seed", 0))
+	pending_randomize = bool(d.get("randomize", true))
+	last_run = {}
+	_running = bool(d.get("running", true))
+
+
 func lifetime(key: String) -> float:
 	return _totals.get(key, 0.0)
 

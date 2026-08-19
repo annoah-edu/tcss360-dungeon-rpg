@@ -169,6 +169,14 @@ func _line_of_sight(from: Vector2i, to: Vector2i) -> bool:
 			return false
 	return true
 
+## Fold a cell straight into the remembered set without lighting it now. Used by save
+## restore and the reveal-all potion, which seed the "ever seen" history directly rather
+## than casting to it. Marking it confirmed too guards it against a later symmetry pass.
+func mark_seen(cell: Vector2i) -> void:
+	_seen[cell] = true
+	_confirmed_seen[cell] = true
+
+
 func _mark(cell: Vector2i) -> void:
 	_visible[cell] = true
 	_seen[cell] = true
